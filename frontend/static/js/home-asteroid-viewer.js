@@ -49,7 +49,7 @@ function initAsteroidViewer() {
     container.appendChild(asteroidRenderer.domElement);
 
     // Create asteroid
-    createDetailedAsteroid();
+    createEnhancedAsteroid();
 
     // Create starfield
     createStarfield();
@@ -66,7 +66,23 @@ function initAsteroidViewer() {
     console.log('✅ Asteroid viewer initialized successfully!');
 }
 
-// Create detailed asteroid with realistic features
+// Create enhanced asteroid using the asteroid model from assets
+function createEnhancedAsteroid() {
+    console.log('🪨 Creating enhanced asteroid for home page...');
+    
+    // Use the existing asteroid model if available
+    if (typeof window.createAmazingAsteroid === 'function') {
+        asteroidMesh = window.createAmazingAsteroid(ASTEROID_VIEWER_CONFIG.asteroidSize, {x: 0, y: 0, z: 0});
+        asteroidScene.add(asteroidMesh);
+        console.log('✅ Enhanced asteroid created using asset model!');
+        return;
+    }
+    
+    // Fallback to detailed asteroid
+    createDetailedAsteroid();
+}
+
+// Create detailed asteroid with realistic features (fallback)
 function createDetailedAsteroid() {
     console.log('🪨 Creating detailed asteroid...');
 

@@ -399,8 +399,16 @@ class NASAAsteroidSystem {
     }
 
     setupControls() {
-        // Enhanced orbit controls
-        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+        // Enhanced orbit controls - check for OrbitControls availability
+        if (typeof OrbitControls !== 'undefined') {
+            this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        } else if (typeof THREE !== 'undefined' && THREE.OrbitControls) {
+            this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+        } else {
+            console.warn('OrbitControls not available, using basic camera controls');
+            this.setupBasicControls();
+            return;
+        }
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
         this.controls.enableZoom = true;
@@ -410,6 +418,40 @@ class NASAAsteroidSystem {
         this.controls.maxDistance = 200;
         this.controls.minDistance = 3;
         this.controls.maxPolarAngle = Math.PI;
+    }
+    
+    setupBasicControls() {
+        // Basic mouse controls without OrbitControls
+        let isMouseDown = false;
+        let mouseX = 0, mouseY = 0;
+        
+        this.renderer.domElement.addEventListener('mousedown', (event) => {
+            isMouseDown = true;
+            mouseX = event.clientX;
+            mouseY = event.clientY;
+        });
+        
+        this.renderer.domElement.addEventListener('mouseup', () => {
+            isMouseDown = false;
+        });
+        
+        this.renderer.domElement.addEventListener('mousemove', (event) => {
+            if (!isMouseDown) return;
+            
+            const deltaX = event.clientX - mouseX;
+            const deltaY = event.clientY - mouseY;
+            
+            this.camera.position.x += deltaX * 0.01;
+            this.camera.position.y -= deltaY * 0.01;
+            
+            mouseX = event.clientX;
+            mouseY = event.clientY;
+        });
+        
+        this.renderer.domElement.addEventListener('wheel', (event) => {
+            const zoom = event.deltaY > 0 ? 1.1 : 0.9;
+            this.camera.position.multiplyScalar(zoom);
+        });
     }
 
     animate() {

@@ -36,7 +36,7 @@ class AsteroidImpactSimulator {
         this.resultsPanel = null;
         
         // API Base URL
-        this.apiBaseUrl = '/api';
+        this.apiBaseUrl = 'http://127.0.0.1:5000/api';
         
         this.init();
     }
@@ -160,10 +160,16 @@ class AsteroidImpactSimulator {
     async loadEarthModel() {
         try {
             // Try to load the enhanced Earth model from Assets
-            if (window.EarthModelAssets) {
+            if (typeof createEarthModel === 'function') {
                 const textureLoader = new THREE.TextureLoader();
-                const earthGroup = await new Promise((resolve) => {
-                    window.EarthModelAssets.createEarthModel(textureLoader, resolve);
+                const earthGroup = await new Promise((resolve, reject) => {
+                    createEarthModel(textureLoader, (earth) => {
+                        if (earth) {
+                            resolve(earth);
+                        } else {
+                            reject(new Error('Earth model creation failed'));
+                        }
+                    });
                 });
                 
                 if (earthGroup) {
@@ -171,7 +177,7 @@ class AsteroidImpactSimulator {
                     this.earth.scale.setScalar(2);
                     this.earth.name = 'Earth';
                     this.scene.add(this.earth);
-                    console.log('✅ Enhanced Earth model loaded');
+                    console.log('✅ Enhanced Earth model loaded from Assets');
                     return;
                 }
             }
