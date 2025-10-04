@@ -158,12 +158,8 @@ function createEarthModel(textureLoader, onComplete) {
             texture.minFilter = THREE.LinearMipmapLinearFilter;
             texture.magFilter = THREE.LinearFilter;
             
-            const earthMaterial = new THREE.MeshPhongMaterial({
+            const earthMaterial = new THREE.MeshLambertMaterial({
                 map: texture,
-                shininess: 100,
-                specular: new THREE.Color(0x222222),
-                emissive: new THREE.Color(0x001122),
-                emissiveIntensity: 0.05,
                 transparent: false,
                 alphaTest: 0
             });
@@ -221,11 +217,10 @@ function createEarthModel(textureLoader, onComplete) {
             texture.minFilter = THREE.LinearMipmapLinearFilter;
             texture.magFilter = THREE.LinearFilter;
             
-            const cloudsMaterial = new THREE.MeshStandardMaterial({
+            const cloudsMaterial = new THREE.MeshLambertMaterial({
                 map: texture,
                 transparent: true,
-                opacity: 0.9,
-                blending: THREE.AdditiveBlending,
+                opacity: 0.7,
                 alphaTest: 0.1
             });
             

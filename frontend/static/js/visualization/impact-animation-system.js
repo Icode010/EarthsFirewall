@@ -46,23 +46,32 @@ class ImpactAnimationSystem {
 
     // Phase 1: Animate asteroid approaching Earth
     async animatePreImpactTrajectory(asteroidData, impactParams) {
-        console.log('🚀 Phase 1: Pre-impact trajectory animation...');
+        console.log('Phase 1: Pre-impact trajectory animation...');
         
         if (!this.simulation.asteroid || !this.simulation.trajectorySystem) {
-            console.warn('⚠️ Asteroid or trajectory system not available');
+            console.warn('Asteroid or trajectory system not available');
+            console.log('Asteroid available:', !!this.simulation.asteroid);
+            console.log('Trajectory system available:', !!this.simulation.trajectorySystem);
             return;
         }
 
         // Get trajectory points
         const trajectoryPoints = this.simulation.trajectorySystem.getTrajectoryPoints(asteroidData);
+        console.log('Trajectory points available:', trajectoryPoints.length);
+        
+        if (trajectoryPoints.length === 0) {
+            console.warn('No trajectory points available');
+            return;
+        }
         
         // Create approach trajectory (last portion)
         const approachPoints = trajectoryPoints.slice(-50); // Last 50 points
+        console.log('Using approach points:', approachPoints.length);
         
         // Animate asteroid along approach trajectory
         await this.animateAsteroidAlongPath(this.simulation.asteroid, approachPoints, 4000);
         
-        console.log('✅ Pre-impact trajectory animation completed');
+        console.log('Pre-impact trajectory animation completed');
     }
 
     // Phase 2: Impact sequence with realistic physics
@@ -102,9 +111,20 @@ class ImpactAnimationSystem {
 
     // Animate asteroid along a path with smooth motion
     async animateAsteroidAlongPath(asteroidMesh, pathPoints, duration) {
+        console.log('Starting asteroid animation along path...');
+        console.log('Asteroid mesh:', asteroidMesh);
+        console.log('Path points:', pathPoints.length);
+        console.log('Duration:', duration);
+        
         return new Promise((resolve) => {
             const startTime = Date.now();
             const totalPoints = pathPoints.length;
+            
+            if (totalPoints === 0) {
+                console.warn('No path points provided for animation');
+                resolve();
+                return;
+            }
             
             const animate = () => {
                 const elapsed = Date.now() - startTime;
@@ -114,7 +134,7 @@ class ImpactAnimationSystem {
                 const easedProgress = this.easeInOutCubic(progress);
                 const pointIndex = Math.floor(easedProgress * (totalPoints - 1));
                 
-                if (pointIndex < totalPoints) {
+                if (pointIndex < totalPoints && asteroidMesh) {
                     const point = pathPoints[pointIndex];
                     asteroidMesh.position.copy(point);
                     
@@ -134,6 +154,7 @@ class ImpactAnimationSystem {
                 if (progress < 1) {
                     requestAnimationFrame(animate);
                 } else {
+                    console.log('Asteroid animation completed');
                     resolve();
                 }
             };

@@ -68,9 +68,9 @@ function initAsteroidViewer() {
 
 // Create enhanced asteroid using the asteroid model from assets
 function createEnhancedAsteroid() {
-    console.log('🪨 Creating enhanced asteroid for home page...');
+    console.log('Creating ultra-realistic asteroid for home page...');
     
-    // Use the existing asteroid model if available
+    // Use the ultra-realistic asteroid model if available
     if (typeof window.createAmazingAsteroid === 'function') {
         homeAsteroidMesh = window.createAmazingAsteroid(ASTEROID_VIEWER_CONFIG.asteroidSize, {x: 0, y: 0, z: 0});
         asteroidScene.add(homeAsteroidMesh);
@@ -79,7 +79,7 @@ function createEnhancedAsteroid() {
         const trail = window.createAsteroidTrail(asteroidScene, homeAsteroidMesh);
         const particles = window.createAsteroidParticles(asteroidScene, homeAsteroidMesh);
         
-        console.log('✅ Enhanced asteroid created using asset model!');
+        console.log('Ultra-realistic asteroid created successfully!');
         return;
     }
     

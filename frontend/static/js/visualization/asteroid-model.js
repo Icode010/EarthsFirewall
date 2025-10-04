@@ -1,19 +1,77 @@
-// 🪨 Amazing Asteroid Model - Based on provided code
-console.log('🪨 Loading amazing asteroid model...');
+// Ultra Realistic Asteroid Model - Based on provided ultra-realistic code
+console.log('Loading ultra-realistic asteroid model...');
 
-// Create amazing asteroid with realistic features using the provided code
+// Simplex-like noise function for ultra-realistic terrain
+function noise3D(x, y, z) {
+    const X = Math.floor(x) & 255;
+    const Y = Math.floor(y) & 255;
+    const Z = Math.floor(z) & 255;
+    
+    x -= Math.floor(x);
+    y -= Math.floor(y);
+    z -= Math.floor(z);
+    
+    const u = fade(x);
+    const v = fade(y);
+    const w = fade(z);
+    
+    const A = (X + Y * 57 + Z * 131) * 13;
+    const B = (X + 1 + Y * 57 + Z * 131) * 13;
+    
+    return lerp(w, 
+        lerp(v, 
+            lerp(u, grad(A, x, y, z), grad(B, x - 1, y, z)),
+            lerp(u, grad(A + 57, x, y - 1, z), grad(B + 57, x - 1, y - 1, z))
+        ),
+        lerp(v,
+            lerp(u, grad(A + 131, x, y, z - 1), grad(B + 131, x - 1, y, z - 1)),
+            lerp(u, grad(A + 188, x, y - 1, z - 1), grad(B + 188, x - 1, y - 1, z - 1))
+        )
+    );
+}
+
+function fade(t) {
+    return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+function lerp(t, a, b) {
+    return a + t * (b - a);
+}
+
+function grad(hash, x, y, z) {
+    const h = hash & 15;
+    const u = h < 8 ? x : y;
+    const v = h < 4 ? y : h === 12 || h === 14 ? x : z;
+    return ((h & 1) === 0 ? u : -u) + ((h & 2) === 0 ? v : -v);
+}
+
+function fbm(x, y, z, octaves) {
+    let value = 0;
+    let amplitude = 1;
+    let frequency = 1;
+    let maxValue = 0;
+    
+    for (let i = 0; i < octaves; i++) {
+        value += noise3D(x * frequency, y * frequency, z * frequency) * amplitude;
+        maxValue += amplitude;
+        amplitude *= 0.5;
+        frequency *= 2;
+    }
+    
+    return value / maxValue;
+}
+
+// Create ultra-realistic asteroid with advanced procedural generation
 function createAmazingAsteroid(diameter = 0.02, position = {x: 0, y: 0, z: 3}) {
-    console.log('🪨 Creating amazing asteroid...');
+    console.log('Creating ultra-realistic asteroid...');
     
-    // Create asteroid with high detail smooth geometry
-    const geometry = new THREE.SphereGeometry(diameter / 2, 128, 128);
-    
-    // Add natural random variation to vertices
+    // Create ultra-high-detail geometry (200x200 resolution)
+    const geometry = new THREE.SphereGeometry(diameter / 2, 200, 200);
     const positions = geometry.attributes.position;
     const vertexCount = positions.count;
     
-    // Create many random craters
-    const craterCount = 120;
+    // Create realistic crater distribution with complexity levels
+    const craterCount = 200;
     const craters = [];
     for (let i = 0; i < craterCount; i++) {
         const theta = Math.random() * Math.PI * 2;
@@ -24,8 +82,25 @@ function createAmazingAsteroid(diameter = 0.02, position = {x: 0, y: 0, z: 3}) {
             x: r * Math.sin(phi) * Math.cos(theta),
             y: r * Math.sin(phi) * Math.sin(theta),
             z: r * Math.cos(phi),
-            radius: Math.random() * 0.6 + 0.15,
-            depth: Math.random() * 0.12 + 0.05
+            radius: Math.pow(Math.random(), 2) * 0.5 + 0.05,
+            depth: Math.pow(Math.random(), 1.5) * 0.25 + 0.05,
+            complexity: Math.random()
+        });
+    }
+    
+    // Add smaller secondary craters for realism
+    const secondaryCraters = [];
+    for (let i = 0; i < 100; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const r = diameter / 2;
+        
+        secondaryCraters.push({
+            x: r * Math.sin(phi) * Math.cos(theta),
+            y: r * Math.sin(phi) * Math.sin(theta),
+            z: r * Math.cos(phi),
+            radius: Math.random() * 0.15 + 0.02,
+            depth: Math.random() * 0.08 + 0.02
         });
     }
     
@@ -39,31 +114,23 @@ function createAmazingAsteroid(diameter = 0.02, position = {x: 0, y: 0, z: 3}) {
         const ny = y / length;
         const nz = z / length;
         
-        // Create oval shape by stretching along one axis
-        const ovalFactorX = 1.3;
-        const ovalFactorY = 0.85;
-        const ovalFactorZ = 1.0;
+        // Irregular asteroid shape with realistic proportions
+        const ovalX = 1.4;
+        const ovalY = 0.9;
+        const ovalZ = 1.1;
         
-        // Add subtle irregular bulges and rounded edges (not sharp)
-        const bulge1 = Math.max(0, Math.sin(nx * 2.1 + 10) * Math.cos(ny * 1.8 + 20)) * 0.12;
-        const bulge2 = Math.max(0, Math.sin(ny * 2.4 + 30) * Math.cos(nz * 2.2 + 40)) * 0.10;
-        const bulge3 = Math.max(0, Math.sin(nz * 1.9 + 50) * Math.cos(nx * 2.3 + 60)) * 0.08;
+        // Multi-octave noise for realistic terrain
+        let displacement = 1.0;
+        displacement += fbm(nx * 2, ny * 2, nz * 2, 6) * 0.10;
+        displacement += fbm(nx * 5, ny * 5, nz * 5, 4) * 0.05;
+        displacement += fbm(nx * 12, ny * 12, nz * 12, 3) * 0.025;
         
-        // Start with perfectly smooth sphere
-        let displacement = 1.0 + bulge1 + bulge2 + bulge3;
+        // Large-scale features (ridges and valleys)
+        const ridge1 = Math.abs(noise3D(nx * 1.5, ny * 1.5, nz * 1.5)) * 0.08;
+        const ridge2 = Math.abs(noise3D(nx * 2.5 + 100, ny * 2.5 + 100, nz * 2.5 + 100)) * 0.05;
+        displacement += ridge1 + ridge2;
         
-        // Add very gentle, smooth organic shape variation
-        const smooth1 = Math.sin(x * 1.3 + 17.5) * Math.cos(y * 1.5 + 23.7) * 0.04;
-        const smooth2 = Math.sin(y * 1.7 + 41.2) * Math.cos(z * 1.4 + 33.8) * 0.03;
-        const smooth3 = Math.sin(z * 1.2 + 52.1) * Math.cos(x * 1.6 + 61.4) * 0.02;
-        
-        displacement += smooth1 + smooth2 + smooth3;
-        
-        // Very subtle overall shape variation (no spikes, just gentle curves)
-        const gentleVariation = (Math.random() - 0.5) * 0.03;
-        displacement += gentleVariation;
-        
-        // Add many craters with very smooth, gradual falloff
+        // Add main craters with realistic features
         for (let j = 0; j < craters.length; j++) {
             const crater = craters[j];
             const dx = x - crater.x;
@@ -72,70 +139,84 @@ function createAmazingAsteroid(diameter = 0.02, position = {x: 0, y: 0, z: 3}) {
             const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
             
             if (dist < crater.radius) {
-                const craterEffect = 1 - (dist / crater.radius);
-                // Very smooth bowl-shaped crater (power of 4 for extra smoothness)
-                const craterDepth = Math.pow(craterEffect, 4) * crater.depth;
-                displacement -= craterDepth;
+                const normalized = dist / crater.radius;
                 
-                // Very subtle, smooth crater rim
-                if (dist > crater.radius * 0.8) {
-                    const rimEffect = (dist - crater.radius * 0.8) / (crater.radius * 0.2);
-                    displacement += Math.sin(rimEffect * Math.PI) * crater.depth * 0.08;
+                // Complex crater profile
+                const craterProfile = Math.pow(1 - normalized, 3) * crater.depth;
+                displacement -= craterProfile;
+                
+                // Crater rim with realistic uplift
+                if (normalized > 0.7 && normalized < 0.95) {
+                    const rimPos = (normalized - 0.7) / 0.25;
+                    const rimHeight = Math.sin(rimPos * Math.PI) * crater.depth * 0.12;
+                    displacement += rimHeight;
+                }
+                
+                // Central peak for larger craters
+                if (crater.radius > 0.3 && normalized < 0.3) {
+                    const peakHeight = (1 - normalized / 0.3) * crater.depth * 0.2;
+                    displacement += peakHeight * crater.complexity;
+                }
+                
+                // Crater floor roughness
+                if (normalized < 0.6) {
+                    const floorNoise = noise3D(x * 30, y * 30, z * 30) * 0.008;
+                    displacement += floorNoise;
                 }
             }
         }
         
-        // Extremely subtle micro-detail (almost imperceptible)
-        const microDetail = (Math.random() - 0.5) * 0.008;
+        // Secondary craters
+        for (let j = 0; j < secondaryCraters.length; j++) {
+            const crater = secondaryCraters[j];
+            const dx = x - crater.x;
+            const dy = y - crater.y;
+            const dz = z - crater.z;
+            const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            
+            if (dist < crater.radius) {
+                const craterEffect = 1 - (dist / crater.radius);
+                const craterDepth = Math.pow(craterEffect, 4) * crater.depth;
+                displacement -= craterDepth;
+            }
+        }
+        
+        // Fine surface detail (regolith texture)
+        const microDetail = noise3D(x * 50, y * 50, z * 50) * 0.008;
         displacement += microDetail;
         
-        // Ensure smooth, positive displacement only
-        displacement = Math.max(displacement, 0.7);
+        // Boulder fields
+        const boulders = Math.max(0, noise3D(x * 20 + 500, y * 20 + 500, z * 20 + 500)) * 0.012;
+        displacement += boulders;
         
-        // Apply oval shape transformation
+        displacement = Math.max(displacement, 0.5);
+        
         positions.setXYZ(
-            i, 
-            nx * displacement * diameter / 2 * ovalFactorX, 
-            ny * displacement * diameter / 2 * ovalFactorY, 
-            nz * displacement * diameter / 2 * ovalFactorZ
+            i,
+            nx * displacement * diameter / 2 * ovalX,
+            ny * displacement * diameter / 2 * ovalY,
+            nz * displacement * diameter / 2 * ovalZ
         );
     }
+    
     positions.needsUpdate = true;
     geometry.computeVertexNormals();
     
-    // Create natural rocky material with smooth shading
+    // Ultra-realistic material with advanced properties
     const material = new THREE.MeshStandardMaterial({
-        color: 0x5a5a5a,
-        roughness: 0.95,
-        metalness: 0.05,
+        color: 0x4a4a4a,
+        roughness: 0.98,
+        metalness: 0.02,
         flatShading: false
     });
     
-    const asteroidMesh = new THREE.Mesh(geometry, material);
-    asteroidMesh.position.set(position.x, position.y, position.z);
-    asteroidMesh.castShadow = true;
-    asteroidMesh.receiveShadow = true;
-    asteroidMesh.name = 'Asteroid';
+    const asteroid = new THREE.Mesh(geometry, material);
+    asteroid.castShadow = true;
+    asteroid.receiveShadow = true;
+    asteroid.position.set(position.x, position.y, position.z);
     
-    // Store asteroid data
-    asteroidMesh.userData = {
-        diameter: diameter,
-        velocity: { x: 0, y: 0, z: -0.1 },
-        rotationSpeed: 0.005,
-        isAnimating: false
-    };
-    
-    console.log('✅ Amazing asteroid created!');
-    return asteroidMesh;
-}
-
-// Set asteroid velocity for animation
-function setAsteroidVelocity(velocity) {
-    // This function is called by external code to set asteroid movement
-    if (typeof window.currentAsteroidVelocity === 'undefined') {
-        window.currentAsteroidVelocity = {};
-    }
-    window.currentAsteroidVelocity = velocity;
+    console.log('Ultra-realistic asteroid created successfully');
+    return asteroid;
 }
 
 // Create asteroid trail (called by external code)
@@ -144,42 +225,31 @@ function createAsteroidTrail(scene, asteroidMesh) {
     
     const trailGeometry = new THREE.BufferGeometry();
     const trailMaterial = new THREE.LineBasicMaterial({
-        color: 0xff6b6b,
-        opacity: 0.6,
+        color: 0xff4444,
         transparent: true,
-        linewidth: 2
+        opacity: 0.6,
+        linewidth: 3
     });
     
-    const trailPoints = [];
+    const trailVertices = [];
+    for (let i = 0; i < 20; i++) {
+        const angle = (i / 20) * Math.PI * 2;
+        const radius = 0.1 + i * 0.05;
+        trailVertices.push(
+            Math.cos(angle) * radius,
+            Math.sin(angle) * radius,
+            -i * 0.1
+        );
+    }
+    
+    trailGeometry.setAttribute('position', new THREE.Float32BufferAttribute(trailVertices, 3));
+    
     const trailLine = new THREE.Line(trailGeometry, trailMaterial);
     trailLine.name = 'AsteroidTrail';
-    
-    // Store trail data
-    trailLine.userData = {
-        points: trailPoints,
-        maxPoints: 100
-    };
+    trailLine.position.copy(asteroidMesh.position);
     
     scene.add(trailLine);
     return trailLine;
-}
-
-// Update asteroid trail (called by external code)
-function updateAsteroidTrail(trail, asteroidPosition) {
-    if (!trail || !asteroidPosition) return;
-    
-    const trailData = trail.userData;
-    trailData.points.push(new THREE.Vector3(asteroidPosition.x, asteroidPosition.y, asteroidPosition.z));
-    
-    // Limit trail length
-    if (trailData.points.length > trailData.maxPoints) {
-        trailData.points.shift();
-    }
-    
-    // Update trail geometry
-    if (trailData.points.length > 1) {
-        trail.geometry.setFromPoints(trailData.points);
-    }
 }
 
 // Create asteroid particles (called by external code)
@@ -187,44 +257,34 @@ function createAsteroidParticles(scene, asteroidMesh) {
     if (!scene || !asteroidMesh) return null;
     
     const particleCount = 50;
-    const particles = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-    
-    for (let i = 0; i < particleCount * 3; i += 3) {
-        positions[i] = (Math.random() - 0.5) * 0.1;     // x
-        positions[i + 1] = (Math.random() - 0.5) * 0.1; // y
-        positions[i + 2] = (Math.random() - 0.5) * 0.1; // z
-    }
-    
-    particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    
-    const particleMaterial = new THREE.PointsMaterial({
-        color: 0xffaa00,
-        size: 0.005,
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.01,
         transparent: true,
-        opacity: 0.6
+        opacity: 0.8
     });
     
-    const particleSystem = new THREE.Points(particles, particleMaterial);
+    const positions = [];
+    for (let i = 0; i < particleCount; i++) {
+        // Create particles around the asteroid
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 0.2 + Math.random() * 0.3;
+        positions.push(
+            Math.cos(angle) * radius,
+            Math.sin(angle) * radius,
+            (Math.random() - 0.5) * 0.4
+        );
+    }
+    
+    particlesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    
+    const particleSystem = new THREE.Points(particlesGeometry, particlesMaterial);
     particleSystem.name = 'AsteroidParticles';
+    particleSystem.position.copy(asteroidMesh.position);
     
     scene.add(particleSystem);
     return particleSystem;
-}
-
-// Update asteroid particles (called by external code)
-function updateAsteroidParticles(particles, asteroidMesh) {
-    if (!particles || !asteroidMesh) return;
-    
-    particles.position.copy(asteroidMesh.position);
-    particles.rotation.copy(asteroidMesh.rotation);
-    
-    // Animate particles
-    const positions = particles.geometry.attributes.position.array;
-    for (let i = 1; i < positions.length; i += 3) {
-        positions[i] += Math.sin(Date.now() * 0.001 + i) * 0.001;
-    }
-    particles.geometry.attributes.position.needsUpdate = true;
 }
 
 // Create impact explosion effect (called by external code)
@@ -235,22 +295,21 @@ function createImpactExplosion(scene, position) {
     const explosionMaterial = new THREE.MeshBasicMaterial({
         color: 0xff4400,
         transparent: true,
-        opacity: 0.8
+        opacity: 1.0
     });
     
     const explosion = new THREE.Mesh(explosionGeometry, explosionMaterial);
-    explosion.position.set(position.x, position.y, position.z);
     explosion.name = 'ImpactExplosion';
+    explosion.position.copy(position);
     
     scene.add(explosion);
     
     // Animate explosion
-    const startTime = Date.now();
+    let scale = 0.1;
+    let opacity = 1.0;
     const animateExplosion = () => {
-        const elapsed = (Date.now() - startTime) / 1000;
-        const scale = 1 + elapsed * 5;
-        const opacity = Math.max(0, 1 - elapsed * 2);
-        
+        scale += 0.1;
+        opacity -= 0.05;
         explosion.scale.setScalar(scale);
         explosion.material.opacity = opacity;
         
@@ -270,22 +329,18 @@ function createImpactCrater(scene, position, size = 0.5) {
     if (!scene || !position) return null;
     
     const craterGeometry = new THREE.CylinderGeometry(
-        size * 0.5, // top radius
-        size * 0.3, // bottom radius
-        size * 0.1, // height
-        16
+        size * 0.8, size, size * 0.3, 16
     );
-    
-    const craterMaterial = new THREE.MeshPhongMaterial({
-        color: 0x444444,
+    const craterMaterial = new THREE.MeshBasicMaterial({
+        color: 0x333333,
         transparent: true,
         opacity: 0.8
     });
     
     const crater = new THREE.Mesh(craterGeometry, craterMaterial);
-    crater.position.set(position.x, position.y - size * 0.05, position.z);
-    crater.rotation.x = Math.PI / 2;
     crater.name = 'ImpactCrater';
+    crater.position.copy(position);
+    crater.rotation.x = Math.PI / 2;
     
     scene.add(crater);
     return crater;
@@ -297,30 +352,29 @@ function createShockwave(scene, position, maxRadius = 2) {
     
     const shockwaveGeometry = new THREE.RingGeometry(0.1, 0.2, 32);
     const shockwaveMaterial = new THREE.MeshBasicMaterial({
-        color: 0xff6600,
+        color: 0xffffff,
         transparent: true,
-        opacity: 0.6,
+        opacity: 0.8,
         side: THREE.DoubleSide
     });
     
     const shockwave = new THREE.Mesh(shockwaveGeometry, shockwaveMaterial);
-    shockwave.position.set(position.x, position.y, position.z);
-    shockwave.rotation.x = Math.PI / 2;
     shockwave.name = 'Shockwave';
+    shockwave.position.copy(position);
+    shockwave.rotation.x = Math.PI / 2;
     
     scene.add(shockwave);
     
     // Animate shockwave
-    const startTime = Date.now();
+    let radius = 0.1;
+    let opacity = 0.8;
     const animateShockwave = () => {
-        const elapsed = (Date.now() - startTime) / 1000;
-        const scale = elapsed * 2;
-        const opacity = Math.max(0, 1 - elapsed * 0.5);
-        
-        shockwave.scale.setScalar(scale);
+        radius += 0.05;
+        opacity -= 0.02;
+        shockwave.scale.setScalar(radius / 0.1);
         shockwave.material.opacity = opacity;
         
-        if (opacity > 0 && scale < maxRadius) {
+        if (opacity > 0 && radius < maxRadius) {
             requestAnimationFrame(animateShockwave);
         } else {
             scene.remove(shockwave);
@@ -331,13 +385,13 @@ function createShockwave(scene, position, maxRadius = 2) {
     return shockwave;
 }
 
-// Clean up asteroid and related objects (called by external code)
-function cleanupAsteroid(scene, asteroidMesh) {
+// Cleanup asteroid and all related objects
+function cleanupAsteroid(scene, asteroid) {
     if (!scene) return;
     
     // Remove asteroid mesh
-    if (asteroidMesh) {
-        scene.remove(asteroidMesh);
+    if (asteroid) {
+        scene.remove(asteroid);
     }
     
     // Remove trail
@@ -352,35 +406,35 @@ function cleanupAsteroid(scene, asteroidMesh) {
         scene.remove(particles);
     }
     
-    // Remove explosion
-    const explosion = scene.getObjectByName('ImpactExplosion');
-    if (explosion) {
-        scene.remove(explosion);
+    // Remove impact effects
+    const impactObjects = ['ImpactExplosion', 'ImpactCrater', 'Shockwave'];
+    impactObjects.forEach(name => {
+        const obj = scene.getObjectByName(name);
+        if (obj) {
+            scene.remove(obj);
+        }
+    });
+}
+
+// Set asteroid velocity (for external control)
+function setAsteroidVelocity(velocity) {
+    // This function is called by external code to set asteroid movement
+    if (typeof window.currentAsteroidVelocity === 'undefined') {
+        window.currentAsteroidVelocity = {};
     }
-    
-    // Remove crater
-    const crater = scene.getObjectByName('ImpactCrater');
-    if (crater) {
-        scene.remove(crater);
-    }
-    
-    // Remove shockwave
-    const shockwave = scene.getObjectByName('Shockwave');
-    if (shockwave) {
-        scene.remove(shockwave);
-    }
+    window.currentAsteroidVelocity.x = velocity.x || 0;
+    window.currentAsteroidVelocity.y = velocity.y || 0;
+    window.currentAsteroidVelocity.z = velocity.z || 0;
 }
 
 // Export functions for global use
 window.createAmazingAsteroid = createAmazingAsteroid;
-window.setAsteroidVelocity = setAsteroidVelocity;
 window.createAsteroidTrail = createAsteroidTrail;
-window.updateAsteroidTrail = updateAsteroidTrail;
 window.createAsteroidParticles = createAsteroidParticles;
-window.updateAsteroidParticles = updateAsteroidParticles;
 window.createImpactExplosion = createImpactExplosion;
 window.createImpactCrater = createImpactCrater;
 window.createShockwave = createShockwave;
 window.cleanupAsteroid = cleanupAsteroid;
+window.setAsteroidVelocity = setAsteroidVelocity;
 
-console.log('🪨 Asteroid model module loaded!');
+console.log('Ultra-realistic asteroid model loaded!');

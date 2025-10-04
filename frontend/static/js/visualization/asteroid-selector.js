@@ -328,7 +328,9 @@ class AsteroidSelector {
         
         // Update simulation asteroid
         if (this.simulation) {
+            this.simulation.currentAsteroid = asteroid; // Set the current asteroid
             this.simulation.createAsteroidVisualization(asteroid);
+            this.simulation.updateUIForSelectedAsteroid();
         }
     }
 
