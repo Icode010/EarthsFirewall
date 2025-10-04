@@ -48,6 +48,10 @@ def get_near_earth_objects():
         limit = request.args.get('limit', 50, type=int)
         asteroids = nasa_service.get_near_earth_objects(limit)
         
+        # If no asteroids from API, use fallback
+        if not asteroids:
+            asteroids = nasa_service._get_fallback_asteroids()
+        
         return jsonify({
             'success': True,
             'count': len(asteroids),
@@ -61,6 +65,7 @@ def get_near_earth_objects():
                     'absolute_magnitude': a.absolute_magnitude,
                     'albedo': a.albedo,
                     'spectral_type': a.spectral_type,
+                    'composition': nasa_service._determine_composition(a.spectral_type, a.absolute_magnitude),
                     'orbital_elements': a.orbital_elements
                 } for a in asteroids
             ]
@@ -79,6 +84,12 @@ def get_potentially_hazardous_asteroids():
     try:
         asteroids = nasa_service.get_potentially_hazardous_asteroids()
         
+        # If no asteroids from API, use fallback
+        if not asteroids:
+            asteroids = nasa_service._get_fallback_asteroids()
+            # Filter to only potentially hazardous ones
+            asteroids = [a for a in asteroids if a.is_potentially_hazardous]
+        
         return jsonify({
             'success': True,
             'count': len(asteroids),
@@ -89,6 +100,8 @@ def get_potentially_hazardous_asteroids():
                     'diameter_km': a.diameter,
                     'velocity_km_s': a.velocity,
                     'absolute_magnitude': a.absolute_magnitude,
+                    'spectral_type': a.spectral_type,
+                    'is_potentially_hazardous': a.is_potentially_hazardous,
                     'close_approach_data': a.close_approach_data
                 } for a in asteroids
             ]

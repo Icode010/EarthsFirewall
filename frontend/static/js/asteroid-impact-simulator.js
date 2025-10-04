@@ -419,46 +419,96 @@ class AsteroidImpactSimulator {
             this.scene.remove(this.asteroidTrajectory);
         }
         
-        // Create asteroid mesh
-        const size = Math.max(0.1, Math.min(1.0, Math.log(asteroidData.diameter_km + 1) * 0.1));
-        const geometry = new THREE.SphereGeometry(size, 16, 16);
-        
-        // Create asteroid material based on composition
-        let material;
-        switch (asteroidData.composition || asteroidData.spectral_type) {
-            case 'iron':
-                material = new THREE.MeshStandardMaterial({
-                    color: 0x666666,
-                    metalness: 0.8,
-                    roughness: 0.2
-                });
-                break;
-            case 'carbonaceous':
-                material = new THREE.MeshStandardMaterial({
-                    color: 0x2d1b0e,
-                    metalness: 0.1,
-                    roughness: 0.9
-                });
-                break;
-            default:
-                material = new THREE.MeshStandardMaterial({
-                    color: 0x8b7355,
-                    metalness: 0.3,
-                    roughness: 0.7
-                });
+        // Use the existing asteroid model from asteroid-model.js
+        if (window.createAmazingAsteroid) {
+            // Calculate appropriate size based on diameter
+            const size = Math.max(0.02, Math.min(0.5, Math.log(asteroidData.diameter_km + 1) * 0.05));
+            
+            // Create asteroid using the existing model
+            this.asteroid = window.createAmazingAsteroid(size, {x: 8, y: 0, z: 0});
+            
+            // Update asteroid properties based on NASA data
+            if (this.asteroid && this.asteroid.material) {
+                // Update material based on composition
+                const composition = asteroidData.composition || asteroidData.spectral_type;
+                let color, metalness, roughness;
+                
+                switch (composition) {
+                    case 'iron':
+                        color = 0x666666;
+                        metalness = 0.8;
+                        roughness = 0.2;
+                        break;
+                    case 'carbonaceous':
+                        color = 0x2d1b0e;
+                        metalness = 0.1;
+                        roughness = 0.9;
+                        break;
+                    default:
+                        color = 0x8b7355;
+                        metalness = 0.3;
+                        roughness = 0.7;
+                }
+                
+                this.asteroid.material.color.setHex(color);
+                this.asteroid.material.metalness = metalness;
+                this.asteroid.material.roughness = roughness;
+                this.asteroid.material.needsUpdate = true;
+            }
+            
+            // Set asteroid velocity based on NASA data
+            const velocity = asteroidData.velocity_km_s || 15;
+            window.setAsteroidVelocity({
+                x: -velocity * 0.001, // Scale down for visualization
+                y: 0,
+                z: 0
+            });
+            
+        } else {
+            // Fallback: Create basic asteroid mesh
+            const size = Math.max(0.1, Math.min(1.0, Math.log(asteroidData.diameter_km + 1) * 0.1));
+            const geometry = new THREE.SphereGeometry(size, 16, 16);
+            
+            // Create asteroid material based on composition
+            let material;
+            switch (asteroidData.composition || asteroidData.spectral_type) {
+                case 'iron':
+                    material = new THREE.MeshStandardMaterial({
+                        color: 0x666666,
+                        metalness: 0.8,
+                        roughness: 0.2
+                    });
+                    break;
+                case 'carbonaceous':
+                    material = new THREE.MeshStandardMaterial({
+                        color: 0x2d1b0e,
+                        metalness: 0.1,
+                        roughness: 0.9
+                    });
+                    break;
+                default:
+                    material = new THREE.MeshStandardMaterial({
+                        color: 0x8b7355,
+                        metalness: 0.3,
+                        roughness: 0.7
+                    });
+            }
+            
+            this.asteroid = new THREE.Mesh(geometry, material);
+            this.asteroid.castShadow = true;
+            this.asteroid.receiveShadow = true;
+            this.asteroid.name = 'Asteroid';
+            
+            // Position asteroid away from Earth
+            this.asteroid.position.set(8, 0, 0);
+            this.scene.add(this.asteroid);
         }
-        
-        this.asteroid = new THREE.Mesh(geometry, material);
-        this.asteroid.castShadow = true;
-        this.asteroid.receiveShadow = true;
-        this.asteroid.name = 'Asteroid';
-        
-        // Position asteroid away from Earth
-        this.asteroid.position.set(8, 0, 0);
-        this.scene.add(this.asteroid);
         
         // Create trajectory line
         this.createAsteroidTrajectory(asteroidData);
+        
+        // Store asteroid data for reference
+        this.currentAsteroidData = asteroidData;
     }
     
     createAsteroidTrajectory(asteroidData) {
@@ -558,8 +608,11 @@ class AsteroidImpactSimulator {
                 
                 <div class="result-card">
                     <h4>🌍 Seismic Effects</h4>
+                    <p><strong>Earthquake Magnitude:</strong> ${seismic.magnitude.toFixed(1)}</p>
                     <p><strong>Peak Ground Acceleration:</strong> ${seismic.pga.toFixed(2)}g</p>
                     <p><strong>Modified Mercalli Intensity:</strong> ${seismic.mmi.toFixed(1)}</p>
+                    <p><strong>Felt Radius:</strong> ${seismic.felt_radius_km.toFixed(0)} km</p>
+                    <p><strong>Damage Level:</strong> ${seismic.damage_level}</p>
                 </div>
                 
                 ${results.tsunami_effects ? `
@@ -609,6 +662,9 @@ class AsteroidImpactSimulator {
         
         // Create blast radius visualization
         this.createBlastRadiusVisualization(results.blast_effects);
+        
+        // Create seismic effects visualization
+        this.createSeismicVisualization(results.seismic_effects);
     }
     
     createCraterVisualization(craterData, x, y, z) {
@@ -670,6 +726,67 @@ class AsteroidImpactSimulator {
                 this.scene.add(ring);
             }
         });
+    }
+    
+    createSeismicVisualization(seismicEffects) {
+        // Create seismic wave visualization
+        Object.keys(seismicEffects).forEach(distance => {
+            const distanceKm = parseInt(distance.replace('km', ''));
+            const seismicData = seismicEffects[distance];
+            
+            if (seismicData.mmi >= 4) { // Only show if felt
+                // Create seismic wave ring
+                const ringGeometry = new THREE.RingGeometry(
+                    distanceKm * 0.001, 
+                    distanceKm * 0.001 + 0.01, 
+                    32
+                );
+                
+                // Color based on intensity
+                let ringColor;
+                if (seismicData.mmi >= 8) {
+                    ringColor = 0xff0000; // Red for severe
+                } else if (seismicData.mmi >= 6) {
+                    ringColor = 0xff6600; // Orange for moderate
+                } else if (seismicData.mmi >= 4) {
+                    ringColor = 0xffff00; // Yellow for light
+                } else {
+                    ringColor = 0x00ff00; // Green for minor
+                }
+                
+                const ringMaterial = new THREE.MeshBasicMaterial({
+                    color: ringColor,
+                    transparent: true,
+                    opacity: 0.3,
+                    side: THREE.DoubleSide
+                });
+                
+                const seismicRing = new THREE.Mesh(ringGeometry, ringMaterial);
+                seismicRing.rotation.x = Math.PI / 2;
+                seismicRing.name = `SeismicWave${distanceKm}`;
+                this.scene.add(seismicRing);
+                
+                // Add pulsing animation
+                this.animateSeismicWave(seismicRing, seismicData.mmi);
+            }
+        });
+    }
+    
+    animateSeismicWave(ring, magnitude) {
+        let time = 0;
+        const originalOpacity = ring.material.opacity;
+        
+        function animate() {
+            time += 0.05;
+            const pulse = Math.sin(time) * 0.1 + 0.3;
+            ring.material.opacity = originalOpacity * pulse;
+            
+            if (ring.parent) {
+                requestAnimationFrame(animate);
+            }
+        }
+        
+        animate();
     }
     
     async loadMitigationStrategies(impactResults) {
@@ -803,6 +920,12 @@ class AsteroidImpactSimulator {
         // Remove blast radius rings
         for (let i = 10; i <= 1000; i += 10) {
             const obj = this.scene.getObjectByName(`BlastRadius${i}`);
+            if (obj) this.scene.remove(obj);
+        }
+        
+        // Remove seismic wave rings
+        for (let i = 10; i <= 2000; i += 10) {
+            const obj = this.scene.getObjectByName(`SeismicWave${i}`);
             if (obj) this.scene.remove(obj);
         }
         
