@@ -19,7 +19,7 @@ def static_files(filename):
 # Main route
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return send_from_directory('.', 'index.html')
 
 # API routes (placeholder)
 @app.route('/api/asteroids')

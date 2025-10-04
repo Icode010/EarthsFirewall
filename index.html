@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth's Firewall - Asteroid Impact Simulator</title>
+    <link rel="stylesheet" href="frontend/static/css/main.css">
+    <link rel="stylesheet" href="frontend/static/css/controls.css">
+    <link rel="stylesheet" href="frontend/static/css/visualizations.css">
+    <link rel="stylesheet" href="frontend/static/css/responsive.css">
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- D3.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="title">Earth's Firewall</h1>
+            <p class="subtitle">Asteroid Impact Simulator & Defense System</p>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Control Panel -->
+        <div class="control-panel">
+            <div class="panel-header">
+                <h2>Mission Control</h2>
+            </div>
+            
+            <!-- Asteroid Selection -->
+            <div class="control-section">
+                <h3>Asteroid Selection</h3>
+                <div class="input-group">
+                    <label for="asteroid-select">Choose Threat:</label>
+                    <select id="asteroid-select" class="select-input">
+                        <option value="impactor-2025">Impactor-2025 (NASA Threat)</option>
+                        <option value="custom">Custom Asteroid</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Parameters -->
+            <div class="control-section">
+                <h3>Impact Parameters</h3>
+                
+                <div class="slider-group">
+                    <label for="size-slider">Diameter: <span id="size-value">0.5 km</span></label>
+                    <input type="range" id="size-slider" min="0.1" max="10" step="0.1" value="0.5" class="slider">
+                </div>
+
+                <div class="slider-group">
+                    <label for="velocity-slider">Velocity: <span id="velocity-value">15.2 km/s</span></label>
+                    <input type="range" id="velocity-slider" min="5" max="50" step="0.1" value="15.2" class="slider">
+                </div>
+
+                <div class="slider-group">
+                    <label for="angle-slider">Impact Angle: <span id="angle-value">45°</span></label>
+                    <input type="range" id="angle-slider" min="0" max="90" step="1" value="45" class="slider">
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="control-section">
+                <h3>Mission Actions</h3>
+                <div class="button-group">
+                    <button id="simulate-btn" class="btn btn-primary">Simulate Impact</button>
+                    <button id="deflect-btn" class="btn btn-warning">Test Deflection</button>
+                    <button id="game-btn" class="btn btn-danger">Defend Earth!</button>
+                    <button id="reset-btn" class="btn btn-secondary">Reset</button>
+                </div>
+            </div>
+
+            <!-- Deflection Strategy -->
+            <div class="control-section">
+                <h3>Defense Strategy</h3>
+                <div class="strategy-group">
+                    <label class="radio-label">
+                        <input type="radio" name="strategy" value="kinetic" checked>
+                        <span class="radio-custom"></span>
+                        Kinetic Impactor
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="strategy" value="gravity">
+                        <span class="radio-custom"></span>
+                        Gravity Tractor
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="strategy" value="laser">
+                        <span class="radio-custom"></span>
+                        Laser Ablation
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Visualization -->
+        <div class="visualization-container">
+            <div class="canvas-wrapper">
+                <canvas id="three-canvas"></canvas>
+                <div class="canvas-overlay">
+                    <div class="impact-stats" id="impact-stats">
+                        <h3>Impact Prediction</h3>
+                        <div class="stat-item">
+                            <span class="stat-label">Energy:</span>
+                            <span class="stat-value" id="energy-value">1.2e15 J</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">TNT Equivalent:</span>
+                            <span class="stat-value" id="tnt-value">0.3 megatons</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Crater Size:</span>
+                            <span class="stat-value" id="crater-value">2.5 km</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Info Panel -->
+        <div class="info-panel">
+            <div class="panel-header">
+                <h2>Mission Data</h2>
+            </div>
+
+            <!-- Asteroid Info -->
+            <div class="info-section">
+                <h3>Asteroid Details</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value" id="asteroid-name">Impactor-2025</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Diameter:</span>
+                        <span class="info-value" id="asteroid-diameter">0.5 km</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Velocity:</span>
+                        <span class="info-value" id="asteroid-velocity">15.2 km/s</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Mass:</span>
+                        <span class="info-value" id="asteroid-mass">1.2e12 kg</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impact Prediction -->
+            <div class="info-section">
+                <h3>Impact Analysis</h3>
+                <div class="impact-zones">
+                    <div class="zone-item zone-total">
+                        <span class="zone-label">Total Destruction:</span>
+                        <span class="zone-value" id="zone-total">5.2 km</span>
+                    </div>
+                    <div class="zone-item zone-severe">
+                        <span class="zone-label">Severe Damage:</span>
+                        <span class="zone-value" id="zone-severe">15.8 km</span>
+                    </div>
+                    <div class="zone-item zone-moderate">
+                        <span class="zone-label">Moderate Damage:</span>
+                        <span class="zone-value" id="zone-moderate">45.2 km</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Environmental Effects -->
+            <div class="info-section">
+                <h3>Environmental Effects</h3>
+                <div class="effects-list">
+                    <div class="effect-item">
+                        <span class="effect-icon">Tsunami</span>
+                        <span class="effect-text">Tsunami Risk: <span id="tsunami-risk">High</span></span>
+                    </div>
+                    <div class="effect-item">
+                        <span class="effect-icon">Seismic</span>
+                        <span class="effect-text">Seismic: <span id="seismic-magnitude">6.2 Richter</span></span>
+                    </div>
+                    <div class="effect-item">
+                        <span class="effect-icon">Atmospheric</span>
+                        <span class="effect-text">Atmospheric: <span id="atmospheric-effect">Dust Cloud</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deflection Results -->
+            <div class="info-section" id="deflection-results" style="display: none;">
+                <h3>Defense Results</h3>
+                <div class="deflection-status">
+                    <div class="status-item">
+                        <span class="status-label">Deflection Success:</span>
+                        <span class="status-value success" id="deflection-success">85%</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">New Miss Distance:</span>
+                        <span class="status-value" id="miss-distance">12,500 km</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Time to Impact:</span>
+                        <span class="status-value" id="time-to-impact">2.3 days</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Mode Overlay -->
+    <div class="game-overlay" id="game-overlay" style="display: none;">
+        <div class="game-header">
+            <h2>Defend Earth Challenge</h2>
+            <div class="game-stats">
+                <div class="game-stat">
+                    <span class="stat-label">Score:</span>
+                    <span class="stat-value" id="game-score">0</span>
+                </div>
+                <div class="game-stat">
+                    <span class="stat-label">Level:</span>
+                    <span class="stat-value" id="game-level">1</span>
+                </div>
+                <div class="game-stat">
+                    <span class="stat-label">Time:</span>
+                    <span class="stat-value" id="game-time">60s</span>
+                </div>
+            </div>
+        </div>
+        <div class="game-controls">
+            <button id="start-game" class="btn btn-success">Start Mission</button>
+            <button id="exit-game" class="btn btn-secondary">Exit</button>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>Initializing Earth's Firewall...</h3>
+            <p>Loading asteroid data and 3D models...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="frontend/static/js/main.js"></script>
+    <script src="frontend/static/js/api-client.js"></script>
+    <script src="frontend/static/js/visualization/scene-setup.js"></script>
+    <script src="frontend/static/js/visualization/earth-model.js"></script>
+    <script src="frontend/static/js/visualization/asteroid-model.js"></script>
+    <script src="frontend/static/js/simulation/simulation-engine.js"></script>
+    <script src="frontend/static/js/ui/controls.js"></script>
+    <script src="frontend/static/js/ui/game-mode.js"></script>
+</body>
+</html>
