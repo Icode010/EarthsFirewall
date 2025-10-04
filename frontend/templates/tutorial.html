@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Tutorial - Earth's Firewall{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">Tutorial</h1>
+        <p class="page-subtitle">Learn how to use Earth's Firewall</p>
+    </div>
+
+    <div class="content-section">
+        <h2>Coming Soon</h2>
+        <p>This tutorial section is currently under development. We're working on comprehensive guides to help you get the most out of Earth's Firewall.</p>
+        
+        <h3>Planned Tutorial Content</h3>
+        <ul>
+            <li>Getting Started Guide</li>
+            <li>Understanding the Interface</li>
+            <li>Physics Simulation Basics</li>
+            <li>Defense Strategy Selection</li>
+            <li>Advanced Simulation Techniques</li>
+            <li>Interpreting Results</li>
+        </ul>
+        
+        <p>Check back soon for detailed tutorials that will help you master the asteroid defense simulation platform.</p>
+    </div>
+
+    <div class="content-section">
+        <h2>Quick Start</h2>
+        <p>In the meantime, you can begin exploring by:</p>
+        <ol>
+            <li>Visiting the 3D Simulation page to see the interactive environment</li>
+            <li>Reading the Information page to understand the science behind asteroid defense</li>
+            <li>Experimenting with different asteroid parameters and defense strategies</li>
+        </ol>
+        
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="{{ url_for('simulation') }}" class="btn btn-primary" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, #00d4ff 0%, #8b5cf6 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">
+                Try the Simulation
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

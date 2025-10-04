@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Information - Earth's Firewall{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">Asteroid Defense Information</h1>
+        <p class="page-subtitle">Understanding NASA's Planetary Defense Efforts</p>
+    </div>
+
+    <div class="content-section">
+        <h2>NASA's Planetary Defense Program</h2>
+        <p>NASA's Planetary Defense Coordination Office (PDCO) is responsible for detecting, tracking, and characterizing near-Earth objects (NEOs) that could pose a threat to Earth. The program focuses on early detection and developing mitigation strategies to protect our planet.</p>
+        
+        <h3>Detection and Tracking</h3>
+        <p>NASA uses ground-based telescopes and space-based observatories to detect and track asteroids and comets that come within 30 million miles of Earth's orbit. The Near-Earth Object Observations Program provides funding for ground-based observations and supports the development of new detection technologies.</p>
+        
+        <h3>Current Monitoring Systems</h3>
+        <ul>
+            <li>Catalina Sky Survey - University of Arizona</li>
+            <li>Pan-STARRS - University of Hawaii</li>
+            <li>NEOWISE - NASA's Wide-field Infrared Survey Explorer</li>
+            <li>ATLAS - Asteroid Terrestrial-impact Last Alert System</li>
+        </ul>
+    </div>
+
+    <div class="content-section">
+        <h2>Types of Mitigation Methods</h2>
+        
+        <h3>Kinetic Impactor</h3>
+        <p>The kinetic impactor method involves sending a spacecraft to collide with an asteroid at high speed, changing its velocity and trajectory. This method is most effective for smaller asteroids and requires significant lead time to plan and execute the mission.</p>
+        
+        <p><strong>Advantages:</strong> Proven technology, relatively simple concept, can be effective for small to medium asteroids.</p>
+        <p><strong>Limitations:</strong> Requires precise targeting, limited effectiveness for very large asteroids, may fragment the asteroid.</p>
+        
+        <h3>Gravity Tractor</h3>
+        <p>A gravity tractor uses the gravitational attraction between a spacecraft and an asteroid to gradually change the asteroid's trajectory. The spacecraft hovers near the asteroid, using its own mass to create a gravitational pull.</p>
+        
+        <p><strong>Advantages:</strong> Non-destructive, works on any asteroid composition, predictable results.</p>
+        <p><strong>Limitations:</strong> Requires long mission duration, less effective for very large asteroids, needs precise station-keeping.</p>
+        
+        <h3>Laser Ablation</h3>
+        <p>Laser ablation involves using focused laser beams to vaporize material from the asteroid's surface, creating thrust that changes the asteroid's trajectory. This method can be used from a distance and allows for precise control.</p>
+        
+        <p><strong>Advantages:</strong> Precise control, can work from distance, adjustable thrust levels.</p>
+        <p><strong>Limitations:</strong> Requires significant power, effectiveness depends on asteroid composition, complex technology.</p>
+    </div>
+
+    <div class="content-section">
+        <h2>How Each Method Affects Different Meteor Types</h2>
+        
+        <h3>Carbonaceous Asteroids (C-type)</h3>
+        <p>These are the most common type of asteroids, composed primarily of carbon compounds. They are relatively soft and porous, making them good candidates for kinetic impactors and laser ablation. Gravity tractors work well on all asteroid types.</p>
+        
+        <h3>Silicate Asteroids (S-type)</h3>
+        <p>Composed of silicate materials and nickel-iron, these asteroids are harder and more dense. Kinetic impactors may be less effective due to their hardness, while laser ablation and gravity tractors remain viable options.</p>
+        
+        <h3>Metallic Asteroids (M-type)</h3>
+        <p>These asteroids are composed primarily of nickel and iron, making them very dense and hard. They are the most challenging to deflect, requiring more powerful kinetic impactors or longer-duration gravity tractor missions.</p>
+        
+        <h3>Comets</h3>
+        <p>Comets are composed of ice, dust, and rocky material. They are generally easier to deflect than asteroids due to their lower density, but their unpredictable behavior and potential for fragmentation make deflection more complex.</p>
+    </div>
+
+    <div class="content-section">
+        <h2>Real-World Examples</h2>
+        
+        <h3>DART Mission (Double Asteroid Redirection Test)</h3>
+        <p>NASA's DART mission, launched in 2021, was the first test of a kinetic impactor for planetary defense. The spacecraft successfully impacted the asteroid Dimorphos in September 2022, demonstrating the feasibility of this approach.</p>
+        
+        <h3>Hera Mission</h3>
+        <p>The European Space Agency's Hera mission will study the aftermath of the DART impact, providing detailed information about the effectiveness of kinetic impactor deflection.</p>
+        
+        <h3>NEOWISE Observations</h3>
+        <p>NASA's NEOWISE mission has discovered and characterized thousands of near-Earth objects, providing crucial data for understanding the population of potentially hazardous asteroids.</p>
+    </div>
+
+    <div class="content-section">
+        <h2>Future Developments</h2>
+        <p>NASA and international partners continue to develop new technologies for planetary defense, including advanced detection systems, improved deflection methods, and enhanced modeling capabilities. The goal is to have a comprehensive planetary defense system capable of protecting Earth from any credible asteroid threat.</p>
+        
+        <p>Research is ongoing into new mitigation techniques, including nuclear deflection (as a last resort), enhanced gravity tractors, and combination approaches that use multiple methods simultaneously.</p>
+    </div>
+</div>
+{% endblock %}

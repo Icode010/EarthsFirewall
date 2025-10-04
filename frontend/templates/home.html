@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Earth's Firewall{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">Earth's Firewall</h1>
+        <p class="page-subtitle">Asteroid Impact Simulator & Defense System</p>
+    </div>
+
+    <div class="content-section">
+        <h2>About Our Team</h2>
+        <p>We are SPALRB, a dedicated team based in Charlotte, NC, participating in the 2025 NASA Space Apps Challenge. Our mission is to create an innovative and educational platform that simulates asteroid impact scenarios and demonstrates various planetary defense strategies.</p>
+        
+        <p>Our team combines expertise in software development, physics simulation, and 3D visualization to build a comprehensive asteroid defense simulation that serves both educational and research purposes.</p>
+        
+        <h3>Our Mission</h3>
+        <p>To develop a realistic, interactive simulation that helps users understand the science behind asteroid impacts and the various mitigation strategies being researched by NASA and the international space community.</p>
+        
+        <h3>Key Features</h3>
+        <ul>
+            <li>Real-time 3D visualization of asteroid trajectories</li>
+            <li>Physics-based impact calculations using NASA data</li>
+            <li>Interactive defense strategy testing</li>
+            <li>Educational content about planetary defense</li>
+            <li>Multiple difficulty levels for different user types</li>
+        </ul>
+    </div>
+
+    <div class="content-section">
+        <h2>NASA Space Apps Challenge 2025</h2>
+        <p>This project is developed for the NASA Space Apps Challenge, an international hackathon that brings together coders, scientists, designers, storytellers, makers, builders, and technologists to solve real-world problems on Earth and in space.</p>
+        
+        <p>Our focus is on the "Asteroid Impact Simulation" challenge, where we aim to create tools that help the public understand the real threats and solutions related to near-Earth objects.</p>
+    </div>
+
+    <div class="content-section">
+        <h2>Get Started</h2>
+        <p>Explore our platform to learn about asteroid defense strategies, understand the physics of impacts, and test your skills in protecting Earth from potential threats.</p>
+        
+        <div style="text-align: center; margin-top: 2rem;">
+            <a href="{{ url_for('simulation') }}" class="btn btn-primary" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, #00d4ff 0%, #8b5cf6 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">
+                Launch 3D Simulation
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

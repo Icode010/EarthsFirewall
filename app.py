@@ -31,9 +31,24 @@ else:
 def static_files(filename):
     return send_from_directory('frontend/static', filename)
 
-# Main route
+# Main route - Home page
 @app.route('/')
 def index():
+    return render_template('home.html')
+
+# Information page
+@app.route('/information')
+def information():
+    return render_template('information.html')
+
+# Tutorial page
+@app.route('/tutorial')
+def tutorial():
+    return render_template('tutorial.html')
+
+# 3D Simulation page (original index.html)
+@app.route('/simulation')
+def simulation():
     return send_from_directory('.', 'index.html')
 
 # API routes (placeholder)

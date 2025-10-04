@@ -4,64 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Earth's Firewall - Asteroid Impact Simulator{% endblock %}</title>
-    
-    <!-- CSS Files -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/controls.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/visualizations.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
-    
-    <!-- CDN Libraries -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navigation.css') }}">
+    <!-- Three.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.0/d3.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.9/dat.gui.min.js"></script>
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.ico') }}">
+    <!-- D3.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 </head>
 <body>
-    <!-- Header Navigation -->
-    <header class="main-header">
-        <div class="header-content">
-            <h1 class="app-title">🌍 Earth's Firewall</h1>
-            <nav class="main-nav">
-                <a href="#simulation" class="nav-link">Simulation</a>
-                <a href="#defend-earth" class="nav-link">Defend Earth</a>
-                <a href="#about" class="nav-link">About</a>
-            </nav>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1 class="nav-title">Earth's Firewall</h1>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('information') }}" class="nav-link">Information</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('tutorial') }}" class="nav-link">Tutorial</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('simulation') }}" class="nav-link">3D Simulation</a>
+                </li>
+            </ul>
+            <div class="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
         </div>
-    </header>
-    
+    </nav>
+
     <!-- Main Content -->
     <main class="main-content">
         {% block content %}{% endblock %}
     </main>
-    
+
     <!-- Footer -->
-    <footer class="main-footer">
+    <footer class="footer">
         <div class="footer-content">
             <p>&copy; 2025 NASA Space Apps Challenge - Asteroid Impact Simulator</p>
             <p>Built with real NASA data and scientific accuracy</p>
         </div>
     </footer>
-    
-    <!-- JavaScript Files -->
-    <script src="{{ url_for('static', filename='js/utils/constants.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/utils/helpers.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/api-client.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/visualization/scene-setup.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/visualization/earth-model.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/visualization/asteroid-model.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/visualization/orbit-visualizer.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/visualization/impact-zone.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/simulation/simulation-engine.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/simulation/trajectory-calculator.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/simulation/mitigation-simulator.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/ui/controls.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/ui/info-panel.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/ui/tooltips.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/ui/game-mode.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/navigation.js') }}"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>
