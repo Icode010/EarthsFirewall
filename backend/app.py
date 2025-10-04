@@ -3,6 +3,9 @@ from flask import Flask, render_template, jsonify, send_from_directory
 from flask_cors import CORS
 import os
 
+# Import simulation routes
+from .api.simulation_routes import simulation_bp
+
 # Initialize Flask app
 app = Flask(__name__, 
             template_folder='../frontend/templates', 
@@ -10,6 +13,9 @@ app = Flask(__name__,
 
 # Configure CORS
 CORS(app)
+
+# Register simulation blueprint
+app.register_blueprint(simulation_bp)
 
 # Serve static files
 @app.route('/static/<path:filename>')
