@@ -103,9 +103,9 @@ class AsteroidImpactSimulator {
             this.controls.minDistance = 1.5; // Allow getting closer to Earth
             this.controls.maxPolarAngle = Math.PI; // Allow full rotation
             this.controls.minPolarAngle = 0;
-            this.controls.rotateSpeed = 1.0;
-            this.controls.zoomSpeed = 1.2;
-            this.controls.panSpeed = 0.8;
+            this.controls.rotateSpeed = 1.0; // Manual rotation speed
+            this.controls.zoomSpeed = 1.2; // Manual zoom speed
+            this.controls.panSpeed = 0.8; // Manual pan speed
         }
         
         // Lighting - Realistic setup for Earth
@@ -169,9 +169,19 @@ class AsteroidImpactSimulator {
                     this.scene.add(this.earth);
                     console.log('✅ Enhanced Earth model loaded with all textures');
                     
-                    // Start Earth animation
+                    // Start Earth animation with amazing rotating lights and clouds
                     this.earthAnimationController = new EarthAnimationController(this.earth);
                     this.earthAnimationController.startAnimation();
+                    console.log('Earth animation started with rotating lights and clouds!');
+                    
+                    // Log Earth components for debugging
+                    const components = this.earthAnimationController.getEarthComponents();
+                    console.log('Earth components:', {
+                        earth: !!components.earth,
+                        lights: !!components.lights,
+                        clouds: !!components.clouds,
+                        glow: !!components.glow
+                    });
                     
                     return;
                 }
@@ -341,7 +351,7 @@ class AsteroidImpactSimulator {
         this.impactVelocity = document.getElementById('impactVelocity');
         this.customDiameter = document.getElementById('customDiameter');
         this.customVelocity = document.getElementById('customVelocity');
-        this.runSimulation = document.getElementById('runSimulation');
+        this.runSimulationBtn = document.getElementById('runSimulation');
         this.resetSimulation = document.getElementById('resetSimulation');
         this.startAnimation = document.getElementById('startAnimation');
         this.toggleAnimation = document.getElementById('toggleAnimation');
@@ -391,8 +401,8 @@ class AsteroidImpactSimulator {
         }
         
         // Button events
-        if (this.runSimulation) {
-            this.runSimulation.addEventListener('click', () => this.runSimulationHandler());
+        if (this.runSimulationBtn) {
+            this.runSimulationBtn.addEventListener('click', () => this.runSimulationHandler());
         }
         if (this.resetSimulation) {
             this.resetSimulation.addEventListener('click', () => this.resetSimulationHandler());
@@ -595,14 +605,50 @@ class AsteroidImpactSimulator {
         
         this.showMessage(`Selected ${this.currentAsteroid.name}`, 'info');
     }
+
+    cleanupAsteroidObjects() {
+        // Remove existing asteroid
+        if (this.asteroid) {
+            this.scene.remove(this.asteroid);
+            this.asteroid = null;
+        }
+        
+        // Clean up trajectory system objects
+        if (this.trajectorySystem) {
+            this.trajectorySystem.cleanup();
+        }
+        
+        // Remove asteroid trail and particles
+        if (typeof window.cleanupAsteroid === 'function') {
+            window.cleanupAsteroid(this.scene, this.asteroid);
+        }
+        
+        // Remove any remaining trajectory objects
+        const trajectoryObjects = [
+            'OrbitalPath', 'ApproachTrajectory', 'ImpactTrajectory',
+            'CoordinateSystem', 'OrbitalPlane', 'VelocityVector',
+            'GravitationalField', 'AsteroidTrail', 'AsteroidParticles'
+        ];
+        
+        trajectoryObjects.forEach(name => {
+            const obj = this.scene.getObjectByName(name);
+            if (obj) {
+                this.scene.remove(obj);
+            }
+        });
+        
+        // Clean up asteroid trajectory line
+        if (this.asteroidTrajectory) {
+            this.scene.remove(this.asteroidTrajectory);
+            this.asteroidTrajectory = null;
+        }
+    }
     
     createAsteroidVisualization(asteroidData) {
         console.log(`Creating asteroid visualization for ${asteroidData.name}...`);
         
-        // Remove existing asteroid
-        if (this.asteroid) {
-            this.scene.remove(this.asteroid);
-        }
+        // Clean up all existing asteroid-related objects
+        this.cleanupAsteroidObjects();
         
         // Create new asteroid with ultra-realistic model
         if (typeof window.createAmazingAsteroid === 'function') {
@@ -658,13 +704,11 @@ class AsteroidImpactSimulator {
         if (this.trajectorySystem) {
             this.trajectorySystem.createRealisticTrajectory(asteroidData);
             this.trajectorySystem.createOrbitalMechanicsVisualization(asteroidData);
-            // Set camera for better trajectory viewing
-            this.setCameraForTrajectoryView();
+            // Don't auto-zoom - let user control camera manually
         } else {
             // Fallback basic trajectory
             this.createAsteroidTrajectory();
-            // Set camera for better trajectory viewing
-            this.setCameraForTrajectoryView();
+            // Don't auto-zoom - let user control camera manually
         }
     }
     
@@ -691,6 +735,16 @@ class AsteroidImpactSimulator {
     async runSimulationHandler() {
         if (!this.currentAsteroid) {
             this.showMessage('Please select an asteroid first!', 'error');
+            return;
+        }
+        
+        // Debug: Check if runSimulation method exists
+        console.log('Checking runSimulation method:', typeof this.runSimulation);
+        console.log('Available methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(this)));
+        
+        if (typeof this.runSimulation !== 'function') {
+            console.error('runSimulation method not found!', typeof this.runSimulation);
+            this.showMessage('Simulation method not available', 'error');
             return;
         }
         
@@ -1226,18 +1280,8 @@ class AsteroidImpactSimulator {
         document.querySelector('.angle-value').textContent = '45°';
         document.querySelector('.velocity-value').textContent = '15 km/s';
         
-        // Clear 3D objects
-        if (this.asteroid && typeof window.cleanupAsteroid === 'function') {
-            window.cleanupAsteroid(this.scene, this.asteroid);
-        } else if (this.asteroid) {
-            this.scene.remove(this.asteroid);
-        }
-        this.asteroid = null;
-        
-        // Clean up trajectory system
-        if (this.trajectorySystem) {
-            this.trajectorySystem.cleanup();
-        }
+        // Clean up all asteroid-related objects
+        this.cleanupAsteroidObjects();
         
         // Clean up impact animation system
         if (this.impactAnimationSystem) {
@@ -1254,11 +1298,6 @@ class AsteroidImpactSimulator {
             this.earthImpactEffects.clearImpactEffects();
         }
         
-        if (this.asteroidTrajectory) {
-            this.scene.remove(this.asteroidTrajectory);
-            this.asteroidTrajectory = null;
-        }
-        
         // Remove impact objects
         const impactObjects = ['ImpactExplosion', 'ImpactCrater', 'Shockwave'];
         impactObjects.forEach(name => {
@@ -1270,8 +1309,7 @@ class AsteroidImpactSimulator {
         
         this.clearImpactEffects();
         
-        // Reset camera to default position
-        this.resetCameraToDefault();
+        // Don't reset camera position - let user control it manually
         
         // Clear results
         document.getElementById('impactResults').innerHTML = `
@@ -1465,6 +1503,11 @@ class AsteroidImpactSimulator {
         // Otherwise, use basic rotation
         if (this.earth && !this.earthAnimationController) {
             this.earth.rotation.y += 0.005 * this.animationSpeed;
+        }
+        
+        // Update Earth rotation speed based on animation speed
+        if (this.earthAnimationController) {
+            this.earthAnimationController.setRotationSpeed(this.animationSpeedValue || 1.0);
         }
         
         // Animate asteroid if present

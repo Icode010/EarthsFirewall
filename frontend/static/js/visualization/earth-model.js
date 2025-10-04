@@ -6,9 +6,10 @@ const EARTH_MODEL_CONFIG = {
     radius: 1.0,
     segments: 14, // IcosahedronGeometry segments for high quality
     tiltAngle: 23.4, // Earth's axial tilt in degrees
-    rotationSpeed: 0.0019,
-    cloudRotationSpeed: 0.0026,
-    glowRotationSpeed: 0.002,
+    rotationSpeed: 0.002, // Earth surface rotation
+    lightsRotationSpeed: 0.002, // City lights rotate with Earth
+    cloudRotationSpeed: 0.003, // Clouds rotate faster for wind effect
+    glowRotationSpeed: 0.0015, // Atmospheric glow slower
     starRotationSpeed: -0.0002
 };
 
@@ -161,7 +162,9 @@ function createEarthModel(textureLoader, onComplete) {
             const earthMaterial = new THREE.MeshLambertMaterial({
                 map: texture,
                 transparent: false,
-                alphaTest: 0
+                alphaTest: 0,
+                emissive: 0x050505,
+                emissiveIntensity: 0.05
             });
             
             const earthMesh = new THREE.Mesh(geometry, earthMaterial);
@@ -191,7 +194,9 @@ function createEarthModel(textureLoader, onComplete) {
                 map: texture,
                 blending: THREE.AdditiveBlending,
                 transparent: true,
-                alphaTest: 0.1
+                alphaTest: 0.1,
+                emissive: 0x222222,
+                emissiveIntensity: 0.3
             });
             
             const lightsMesh = new THREE.Mesh(geometry, lightsMaterial);
@@ -220,8 +225,10 @@ function createEarthModel(textureLoader, onComplete) {
             const cloudsMaterial = new THREE.MeshLambertMaterial({
                 map: texture,
                 transparent: true,
-                opacity: 0.7,
-                alphaTest: 0.1
+                opacity: 0.8,
+                alphaTest: 0.1,
+                emissive: 0x111111,
+                emissiveIntensity: 0.1
             });
             
             const cloudsMesh = new THREE.Mesh(geometry, cloudsMaterial);
@@ -262,18 +269,42 @@ class EarthAnimationController {
         this.isAnimating = false;
     }
     
+    setRotationSpeed(speedMultiplier = 1.0) {
+        // Dynamically adjust rotation speeds for amazing effects
+        EARTH_MODEL_CONFIG.rotationSpeed = 0.002 * speedMultiplier;
+        EARTH_MODEL_CONFIG.lightsRotationSpeed = 0.002 * speedMultiplier;
+        EARTH_MODEL_CONFIG.cloudRotationSpeed = 0.003 * speedMultiplier;
+        EARTH_MODEL_CONFIG.glowRotationSpeed = 0.0015 * speedMultiplier;
+    }
+    
+    getEarthComponents() {
+        return {
+            earth: this.earthGroup?.getObjectByName('Earth'),
+            lights: this.earthGroup?.getObjectByName('EarthLights'),
+            clouds: this.earthGroup?.getObjectByName('EarthClouds'),
+            glow: this.earthGroup?.getObjectByName('EarthGlow')
+        };
+    }
+    
     animate() {
         if (!this.isAnimating || !this.earthGroup) return;
         
-        // Rotate Earth components
+        // Rotate Earth components at different speeds for amazing effect
         const earth = this.earthGroup.getObjectByName('Earth');
         const lights = this.earthGroup.getObjectByName('EarthLights');
         const clouds = this.earthGroup.getObjectByName('EarthClouds');
         const glow = this.earthGroup.getObjectByName('EarthGlow');
         
+        // Earth surface rotates slowly
         if (earth) earth.rotation.y += EARTH_MODEL_CONFIG.rotationSpeed;
-        if (lights) lights.rotation.y += EARTH_MODEL_CONFIG.rotationSpeed;
+        
+        // City lights rotate with Earth (same speed as surface)
+        if (lights) lights.rotation.y += EARTH_MODEL_CONFIG.lightsRotationSpeed;
+        
+        // Clouds rotate faster to simulate wind and atmospheric movement
         if (clouds) clouds.rotation.y += EARTH_MODEL_CONFIG.cloudRotationSpeed;
+        
+        // Atmospheric glow rotates slowly for subtle effect
         if (glow) glow.rotation.y += EARTH_MODEL_CONFIG.glowRotationSpeed;
         
         requestAnimationFrame(() => this.animate());
