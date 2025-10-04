@@ -36,6 +36,11 @@ def static_files(filename):
 def index():
     return render_template('home.html')
 
+# Home page route (alternative)
+@app.route('/home')
+def home():
+    return render_template('home.html')
+
 # Information page
 @app.route('/information')
 def information():
