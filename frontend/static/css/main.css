@@ -899,11 +899,25 @@ p {
     border: var(--border-accent);
     box-shadow: var(--shadow-lg);
     transition: all var(--transition-base);
+    min-height: 400px;
 }
 
 .asteroid-belt-zone:hover {
     box-shadow: var(--shadow-xl);
     border-color: var(--accent-primary);
+}
+
+#threejs-asteroid-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: grab;
+}
+
+#threejs-asteroid-container:active {
+    cursor: grabbing;
 }
 
 /* Footer */

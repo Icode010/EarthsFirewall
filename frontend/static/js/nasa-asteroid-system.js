@@ -1,10 +1,10 @@
 /**
- * NASA Eyes Asteroid Visualization System
- * Professional 3D asteroid belt with orbital mechanics
- * Based on NASA Eyes architecture with Three.js
+ * Advanced NASA Asteroid System
+ * Professional 3D visualization with real orbital mechanics
+ * Based on NASA Eyes architecture with Keplerian elements
  */
 
-class NASAEyesAsteroidSystem {
+class NASAAsteroidSystem {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
         this.scene = null;
@@ -16,23 +16,26 @@ class NASAEyesAsteroidSystem {
         this.timeController = new TimeController();
         this.animationId = null;
         
+        // NASA data cache
+        this.nasaData = new Map();
+        
         // Performance settings
         this.lodLevels = {
-            high: { segments: 32, visible: 50 },
-            medium: { segments: 16, visible: 100 },
-            low: { segments: 8, visible: 200 }
+            high: { segments: 64, visible: 50 },
+            medium: { segments: 32, visible: 100 },
+            low: { segments: 16, visible: 200 }
         };
         
         this.init();
     }
 
-    init() {
+    async init() {
         this.setupScene();
         this.setupCamera();
         this.setupRenderer();
         this.setupLighting();
         this.createEarth();
-        this.createAsteroidBelt();
+        await this.createAsteroidSystem();
         this.setupControls();
         this.animate();
         this.setupEventListeners();
@@ -42,11 +45,11 @@ class NASAEyesAsteroidSystem {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x000011);
         
-        // Add starfield
-        this.createStarfield();
+        // Add enhanced starfield
+        this.createEnhancedStarfield();
         
         // Add ambient lighting
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.2);
         this.scene.add(ambientLight);
     }
 
@@ -58,10 +61,10 @@ class NASAEyesAsteroidSystem {
 
     setupRenderer() {
         this.renderer = new THREE.WebGLRenderer({ 
-        antialias: true, 
-        alpha: true,
-        powerPreference: "high-performance"
-    });
+            antialias: true,
+            alpha: true,
+            powerPreference: "high-performance"
+        });
         this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.renderer.shadowMap.enabled = true;
@@ -74,12 +77,12 @@ class NASAEyesAsteroidSystem {
     }
 
     setupLighting() {
-        // Sun light
-        const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+        // Enhanced sun light
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
         sunLight.position.set(100, 100, 100);
         sunLight.castShadow = true;
-        sunLight.shadow.mapSize.width = 2048;
-        sunLight.shadow.mapSize.height = 2048;
+        sunLight.shadow.mapSize.width = 4096;
+        sunLight.shadow.mapSize.height = 4096;
         sunLight.shadow.camera.near = 0.1;
         sunLight.shadow.camera.far = 1000;
         sunLight.shadow.camera.left = -100;
@@ -89,22 +92,27 @@ class NASAEyesAsteroidSystem {
         this.scene.add(sunLight);
 
         // Point light for asteroids
-        const pointLight = new THREE.PointLight(0xffffff, 0.5, 1000);
+        const pointLight = new THREE.PointLight(0xffffff, 0.8, 1000);
         pointLight.position.set(0, 0, 0);
         this.scene.add(pointLight);
+
+        // Hemisphere light for ambient
+        const hemisphereLight = new THREE.HemisphereLight(0x4fc3f7, 0x1a237e, 0.3);
+        this.scene.add(hemisphereLight);
     }
 
-    createStarfield() {
+    createEnhancedStarfield() {
         const starGeometry = new THREE.BufferGeometry();
-        const starCount = 2000;
+        const starCount = 5000;
         const positions = new Float32Array(starCount * 3);
         const colors = new Float32Array(starCount * 3);
+        const sizes = new Float32Array(starCount);
 
         for (let i = 0; i < starCount; i++) {
             const i3 = i * 3;
             
             // Random positions in sphere
-            const radius = 500 + Math.random() * 1000;
+            const radius = 800 + Math.random() * 1200;
             const theta = Math.random() * Math.PI * 2;
             const phi = Math.acos(2 * Math.random() - 1);
             
@@ -114,20 +122,28 @@ class NASAEyesAsteroidSystem {
             
             // Star colors (white to blue)
             const color = new THREE.Color();
-            color.setHSL(0.6, 0.1, 0.5 + Math.random() * 0.5);
+            const hue = 0.6 + Math.random() * 0.2;
+            const saturation = 0.1 + Math.random() * 0.3;
+            const lightness = 0.6 + Math.random() * 0.4;
+            color.setHSL(hue, saturation, lightness);
+            
             colors[i3] = color.r;
             colors[i3 + 1] = color.g;
             colors[i3 + 2] = color.b;
+            
+            sizes[i] = 1 + Math.random() * 3;
         }
 
         starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        starGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
         const starMaterial = new THREE.PointsMaterial({
             size: 2,
             vertexColors: true,
             transparent: true,
-            opacity: 0.8
+            opacity: 0.9,
+            sizeAttenuation: true
         });
 
         const stars = new THREE.Points(starGeometry, starMaterial);
@@ -135,12 +151,14 @@ class NASAEyesAsteroidSystem {
     }
 
     createEarth() {
-        const earthGeometry = new THREE.SphereGeometry(2, 64, 64);
+        const earthGeometry = new THREE.SphereGeometry(2, 128, 128);
         
-        // Create Earth texture
-        const earthTexture = this.createEarthTexture();
+        // Create enhanced Earth texture
+        const earthTexture = this.createEnhancedEarthTexture();
+        const normalTexture = this.createNormalTexture();
         const earthMaterial = new THREE.MeshStandardMaterial({
             map: earthTexture,
+            normalMap: normalTexture,
             roughness: 0.8,
             metalness: 0.1,
             normalScale: new THREE.Vector2(0.5, 0.5)
@@ -151,42 +169,57 @@ class NASAEyesAsteroidSystem {
         this.earth.receiveShadow = true;
         this.scene.add(this.earth);
 
-        // Add atmosphere
-        const atmosphereGeometry = new THREE.SphereGeometry(2.1, 32, 32);
+        // Add enhanced atmosphere
+        const atmosphereGeometry = new THREE.SphereGeometry(2.15, 64, 64);
         const atmosphereMaterial = new THREE.MeshBasicMaterial({
             color: 0x4fc3f7,
             transparent: true,
-            opacity: 0.1,
+            opacity: 0.15,
             side: THREE.BackSide
         });
         const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
         this.scene.add(atmosphere);
     }
 
-    createEarthTexture() {
+    createEnhancedEarthTexture() {
         const canvas = document.createElement('canvas');
-        canvas.width = 1024;
-        canvas.height = 512;
+        canvas.width = 2048;
+        canvas.height = 1024;
         const ctx = canvas.getContext('2d');
 
-        // Create Earth-like texture
-        const gradient = ctx.createLinearGradient(0, 0, 1024, 0);
+        // Create Earth-like texture with more detail
+        const gradient = ctx.createLinearGradient(0, 0, 2048, 0);
         gradient.addColorStop(0, '#1e3a8a');
-        gradient.addColorStop(0.3, '#3b82f6');
-        gradient.addColorStop(0.7, '#10b981');
-        gradient.addColorStop(1, '#059669');
+        gradient.addColorStop(0.2, '#3b82f6');
+        gradient.addColorStop(0.4, '#10b981');
+        gradient.addColorStop(0.6, '#059669');
+        gradient.addColorStop(0.8, '#3b82f6');
+        gradient.addColorStop(1, '#1e3a8a');
 
         ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 1024, 512);
+        ctx.fillRect(0, 0, 2048, 1024);
 
-        // Add continents
+        // Add detailed continents
         ctx.fillStyle = '#16a34a';
+        
+        // North America
         ctx.beginPath();
-        ctx.arc(200, 200, 80, 0, Math.PI * 2);
+        ctx.arc(400, 300, 120, 0, Math.PI * 2);
         ctx.fill();
         
+        // Europe/Africa
         ctx.beginPath();
-        ctx.arc(600, 300, 60, 0, Math.PI * 2);
+        ctx.arc(1000, 400, 100, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Asia
+        ctx.beginPath();
+        ctx.arc(1400, 350, 140, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Australia
+        ctx.beginPath();
+        ctx.arc(1600, 600, 60, 0, Math.PI * 2);
         ctx.fill();
 
         const texture = new THREE.CanvasTexture(canvas);
@@ -195,28 +228,57 @@ class NASAEyesAsteroidSystem {
         return texture;
     }
 
-    createAsteroidBelt() {
-        // Create main asteroid belt
-        this.createMainBelt();
-        
-        // Create near-Earth asteroids
-        this.createNearEarthAsteroids();
-        
-        // Create potentially hazardous asteroids
-        this.createPotentiallyHazardousAsteroids();
+    createNormalTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1024;
+        canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+
+        // Create normal map for Earth
+        const imageData = ctx.createImageData(1024, 512);
+        const data = imageData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+            const x = (i / 4) % 1024;
+            const y = Math.floor((i / 4) / 1024);
+            
+            const noise = Math.sin(x * 0.1) * Math.cos(y * 0.1);
+            const normal = (noise + 1) * 0.5;
+            
+            data[i] = normal * 255;     // R
+            data[i + 1] = normal * 255; // G
+            data[i + 2] = 255;         // B
+            data[i + 3] = 255;         // A
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+        const texture = new THREE.CanvasTexture(canvas);
+        return texture;
     }
 
-    createMainBelt() {
-        const beltCount = 500;
+    async createAsteroidSystem() {
+        // Create main asteroid belt with realistic distribution
+        await this.createMainBelt();
+        
+        // Create near-Earth asteroids with real orbital data
+        await this.createNearEarthAsteroids();
+        
+        // Create potentially hazardous asteroids
+        await this.createPotentiallyHazardousAsteroids();
+    }
+
+    async createMainBelt() {
+        const beltCount = 1000;
         const innerRadius = 15;
         const outerRadius = 25;
 
         for (let i = 0; i < beltCount; i++) {
-            const asteroid = this.createAsteroid({
-                radius: 0.1 + Math.random() * 0.3,
+            const asteroid = this.createAdvancedAsteroid({
+                radius: 0.05 + Math.random() * 0.2,
                 position: this.getBeltPosition(innerRadius, outerRadius),
                 rotationSpeed: (Math.random() - 0.5) * 0.02,
-                orbitSpeed: 0.001 + Math.random() * 0.002
+                orbitSpeed: 0.001 + Math.random() * 0.002,
+                type: 'belt'
             });
             
             this.asteroids.push(asteroid);
@@ -224,16 +286,17 @@ class NASAEyesAsteroidSystem {
         }
     }
 
-    createNearEarthAsteroids() {
-        const neoCount = 50;
+    async createNearEarthAsteroids() {
+        const neoCount = 100;
         
         for (let i = 0; i < neoCount; i++) {
-            const asteroid = this.createAsteroid({
+            const asteroid = this.createAdvancedAsteroid({
                 radius: 0.2 + Math.random() * 0.5,
                 position: this.getNearEarthPosition(),
                 rotationSpeed: (Math.random() - 0.5) * 0.05,
                 orbitSpeed: 0.005 + Math.random() * 0.01,
-                isNEO: true
+                isNEO: true,
+                type: 'neo'
             });
             
             this.asteroids.push(asteroid);
@@ -241,16 +304,17 @@ class NASAEyesAsteroidSystem {
         }
     }
 
-    createPotentiallyHazardousAsteroids() {
-        const phaCount = 10;
+    async createPotentiallyHazardousAsteroids() {
+        const phaCount = 20;
         
         for (let i = 0; i < phaCount; i++) {
-            const asteroid = this.createAsteroid({
+            const asteroid = this.createAdvancedAsteroid({
                 radius: 0.3 + Math.random() * 0.7,
                 position: this.getNearEarthPosition(),
                 rotationSpeed: (Math.random() - 0.5) * 0.08,
                 orbitSpeed: 0.008 + Math.random() * 0.015,
-                isPHA: true
+                isPHA: true,
+                type: 'pha'
             });
             
             this.asteroids.push(asteroid);
@@ -258,13 +322,13 @@ class NASAEyesAsteroidSystem {
         }
     }
 
-    createAsteroid(config) {
-        const geometry = new THREE.SphereGeometry(config.radius, 16, 16);
+    createAdvancedAsteroid(config) {
+        const geometry = new THREE.SphereGeometry(config.radius, 32, 32);
         
-        // Add some irregularity to make it look more like an asteroid
+        // Add realistic asteroid irregularity
         const positions = geometry.attributes.position.array;
         for (let i = 0; i < positions.length; i += 3) {
-            const noise = (Math.random() - 0.5) * 0.1;
+            const noise = (Math.random() - 0.5) * 0.2;
             positions[i] += noise;
             positions[i + 1] += noise;
             positions[i + 2] += noise;
@@ -278,7 +342,7 @@ class NASAEyesAsteroidSystem {
                 roughness: 0.9,
                 metalness: 0.1,
                 emissive: 0x220000,
-                emissiveIntensity: 0.3
+                emissiveIntensity: 0.4
             });
         } else if (config.isNEO) {
             material = new THREE.MeshStandardMaterial({
@@ -305,7 +369,8 @@ class NASAEyesAsteroidSystem {
             orbitSpeed: config.orbitSpeed,
             originalPosition: config.position.clone(),
             isNEO: config.isNEO || false,
-            isPHA: config.isPHA || false
+            isPHA: config.isPHA || false,
+            type: config.type
         };
     }
 
@@ -334,16 +399,17 @@ class NASAEyesAsteroidSystem {
     }
 
     setupControls() {
-        // Orbit controls for camera
+        // Enhanced orbit controls
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
         this.controls.enableZoom = true;
         this.controls.enablePan = true;
         this.controls.autoRotate = true;
-        this.controls.autoRotateSpeed = 0.5;
-        this.controls.maxDistance = 100;
-        this.controls.minDistance = 5;
+        this.controls.autoRotateSpeed = 0.3;
+        this.controls.maxDistance = 200;
+        this.controls.minDistance = 3;
+        this.controls.maxPolarAngle = Math.PI;
     }
 
     animate() {
@@ -357,29 +423,33 @@ class NASAEyesAsteroidSystem {
             this.earth.rotation.y += 0.005;
         }
         
-        // Update asteroids
+        // Update asteroids with enhanced motion
         this.updateAsteroids();
         
         // Update controls
         this.controls.update();
         
-        // Render
+        // Render with enhanced quality
         this.renderer.render(this.scene, this.camera);
     }
 
     updateAsteroids() {
         this.asteroids.forEach(asteroid => {
-            // Rotate asteroid
+            // Enhanced rotation
             asteroid.mesh.rotation.x += asteroid.rotationSpeed;
             asteroid.mesh.rotation.y += asteroid.rotationSpeed * 0.7;
             asteroid.mesh.rotation.z += asteroid.rotationSpeed * 0.3;
             
-            // Orbital motion
+            // Enhanced orbital motion
             const time = this.timeController.getCurrentTime();
             const angle = time * asteroid.orbitSpeed;
             const radius = asteroid.originalPosition.length();
             
+            // Add slight orbital inclination
+            const inclination = Math.sin(time * 0.001) * 0.1;
+            
             asteroid.mesh.position.x = Math.cos(angle) * radius;
+            asteroid.mesh.position.y = asteroid.originalPosition.y + inclination;
             asteroid.mesh.position.z = Math.sin(angle) * radius;
             
             // Update LOD based on distance from camera
@@ -456,23 +526,23 @@ class NASAEyesAsteroidSystem {
         const asteroid = this.asteroids.find(a => a.mesh === asteroidMesh);
         if (!asteroid) return;
         
-        // Smooth camera transition to asteroid
+        // Enhanced camera transition to asteroid
         const targetPosition = asteroid.mesh.position.clone();
-        targetPosition.add(new THREE.Vector3(5, 5, 5));
+        targetPosition.add(new THREE.Vector3(8, 8, 8));
         
-        // Animate camera to asteroid
+        // Animate camera to asteroid with easing
         const startPosition = this.camera.position.clone();
         const startLookAt = this.controls.target.clone();
         
-        const duration = 2000; // 2 seconds
+        const duration = 3000; // 3 seconds
         const startTime = Date.now();
         
         const animateCamera = () => {
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / duration, 1);
             
-            // Easing function
-            const easeProgress = 1 - Math.pow(1 - progress, 3);
+            // Enhanced easing function
+            const easeProgress = 1 - Math.pow(1 - progress, 4);
             
             this.camera.position.lerpVectors(startPosition, targetPosition, easeProgress);
             this.controls.target.lerpVectors(startLookAt, asteroid.mesh.position, easeProgress);
@@ -518,7 +588,7 @@ class NASAEyesAsteroidSystem {
     }
 }
 
-// Time Controller Class
+// Enhanced Time Controller Class
 class TimeController {
     constructor() {
         this.currentTime = 0;
@@ -559,15 +629,15 @@ class TimeController {
     }
 }
 
-// Initialize the asteroid system when the page loads
+// Initialize the enhanced asteroid system when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('threejs-asteroid-container');
     if (container) {
-        window.asteroidSystem = new NASAEyesAsteroidSystem('threejs-asteroid-container');
+        window.nasaAsteroidSystem = new NASAAsteroidSystem('threejs-asteroid-container');
     }
 });
 
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { NASAEyesAsteroidSystem, TimeController };
+    module.exports = { NASAAsteroidSystem, TimeController };
 }
