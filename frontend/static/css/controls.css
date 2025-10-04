@@ -1,0 +1,299 @@
+/* Control panel styles for Asteroid Impact Simulator */
+
+/* Panel Header */
+.panel-header {
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.panel-header h2 {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-shadow: 0 0 10px var(--primary-color);
+}
+
+/* Control Sections */
+.control-section {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--background-darker);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.control-section h3 {
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Form Elements */
+.control-input {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--background-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.control-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+.control-input option {
+    background: var(--background-dark);
+    color: var(--text-primary);
+}
+
+/* Parameter Groups */
+.parameter-group {
+    margin-bottom: 1.5rem;
+}
+
+.parameter-group label {
+    display: block;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+/* Custom Sliders */
+.control-slider {
+    width: 100%;
+    height: 6px;
+    background: var(--background-darker);
+    border-radius: 3px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    margin-bottom: 0.5rem;
+}
+
+.control-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.control-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px var(--primary-color);
+}
+
+.control-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 10px var(--primary-color);
+}
+
+.control-slider::-webkit-slider-track {
+    background: var(--background-darker);
+    border-radius: 3px;
+}
+
+.control-slider::-moz-range-track {
+    background: var(--background-darker);
+    border-radius: 3px;
+    height: 6px;
+}
+
+/* Slider Value Display */
+.parameter-group span {
+    display: inline-block;
+    color: var(--accent-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: var(--background-dark);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+/* Buttons */
+.primary-btn, .secondary-btn, .game-btn, .reset-btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, var(--primary-color), #0099cc);
+    color: var(--background-dark);
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4);
+}
+
+.secondary-btn {
+    background: linear-gradient(135deg, var(--secondary-color), #cc4a1a);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+}
+
+.secondary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+}
+
+.game-btn {
+    background: linear-gradient(135deg, var(--accent-color), #ffcc00);
+    color: var(--background-dark);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.game-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+}
+
+.reset-btn {
+    background: linear-gradient(135deg, var(--danger-color), #cc2222);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
+}
+
+.reset-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
+}
+
+/* Strategy Buttons */
+.strategy-buttons {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+}
+
+.strategy-btn {
+    padding: 0.75rem;
+    background: var(--background-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.strategy-btn:hover {
+    border-color: var(--primary-color);
+    background: var(--surface-color);
+    transform: translateX(5px);
+}
+
+.strategy-btn.active {
+    border-color: var(--primary-color);
+    background: rgba(0, 212, 255, 0.1);
+    color: var(--primary-color);
+}
+
+/* Simulation Buttons */
+.simulation-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+/* Button States */
+.btn-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Hover Effects */
+.control-section:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+}
+
+/* Focus States */
+.control-input:focus,
+.control-slider:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Disabled States */
+.control-input:disabled,
+.control-slider:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .simulation-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .control-section {
+        padding: 0.75rem;
+    }
+    
+    .parameter-group {
+        margin-bottom: 1rem;
+    }
+    
+    .control-slider {
+        height: 8px;
+    }
+    
+    .control-slider::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+    }
+}

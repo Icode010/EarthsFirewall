@@ -1,0 +1,374 @@
+/* Visualization styles for Asteroid Impact Simulator */
+
+/* Canvas Container */
+.canvas-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, #001122 0%, #000000 100%);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 0 50px rgba(0, 212, 255, 0.1);
+}
+
+#three-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+}
+
+#three-canvas:active {
+    cursor: grabbing;
+}
+
+/* Visualization Overlay */
+.visualization-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.impact-stats {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 1rem;
+    min-width: 200px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.impact-stats h4 {
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+    text-shadow: 0 0 10px var(--primary-color);
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.stat-value {
+    color: var(--accent-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    font-family: 'Courier New', monospace;
+}
+
+/* Timeline Container */
+.timeline-container {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.timeline-header h4 {
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.timeline-btn {
+    background: var(--primary-color);
+    border: none;
+    border-radius: 4px;
+    color: var(--background-dark);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.timeline-btn:hover {
+    background: #00b8e6;
+    transform: scale(1.05);
+}
+
+.timeline-bar {
+    position: relative;
+    height: 8px;
+    background: var(--background-darker);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+}
+
+.timeline-progress {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px var(--primary-color);
+}
+
+.timeline-marker {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 16px;
+    background: var(--danger-color);
+    border-radius: 2px;
+    left: 0%;
+    transition: left 0.3s ease;
+    box-shadow: 0 0 10px var(--danger-color);
+}
+
+.timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Impact Zone Visualization */
+.impact-zone {
+    position: absolute;
+    border: 2px solid var(--danger-color);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.impact-zone.blast-zone {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 20px var(--danger-color);
+}
+
+.impact-zone.thermal-zone {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 20px var(--warning-color);
+}
+
+.impact-zone.seismic-zone {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 20px var(--secondary-color);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.7;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+}
+
+/* Orbit Path Visualization */
+.orbit-path {
+    position: absolute;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.orbit-line {
+    stroke: var(--primary-color);
+    stroke-width: 2;
+    fill: none;
+    stroke-dasharray: 5, 5;
+    animation: dash 2s linear infinite;
+}
+
+.orbit-line.deflected {
+    stroke: var(--accent-color);
+    stroke-dasharray: 3, 3;
+}
+
+@keyframes dash {
+    to {
+        stroke-dashoffset: -10;
+    }
+}
+
+/* Asteroid Trail */
+.asteroid-trail {
+    position: absolute;
+    pointer-events: none;
+    z-index: 6;
+}
+
+.trail-line {
+    stroke: var(--text-primary);
+    stroke-width: 1;
+    fill: none;
+    opacity: 0.8;
+}
+
+/* Earth Model */
+.earth-model {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #4a90e2, #1e3a8a);
+    box-shadow: 0 0 50px rgba(0, 212, 255, 0.3);
+    animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* Loading States */
+.visualization-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--text-primary);
+    z-index: 20;
+}
+
+.loading-spinner-large {
+    width: 60px;
+    height: 60px;
+    border: 4px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+.loading-text {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+/* Performance Indicators */
+.performance-indicator {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.fps-counter {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.fps-counter.low {
+    color: var(--warning-color);
+}
+
+.fps-counter.critical {
+    color: var(--danger-color);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .impact-stats {
+        min-width: 150px;
+        padding: 0.75rem;
+    }
+    
+    .timeline-container {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .impact-stats {
+        position: relative;
+        top: auto;
+        left: auto;
+        right: auto;
+        margin-bottom: 1rem;
+        min-width: auto;
+    }
+    
+    .timeline-container {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        right: auto;
+        margin-top: 1rem;
+    }
+    
+    .earth-model {
+        width: 150px;
+        height: 150px;
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .orbit-line,
+    .trail-line {
+        stroke-width: 1.5;
+    }
+    
+    .impact-zone {
+        border-width: 1.5px;
+    }
+}
+
+/* Dark Mode Enhancements */
+@media (prefers-color-scheme: dark) {
+    .canvas-container {
+        background: radial-gradient(circle at center, #000811 0%, #000000 100%);
+    }
+    
+    .impact-stats,
+    .timeline-container {
+        background: rgba(0, 0, 0, 0.9);
+    }
+}

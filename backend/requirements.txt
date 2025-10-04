@@ -1,0 +1,28 @@
+# Python dependencies for Asteroid Impact Simulator
+# Core Flask framework
+Flask==3.0.0
+flask-cors==4.0.0
+
+# Scientific computing
+numpy==1.24.0
+scipy==1.10.0
+
+# HTTP requests for NASA API
+requests==2.31.0
+
+# Environment variables
+python-dotenv==1.0.0
+
+# Data processing
+pandas==2.0.0
+
+# JSON handling
+jsonschema==4.17.0
+
+# Testing
+pytest==7.4.0
+pytest-flask==1.2.0
+
+# Development
+black==23.0.0
+flake8==6.0.0

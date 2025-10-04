@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="app-container">
+    <!-- Left Sidebar: Control Panel -->
+    <aside class="control-panel">
+        <div class="panel-header">
+            <h2>🎛️ Control Panel</h2>
+        </div>
+        
+        <!-- Asteroid Selection -->
+        <div class="control-section">
+            <h3>Asteroid Selection</h3>
+            <select id="asteroid-select" class="control-input">
+                <option value="">Select an asteroid...</option>
+                <option value="preset-impactor-2025">Impactor-2025 (Preset)</option>
+                <option value="real-asteroid">Real NASA Asteroid</option>
+            </select>
+        </div>
+        
+        <!-- Impact Parameters -->
+        <div class="control-section">
+            <h3>Impact Parameters</h3>
+            <div class="parameter-group">
+                <label for="asteroid-size">Asteroid Size (km)</label>
+                <input type="range" id="asteroid-size" min="0.1" max="1000" step="0.1" value="100" class="control-slider">
+                <span id="size-value">100 km</span>
+            </div>
+            
+            <div class="parameter-group">
+                <label for="impact-velocity">Impact Velocity (km/s)</label>
+                <input type="range" id="impact-velocity" min="5" max="50" step="0.1" value="15" class="control-slider">
+                <span id="velocity-value">15 km/s</span>
+            </div>
+            
+            <div class="parameter-group">
+                <label for="impact-angle">Impact Angle (degrees)</label>
+                <input type="range" id="impact-angle" min="0" max="90" step="1" value="45" class="control-slider">
+                <span id="angle-value">45°</span>
+            </div>
+            
+            <div class="parameter-group">
+                <label for="impact-location">Impact Location</label>
+                <select id="impact-location" class="control-input">
+                    <option value="ocean">Ocean Impact</option>
+                    <option value="land">Land Impact</option>
+                    <option value="custom">Custom Location</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Mitigation Strategies -->
+        <div class="control-section">
+            <h3>Mitigation Strategies</h3>
+            <div class="strategy-buttons">
+                <button id="kinetic-impactor-btn" class="strategy-btn">🚀 Kinetic Impactor</button>
+                <button id="gravity-tractor-btn" class="strategy-btn">🛰️ Gravity Tractor</button>
+                <button id="laser-ablation-btn" class="strategy-btn">⚡ Laser Ablation</button>
+            </div>
+        </div>
+        
+        <!-- Simulation Controls -->
+        <div class="control-section">
+            <h3>Simulation Controls</h3>
+            <div class="simulation-buttons">
+                <button id="simulate-impact-btn" class="primary-btn">💥 Simulate Impact</button>
+                <button id="test-deflection-btn" class="secondary-btn">🛡️ Test Deflection</button>
+                <button id="defend-earth-btn" class="game-btn">🎮 Defend Earth</button>
+                <button id="reset-simulation-btn" class="reset-btn">🔄 Reset</button>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Center Area: 3D Visualization -->
+    <main class="visualization-area">
+        <div class="canvas-container">
+            <canvas id="three-canvas"></canvas>
+            <div class="visualization-overlay">
+                <div class="impact-stats" id="impact-stats">
+                    <h4>Impact Statistics</h4>
+                    <div class="stat-item">
+                        <span class="stat-label">Energy:</span>
+                        <span class="stat-value" id="energy-value">0 MT</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Crater Size:</span>
+                        <span class="stat-value" id="crater-value">0 km</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Devastation:</span>
+                        <span class="stat-value" id="devastation-value">0 km</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Timeline/Progress Bar -->
+        <div class="timeline-container" id="timeline-container">
+            <div class="timeline-header">
+                <h4>Simulation Timeline</h4>
+                <button id="play-pause-btn" class="timeline-btn">⏸️</button>
+            </div>
+            <div class="timeline-bar">
+                <div class="timeline-progress" id="timeline-progress"></div>
+                <div class="timeline-marker" id="timeline-marker"></div>
+            </div>
+            <div class="timeline-labels">
+                <span>Start</span>
+                <span>Impact</span>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Right Sidebar: Information Panel -->
+    <aside class="info-panel">
+        <div class="panel-header">
+            <h2>📊 Information Panel</h2>
+        </div>
+        
+        <!-- Asteroid Details -->
+        <div class="info-section">
+            <h3>Asteroid Details</h3>
+            <div class="info-content" id="asteroid-details">
+                <div class="detail-item">
+                    <span class="detail-label">Name:</span>
+                    <span class="detail-value" id="asteroid-name">Not selected</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Diameter:</span>
+                    <span class="detail-value" id="asteroid-diameter">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Velocity:</span>
+                    <span class="detail-value" id="asteroid-velocity">-</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Mass:</span>
+                    <span class="detail-value" id="asteroid-mass">-</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Impact Predictions -->
+        <div class="info-section">
+            <h3>Impact Predictions</h3>
+            <div class="info-content" id="impact-predictions">
+                <div class="prediction-item">
+                    <span class="prediction-label">Impact Location:</span>
+                    <span class="prediction-value" id="impact-location-value">-</span>
+                </div>
+                <div class="prediction-item">
+                    <span class="prediction-label">TNT Equivalent:</span>
+                    <span class="prediction-value" id="tnt-equivalent">-</span>
+                </div>
+                <div class="prediction-item">
+                    <span class="prediction-label">Seismic Magnitude:</span>
+                    <span class="prediction-value" id="seismic-magnitude">-</span>
+                </div>
+                <div class="prediction-item">
+                    <span class="prediction-label">Tsunami Risk:</span>
+                    <span class="prediction-value" id="tsunami-risk">-</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Environmental Effects -->
+        <div class="info-section">
+            <h3>Environmental Effects</h3>
+            <div class="info-content" id="environmental-effects">
+                <div class="effect-item">
+                    <span class="effect-label">Blast Radius:</span>
+                    <span class="effect-value" id="blast-radius">-</span>
+                </div>
+                <div class="effect-item">
+                    <span class="effect-label">Thermal Radius:</span>
+                    <span class="effect-value" id="thermal-radius">-</span>
+                </div>
+                <div class="effect-item">
+                    <span class="effect-label">Affected Regions:</span>
+                    <span class="effect-value" id="affected-regions">-</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mitigation Results -->
+        <div class="info-section">
+            <h3>Mitigation Results</h3>
+            <div class="info-content" id="mitigation-results">
+                <div class="result-item">
+                    <span class="result-label">Strategy:</span>
+                    <span class="result-value" id="mitigation-strategy">None</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Success:</span>
+                    <span class="result-value" id="mitigation-success">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Miss Distance:</span>
+                    <span class="result-value" id="miss-distance">-</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- Game Mode Overlay -->
+<div class="game-overlay" id="game-overlay" style="display: none;">
+    <div class="game-header">
+        <h2>🎮 Defend Earth - Level <span id="game-level">1</span></h2>
+        <div class="game-stats">
+            <span>Score: <span id="game-score">0</span></span>
+            <span>Time: <span id="game-time">300</span>s</span>
+            <span>Budget: <span id="game-budget">1000</span></span>
+        </div>
+    </div>
+    <div class="game-content">
+        <div class="game-asteroid-info">
+            <h3>Incoming Threat</h3>
+            <div id="game-asteroid-details"></div>
+        </div>
+        <div class="game-mitigation-options">
+            <h3>Deflection Options</h3>
+            <div id="game-mitigation-buttons"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Educational Tooltips -->
+<div class="tooltip" id="tooltip" style="display: none;">
+    <div class="tooltip-content">
+        <h4 id="tooltip-title"></h4>
+        <p id="tooltip-text"></p>
+    </div>
+</div>
+{% endblock %}
