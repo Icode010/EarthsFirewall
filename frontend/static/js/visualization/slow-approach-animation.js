@@ -446,14 +446,28 @@ class SlowApproachAnimation {
             this.impactFlash = null;
         }
         
-        // Remove warning lights
+        // Remove ALL red warning lights and any red effects
         if (this.simulation.scene) {
+            // Remove red warning lights
             const warningLights = this.simulation.scene.children.filter(child => 
                 child instanceof THREE.PointLight && child.color.getHex() === 0xff0000
             );
             warningLights.forEach(light => {
                 this.simulation.scene.remove(light);
             });
+            
+            // Remove any other red effects that might cause red screen
+            const redObjects = this.simulation.scene.children.filter(child => {
+                if (child.material && child.material.color) {
+                    return child.material.color.getHex() === 0xff0000;
+                }
+                return false;
+            });
+            redObjects.forEach(obj => {
+                this.simulation.scene.remove(obj);
+            });
+            
+            console.log(`Cleaned up ${warningLights.length} warning lights and ${redObjects.length} red objects`);
         }
     }
 }

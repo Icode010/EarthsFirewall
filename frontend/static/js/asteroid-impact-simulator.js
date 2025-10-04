@@ -90,7 +90,7 @@ class AsteroidImpactSimulator {
             throw new Error('Three.js initialization failed: ' + error.message);
         }
         
-        // Controls
+        // Controls - Enhanced for better user interaction
         if (typeof OrbitControls !== 'undefined') {
             this.controls = new OrbitControls(this.camera, this.renderer.domElement);
             this.controls.enableDamping = true;
@@ -99,13 +99,20 @@ class AsteroidImpactSimulator {
             this.controls.enablePan = true;
             this.controls.enableRotate = true;
             this.controls.autoRotate = false; // Disable auto-rotate for manual control
-            this.controls.maxDistance = 100; // Allow zooming out more for trajectory viewing
-            this.controls.minDistance = 1.5; // Allow getting closer to Earth
+            this.controls.maxDistance = 50; // Allow zooming out for trajectory viewing
+            this.controls.minDistance = 1.0; // Allow getting very close to Earth
             this.controls.maxPolarAngle = Math.PI; // Allow full rotation
             this.controls.minPolarAngle = 0;
             this.controls.rotateSpeed = 1.0; // Manual rotation speed
-            this.controls.zoomSpeed = 1.2; // Manual zoom speed
-            this.controls.panSpeed = 0.8; // Manual pan speed
+            this.controls.zoomSpeed = 1.0; // Manual zoom speed
+            this.controls.panSpeed = 1.0; // Manual pan speed
+            
+            // Add event listeners for better feedback
+            this.controls.addEventListener('change', () => {
+                // Camera controls are working
+            });
+            
+            console.log('Camera controls initialized - drag to rotate, scroll to zoom');
         }
         
         // Lighting - Realistic setup for Earth
@@ -643,7 +650,28 @@ class AsteroidImpactSimulator {
             this.asteroidTrajectory = null;
         }
     }
-    
+
+    cleanupRedEffects() {
+        // Remove any red objects that might cause red screen
+        const redObjects = this.scene.children.filter(child => {
+            if (child.material && child.material.color) {
+                return child.material.color.getHex() === 0xff0000;
+            }
+            if (child instanceof THREE.PointLight && child.color.getHex() === 0xff0000) {
+                return true;
+            }
+            return false;
+        });
+        
+        redObjects.forEach(obj => {
+            this.scene.remove(obj);
+        });
+        
+        if (redObjects.length > 0) {
+            console.log(`Cleaned up ${redObjects.length} red objects to prevent red screen`);
+        }
+    }
+
     createAsteroidVisualization(asteroidData) {
         console.log(`Creating asteroid visualization for ${asteroidData.name}...`);
         
@@ -1249,6 +1277,10 @@ class AsteroidImpactSimulator {
                 }
                 
                 this.showMessage('Slow approach animation with Earth damage completed!', 'success');
+                
+                // Clean up any red effects that might remain
+                this.cleanupRedEffects();
+                
                 this.showReplayButton();
             } else if (this.impactAnimationSystem) {
                 console.log('Using standard impact animation system');
@@ -1297,6 +1329,9 @@ class AsteroidImpactSimulator {
         if (this.earthImpactEffects) {
             this.earthImpactEffects.clearImpactEffects();
         }
+        
+        // Clean up any remaining red effects that might cause red screen
+        this.cleanupRedEffects();
         
         // Remove impact objects
         const impactObjects = ['ImpactExplosion', 'ImpactCrater', 'Shockwave'];
@@ -1478,6 +1513,10 @@ class AsteroidImpactSimulator {
                 await this.earthImpactEffects.createImpactDamage(this.currentAsteroid, impactParams, impactCalculations);
                 
                 this.showMessage('Slow approach animation with Earth damage replayed!', 'success');
+                
+                // Clean up any red effects that might remain
+                this.cleanupRedEffects();
+                
                 this.showReplayButton();
             } else if (this.impactAnimationSystem) {
                 await this.impactAnimationSystem.startImpactAnimation(this.currentAsteroid, impactParams);
@@ -1508,6 +1547,11 @@ class AsteroidImpactSimulator {
         // Update Earth rotation speed based on animation speed
         if (this.earthAnimationController) {
             this.earthAnimationController.setRotationSpeed(this.animationSpeedValue || 1.0);
+        }
+        
+        // Ensure controls are always updated for proper zoom/drag functionality
+        if (this.controls) {
+            this.controls.update();
         }
         
         // Animate asteroid if present
