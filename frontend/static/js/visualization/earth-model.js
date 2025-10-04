@@ -153,13 +153,19 @@ function createEarthModel(textureLoader, onComplete) {
             console.log('📸 Earth texture loaded successfully');
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
+            texture.flipY = false;
+            texture.generateMipmaps = true;
+            texture.minFilter = THREE.LinearMipmapLinearFilter;
+            texture.magFilter = THREE.LinearFilter;
             
             const earthMaterial = new THREE.MeshPhongMaterial({
                 map: texture,
                 shininess: 100,
                 specular: new THREE.Color(0x222222),
                 emissive: new THREE.Color(0x001122),
-                emissiveIntensity: 0.05
+                emissiveIntensity: 0.05,
+                transparent: false,
+                alphaTest: 0
             });
             
             const earthMesh = new THREE.Mesh(geometry, earthMaterial);
@@ -180,10 +186,16 @@ function createEarthModel(textureLoader, onComplete) {
             console.log('📸 Earth lights texture loaded successfully');
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
+            texture.flipY = false;
+            texture.generateMipmaps = true;
+            texture.minFilter = THREE.LinearMipmapLinearFilter;
+            texture.magFilter = THREE.LinearFilter;
             
             const lightsMaterial = new THREE.MeshBasicMaterial({
                 map: texture,
-                blending: THREE.AdditiveBlending
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                alphaTest: 0.1
             });
             
             const lightsMesh = new THREE.Mesh(geometry, lightsMaterial);
@@ -204,12 +216,17 @@ function createEarthModel(textureLoader, onComplete) {
             console.log('📸 Cloud texture loaded successfully');
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
+            texture.flipY = false;
+            texture.generateMipmaps = true;
+            texture.minFilter = THREE.LinearMipmapLinearFilter;
+            texture.magFilter = THREE.LinearFilter;
             
             const cloudsMaterial = new THREE.MeshStandardMaterial({
                 map: texture,
                 transparent: true,
                 opacity: 0.9,
-                blending: THREE.AdditiveBlending
+                blending: THREE.AdditiveBlending,
+                alphaTest: 0.1
             });
             
             const cloudsMesh = new THREE.Mesh(geometry, cloudsMaterial);

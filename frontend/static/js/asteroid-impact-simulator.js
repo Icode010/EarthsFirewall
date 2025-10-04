@@ -30,6 +30,7 @@ class AsteroidImpactSimulator {
         this.currentAsteroid = null;
         this.asteroidSelector = null;
         this.trajectorySystem = null;
+        this.impactAnimationSystem = null;
         this.simulationResults = null;
         
         // API
@@ -47,6 +48,7 @@ class AsteroidImpactSimulator {
             await this.setupUI();
             await this.initAsteroidSelector();
             await this.initTrajectorySystem();
+            await this.initImpactAnimationSystem();
             
             this.animate();
             this.showMessage('Simulator ready! Select an asteroid to begin.', 'success');
@@ -171,7 +173,9 @@ class AsteroidImpactSimulator {
             shininess: 100,
             specular: new THREE.Color(0x222222),
             emissive: new THREE.Color(0x001122),
-            emissiveIntensity: 0.1
+            emissiveIntensity: 0.1,
+            transparent: false,
+            alphaTest: 0
         });
         
         // Create Earth mesh
@@ -212,10 +216,16 @@ class AsteroidImpactSimulator {
                 console.log('📸 Earth texture loaded successfully');
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
+                texture.flipY = false; // Prevent texture flipping
+                texture.generateMipmaps = true;
+                texture.minFilter = THREE.LinearMipmapLinearFilter;
+                texture.magFilter = THREE.LinearFilter;
                 
                 // Update Earth material with texture
                 if (this.earth && this.earth.material) {
                     this.earth.material.map = texture;
+                    this.earth.material.transparent = false;
+                    this.earth.material.alphaTest = 0;
                     this.earth.material.needsUpdate = true;
                     console.log('✅ Earth texture applied to model');
                 }
@@ -237,7 +247,9 @@ class AsteroidImpactSimulator {
             shininess: 100,
             specular: new THREE.Color(0x222222),
             emissive: new THREE.Color(0x001122),
-            emissiveIntensity: 0.05
+            emissiveIntensity: 0.05,
+            transparent: false,
+            alphaTest: 0
         });
         
         this.earth = new THREE.Mesh(geometry, material);
@@ -309,6 +321,7 @@ class AsteroidImpactSimulator {
         this.customVelocity = document.getElementById('customVelocity');
         this.runSimulation = document.getElementById('runSimulation');
         this.resetSimulation = document.getElementById('resetSimulation');
+        this.startAnimation = document.getElementById('startAnimation');
         this.toggleAnimation = document.getElementById('toggleAnimation');
         this.animationSpeed = document.getElementById('animationSpeed');
         
@@ -334,6 +347,7 @@ class AsteroidImpactSimulator {
         // Button events
         this.runSimulation.addEventListener('click', () => this.runSimulationHandler());
         this.resetSimulation.addEventListener('click', () => this.resetSimulationHandler());
+        this.startAnimation.addEventListener('click', () => this.startAnimationHandler());
         this.toggleAnimation.addEventListener('click', () => this.toggleAnimationHandler());
         
         // Asteroid selection
@@ -378,6 +392,22 @@ class AsteroidImpactSimulator {
             console.log('✅ Trajectory system initialized');
         } catch (error) {
             console.error('❌ Failed to initialize trajectory system:', error);
+        }
+    }
+
+    async initImpactAnimationSystem() {
+        try {
+            console.log('💥 Initializing impact animation system...');
+            
+            if (typeof ImpactAnimationSystem === 'undefined') {
+                console.warn('⚠️ ImpactAnimationSystem not available');
+                return;
+            }
+            
+            this.impactAnimationSystem = new ImpactAnimationSystem(this);
+            console.log('✅ Impact animation system initialized');
+        } catch (error) {
+            console.error('❌ Failed to initialize impact animation system:', error);
         }
     }
 
@@ -610,8 +640,9 @@ class AsteroidImpactSimulator {
                 
                 this.displayImpactResults(results);
                 this.visualizeImpactEffects(results);
-                this.animateImpactSequence();
-                this.showMessage('NASA-grade simulation completed successfully!', 'success');
+                
+                // Simulation completed, ready for animation
+                this.showMessage('Simulation completed! Click "Start Animation" to see impact sequence.', 'success');
             }
             
         } catch (error) {
@@ -964,6 +995,43 @@ class AsteroidImpactSimulator {
         animateShockwave();
     }
 
+    async startAnimationHandler() {
+        if (!this.currentAsteroid) {
+            this.showMessage('Please select an asteroid and run simulation first!', 'error');
+            return;
+        }
+        
+        if (!this.simulationResults) {
+            this.showMessage('Please run simulation first!', 'error');
+            return;
+        }
+        
+        try {
+            this.showMessage('Starting impact animation sequence...', 'info');
+            
+            // Get simulation parameters
+            const impactParams = {
+                impact_velocity: parseFloat(this.impactVelocity.value),
+                impact_angle: parseFloat(this.impactAngle.value),
+                impact_location: [0, 0],
+                target_material: this.impactLocation.value
+            };
+            
+            // Start comprehensive impact animation
+            if (this.impactAnimationSystem) {
+                await this.impactAnimationSystem.startImpactAnimation(this.currentAsteroid, impactParams);
+                this.showMessage('Animation completed!', 'success');
+            } else {
+                // Fallback to basic animation
+                this.animateImpactSequence();
+                this.showMessage('Animation completed!', 'success');
+            }
+        } catch (error) {
+            console.error('Animation failed:', error);
+            this.showMessage('Animation failed: ' + error.message, 'error');
+        }
+    }
+
     resetSimulationHandler() {
         // Reset UI
         this.asteroidSelect.value = '';
@@ -987,6 +1055,11 @@ class AsteroidImpactSimulator {
         // Clean up trajectory system
         if (this.trajectorySystem) {
             this.trajectorySystem.cleanup();
+        }
+        
+        // Clean up impact animation system
+        if (this.impactAnimationSystem) {
+            this.impactAnimationSystem.clearImpactEffects();
         }
         
         if (this.asteroidTrajectory) {

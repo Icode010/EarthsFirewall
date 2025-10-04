@@ -6,13 +6,13 @@
 <div class="simulator-container">
   <!-- Header -->
   <div class="simulator-header">
-    <h1>🌍 Asteroid Impact Simulator</h1>
+    <h1>Asteroid Impact Simulator</h1>
     <p>Explore the effects of asteroid impacts on Earth using real NASA data</p>
     <div class="header-stats">
-      <span class="stat">📡 Live NASA Data</span>
-      <span class="stat">🌊 Tsunami Modeling</span>
-      <span class="stat">🛡️ Mitigation Strategies</span>
-      <span class="stat">🌍 3D Visualization</span>
+      <span class="stat">Live NASA Data</span>
+      <span class="stat">Tsunami Modeling</span>
+      <span class="stat">Mitigation Strategies</span>
+      <span class="stat">3D Visualization</span>
     </div>
   </div>
 
@@ -25,7 +25,7 @@
 
     <!-- Control Panel -->
     <div class="simulator-controls">
-      <h3>🎛️ Simulation Controls</h3>
+      <h3>Simulation Controls</h3>
       
       <!-- Asteroid Selection -->
       <div class="controls-section">
@@ -74,9 +74,10 @@
 
       <!-- Action Buttons -->
         <div class="action-buttons">
-          <button id="runSimulation" class="primary-btn">🚀 Run Simulation</button>
-          <button id="resetSimulation" class="secondary-btn">🔄 Reset</button>
-          <button id="toggleAnimation" class="secondary-btn">▶️ Play/Pause</button>
+          <button id="runSimulation" class="primary-btn">Run Simulation</button>
+          <button id="startAnimation" class="secondary-btn">Start Animation</button>
+          <button id="resetSimulation" class="secondary-btn">Reset</button>
+          <button id="toggleAnimation" class="secondary-btn">Play/Pause</button>
       </div>
 
         <!-- Animation Controls -->
@@ -90,10 +91,10 @@
 
     <!-- Results Panel -->
     <div class="simulation-results">
-      <h3>📊 Impact Analysis</h3>
+      <h3>Impact Analysis</h3>
       <div id="impactResults" class="results-content">
         <div class="loading-message">
-          <p>🌍 Select an asteroid and run simulation to see results</p>
+          <p>Select an asteroid and run simulation to see results</p>
       </div>
       </div>
     </div>
@@ -116,6 +117,7 @@
 <script src="{{ url_for('static', filename='js/visualization/asteroid-model.js') }}"></script>
 <script src="{{ url_for('static', filename='js/visualization/asteroid-selector.js') }}"></script>
 <script src="{{ url_for('static', filename='js/visualization/trajectory-system.js') }}"></script>
+<script src="{{ url_for('static', filename='js/visualization/impact-animation-system.js') }}"></script>
 <script src="{{ url_for('static', filename='js/asteroid-impact-simulator.js') }}"></script>
 
 <style>
@@ -317,6 +319,26 @@
       color: #44ff44;
       font-weight: bold;
     }
+    
+    /* Shrink footer in simulation mode */
+    .simulator-container ~ footer {
+      padding: 10px 20px !important;
+      margin-top: 10px !important;
+    }
+    
+    .simulator-container ~ footer .footer-content {
+      padding: 5px 0 !important;
+    }
+    
+    .simulator-container ~ footer h3 {
+      font-size: 14px !important;
+      margin: 5px 0 !important;
+    }
+    
+    .simulator-container ~ footer p {
+      font-size: 12px !important;
+      margin: 2px 0 !important;
+    }
 
 .control-group select:focus,
 .control-group input:focus {
@@ -377,37 +399,48 @@
 }
 
 .primary-btn {
-  background: linear-gradient(45deg, #e74c3c, #c0392b);
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: bold;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  color: #ffffff;
+  border: 1px solid #4a9eff;
+  padding: 14px 24px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  box-shadow: 0 2px 8px rgba(74, 158, 255, 0.2);
 }
 
 .primary-btn:hover {
-  background: linear-gradient(45deg, #c0392b, #a93226);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+  background: linear-gradient(135deg, #16213e, #0f1419);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+  border-color: #5ba3ff;
 }
 
 .secondary-btn {
-  background: rgba(74, 158, 255, 0.2);
-  color: #4a9eff;
-  border: 1px solid rgba(74, 158, 255, 0.3);
-  padding: 10px 16px;
+  background: linear-gradient(135deg, #0f1419, #1a1a2e);
+  color: #b8bcc8;
+  border: 1px solid #444;
+  padding: 12px 20px;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
+  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .secondary-btn:hover {
-  background: rgba(74, 158, 255, 0.3);
+  background: linear-gradient(135deg, #1a1a2e, #0f1419);
   transform: translateY(-1px);
+  border-color: #666;
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* Animation Controls */
