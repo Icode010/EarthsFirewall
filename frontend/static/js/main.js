@@ -135,6 +135,11 @@ function initializeControls() {
             // Game mode is ready
         }
         
+        // Initialize tooltips
+        if (window.tooltipManager) {
+            window.tooltipManager.initialize();
+        }
+        
         console.log('✅ Amazing controls initialized!');
         
     } catch (error) {

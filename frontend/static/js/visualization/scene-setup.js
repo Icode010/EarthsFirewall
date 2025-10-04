@@ -102,43 +102,56 @@ function setupAmazingLighting() {
     console.log('💡 Setting up amazing lighting...');
     
     // Ambient light for overall illumination
-    ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+    ambientLight = new THREE.AmbientLight(0x404040, 0.4);
     scene.add(ambientLight);
 
-    // Main directional light (sun)
-    directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    // Main directional light (sun) with amazing settings
+    directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
     directionalLight.position.set(5, 3, 5);
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
+    directionalLight.shadow.mapSize.width = 4096;
+    directionalLight.shadow.mapSize.height = 4096;
     directionalLight.shadow.camera.near = 0.5;
     directionalLight.shadow.camera.far = 50;
     directionalLight.shadow.camera.left = -10;
     directionalLight.shadow.camera.right = 10;
     directionalLight.shadow.camera.top = 10;
     directionalLight.shadow.camera.bottom = -10;
+    directionalLight.shadow.bias = -0.0001;
     scene.add(directionalLight);
 
     // Point light for dramatic effect
-    pointLight = new THREE.PointLight(0x00aaff, 0.5, 10);
+    pointLight = new THREE.PointLight(0x00aaff, 0.8, 15);
     pointLight.position.set(2, 1, 2);
+    pointLight.castShadow = true;
     scene.add(pointLight);
+
+    // Add rim light for Earth glow
+    const rimLight = new THREE.DirectionalLight(0x87ceeb, 0.3);
+    rimLight.position.set(-3, -2, -3);
+    scene.add(rimLight);
+
+    // Add atmospheric light
+    const atmosphericLight = new THREE.HemisphereLight(0x87ceeb, 0x001122, 0.2);
+    scene.add(atmosphericLight);
 }
 
 // Create amazing Earth with realistic textures
 async function createAmazingEarth() {
     console.log('🌍 Creating amazing Earth...');
     
-    // Earth geometry
-    const earthGeometry = new THREE.SphereGeometry(SCENE_CONFIG.earthRadius, 64, 64);
+    // Earth geometry with high detail
+    const earthGeometry = new THREE.SphereGeometry(SCENE_CONFIG.earthRadius, 128, 128);
     
-    // Create amazing Earth material
+    // Create amazing Earth material with multiple textures
     const earthMaterial = new THREE.MeshPhongMaterial({
         map: createEarthTexture(),
         bumpMap: createBumpTexture(),
-        bumpScale: 0.1,
-        shininess: 100,
-        specular: new THREE.Color(0x222222)
+        bumpScale: 0.15,
+        shininess: 150,
+        specular: new THREE.Color(0x444444),
+        emissive: new THREE.Color(0x001122),
+        emissiveIntensity: 0.1
     });
 
     // Create Earth mesh
@@ -150,6 +163,9 @@ async function createAmazingEarth() {
 
     // Add Earth rotation animation
     animateEarthRotation();
+
+    // Add Earth glow effect
+    createEarthGlow();
 
     console.log('✅ Amazing Earth created!');
 }
@@ -375,6 +391,34 @@ function onWindowResize() {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);
+}
+
+// Create Earth glow effect
+function createEarthGlow() {
+    if (!earth) return;
+    
+    // Create glow geometry (slightly larger than Earth)
+    const glowGeometry = new THREE.SphereGeometry(SCENE_CONFIG.earthRadius * 1.05, 64, 64);
+    const glowMaterial = new THREE.MeshBasicMaterial({
+        color: 0x87ceeb,
+        transparent: true,
+        opacity: 0.1,
+        side: THREE.BackSide
+    });
+    
+    const earthGlow = new THREE.Mesh(glowGeometry, glowMaterial);
+    earthGlow.name = 'EarthGlow';
+    scene.add(earthGlow);
+    
+    // Animate glow
+    function animateGlow() {
+        if (earthGlow) {
+            earthGlow.rotation.y += SCENE_CONFIG.animationSpeed * 0.5;
+            earthGlow.material.opacity = 0.1 + Math.sin(Date.now() * 0.001) * 0.05;
+            requestAnimationFrame(animateGlow);
+        }
+    }
+    animateGlow();
 }
 
 // Animate Earth rotation
