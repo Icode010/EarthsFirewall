@@ -1,26 +1,117 @@
-// 🪨 Amazing Asteroid Model - Realistic Physics & Animation
+// 🪨 Amazing Asteroid Model - Based on provided code
 console.log('🪨 Loading amazing asteroid model...');
 
-// Asteroid Physics Constants
-const ASTEROID_PHYSICS = {
-    density: 3000, // kg/m³
-    rotationSpeed: 0.02,
-    trailLength: 100,
-    trailOpacity: 0.6
-};
-
-// Create amazing asteroid with realistic features
+// Create amazing asteroid with realistic features using the provided code
 function createAmazingAsteroid(diameter = 0.02, position = {x: 0, y: 0, z: 3}) {
     console.log('🪨 Creating amazing asteroid...');
     
-    // Create irregular asteroid geometry
-    const asteroidGeometry = createIrregularAsteroidGeometry(diameter);
+    // Create asteroid with high detail smooth geometry
+    const geometry = new THREE.SphereGeometry(diameter / 2, 128, 128);
     
-    // Create realistic asteroid material
-    const asteroidMaterial = createAsteroidMaterial();
+    // Add natural random variation to vertices
+    const positions = geometry.attributes.position;
+    const vertexCount = positions.count;
     
-    // Create asteroid mesh
-    const asteroidMesh = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
+    // Create many random craters
+    const craterCount = 120;
+    const craters = [];
+    for (let i = 0; i < craterCount; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const r = diameter / 2;
+        
+        craters.push({
+            x: r * Math.sin(phi) * Math.cos(theta),
+            y: r * Math.sin(phi) * Math.sin(theta),
+            z: r * Math.cos(phi),
+            radius: Math.random() * 0.6 + 0.15,
+            depth: Math.random() * 0.12 + 0.05
+        });
+    }
+    
+    for (let i = 0; i < vertexCount; i++) {
+        const x = positions.getX(i);
+        const y = positions.getY(i);
+        const z = positions.getZ(i);
+        
+        const length = Math.sqrt(x * x + y * y + z * z);
+        const nx = x / length;
+        const ny = y / length;
+        const nz = z / length;
+        
+        // Create oval shape by stretching along one axis
+        const ovalFactorX = 1.3;
+        const ovalFactorY = 0.85;
+        const ovalFactorZ = 1.0;
+        
+        // Add subtle irregular bulges and rounded edges (not sharp)
+        const bulge1 = Math.max(0, Math.sin(nx * 2.1 + 10) * Math.cos(ny * 1.8 + 20)) * 0.12;
+        const bulge2 = Math.max(0, Math.sin(ny * 2.4 + 30) * Math.cos(nz * 2.2 + 40)) * 0.10;
+        const bulge3 = Math.max(0, Math.sin(nz * 1.9 + 50) * Math.cos(nx * 2.3 + 60)) * 0.08;
+        
+        // Start with perfectly smooth sphere
+        let displacement = 1.0 + bulge1 + bulge2 + bulge3;
+        
+        // Add very gentle, smooth organic shape variation
+        const smooth1 = Math.sin(x * 1.3 + 17.5) * Math.cos(y * 1.5 + 23.7) * 0.04;
+        const smooth2 = Math.sin(y * 1.7 + 41.2) * Math.cos(z * 1.4 + 33.8) * 0.03;
+        const smooth3 = Math.sin(z * 1.2 + 52.1) * Math.cos(x * 1.6 + 61.4) * 0.02;
+        
+        displacement += smooth1 + smooth2 + smooth3;
+        
+        // Very subtle overall shape variation (no spikes, just gentle curves)
+        const gentleVariation = (Math.random() - 0.5) * 0.03;
+        displacement += gentleVariation;
+        
+        // Add many craters with very smooth, gradual falloff
+        for (let j = 0; j < craters.length; j++) {
+            const crater = craters[j];
+            const dx = x - crater.x;
+            const dy = y - crater.y;
+            const dz = z - crater.z;
+            const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            
+            if (dist < crater.radius) {
+                const craterEffect = 1 - (dist / crater.radius);
+                // Very smooth bowl-shaped crater (power of 4 for extra smoothness)
+                const craterDepth = Math.pow(craterEffect, 4) * crater.depth;
+                displacement -= craterDepth;
+                
+                // Very subtle, smooth crater rim
+                if (dist > crater.radius * 0.8) {
+                    const rimEffect = (dist - crater.radius * 0.8) / (crater.radius * 0.2);
+                    displacement += Math.sin(rimEffect * Math.PI) * crater.depth * 0.08;
+                }
+            }
+        }
+        
+        // Extremely subtle micro-detail (almost imperceptible)
+        const microDetail = (Math.random() - 0.5) * 0.008;
+        displacement += microDetail;
+        
+        // Ensure smooth, positive displacement only
+        displacement = Math.max(displacement, 0.7);
+        
+        // Apply oval shape transformation
+        positions.setXYZ(
+            i, 
+            nx * displacement * diameter / 2 * ovalFactorX, 
+            ny * displacement * diameter / 2 * ovalFactorY, 
+            nz * displacement * diameter / 2 * ovalFactorZ
+        );
+    }
+    positions.needsUpdate = true;
+    geometry.computeVertexNormals();
+    
+    // Create natural rocky material with smooth shading
+    const material = new THREE.MeshStandardMaterial({
+        color: 0x5a5a5a,
+        roughness: 0.95,
+        metalness: 0.05,
+        flatShading: false
+    });
+    
+    const asteroidMesh = new THREE.Mesh(geometry, material);
     asteroidMesh.position.set(position.x, position.y, position.z);
     asteroidMesh.castShadow = true;
     asteroidMesh.receiveShadow = true;
@@ -30,7 +121,7 @@ function createAmazingAsteroid(diameter = 0.02, position = {x: 0, y: 0, z: 3}) {
     asteroidMesh.userData = {
         diameter: diameter,
         velocity: { x: 0, y: 0, z: -0.1 },
-        rotationSpeed: ASTEROID_PHYSICS.rotationSpeed,
+        rotationSpeed: 0.005,
         isAnimating: false
     };
     
@@ -38,43 +129,9 @@ function createAmazingAsteroid(diameter = 0.02, position = {x: 0, y: 0, z: 3}) {
     return asteroidMesh;
 }
 
-// Create irregular asteroid geometry
-function createIrregularAsteroidGeometry(diameter) {
-    // Start with icosahedron for more realistic shape
-    const geometry = new THREE.IcosahedronGeometry(diameter / 2, 2);
-    
-    // Add random noise to vertices for irregular shape
-    const vertices = geometry.attributes.position.array;
-    for (let i = 0; i < vertices.length; i += 3) {
-        const noise = (Math.random() - 0.5) * 0.3;
-        vertices[i] += noise * diameter;     // x
-        vertices[i + 1] += noise * diameter; // y
-        vertices[i + 2] += noise * diameter; // z
-    }
-    
-    geometry.attributes.position.needsUpdate = true;
-    geometry.computeVertexNormals();
-    
-    return geometry;
-}
-
-// Create realistic asteroid material
-function createAsteroidMaterial() {
-    return new THREE.MeshPhongMaterial({
-        color: 0x8b7355, // Brownish-gray
-        shininess: 30,
-        specular: 0x222222,
-        roughness: 0.8,
-        metalness: 0.1,
-        bumpScale: 0.1,
-        transparent: false
-    });
-}
-
 // Set asteroid velocity for animation
 function setAsteroidVelocity(velocity) {
     // This function is called by external code to set asteroid movement
-    // The velocity will be used by the calling code for animation
     if (typeof window.currentAsteroidVelocity === 'undefined') {
         window.currentAsteroidVelocity = {};
     }
@@ -88,7 +145,7 @@ function createAsteroidTrail(scene, asteroidMesh) {
     const trailGeometry = new THREE.BufferGeometry();
     const trailMaterial = new THREE.LineBasicMaterial({
         color: 0xff6b6b,
-        opacity: ASTEROID_PHYSICS.trailOpacity,
+        opacity: 0.6,
         transparent: true,
         linewidth: 2
     });
@@ -100,7 +157,7 @@ function createAsteroidTrail(scene, asteroidMesh) {
     // Store trail data
     trailLine.userData = {
         points: trailPoints,
-        maxPoints: ASTEROID_PHYSICS.trailLength
+        maxPoints: 100
     };
     
     scene.add(trailLine);

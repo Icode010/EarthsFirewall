@@ -67,7 +67,7 @@ class AsteroidImpactSimulator {
             0.1,
             1000
         );
-        this.camera.position.set(0, 0, 8);
+        this.camera.position.set(0, 0, 6);
         
         // Renderer
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -90,15 +90,20 @@ class AsteroidImpactSimulator {
         }
         
         // Lighting
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
         this.scene.add(ambientLight);
         
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(10, 10, 5);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        directionalLight.position.set(5, 5, 5);
         directionalLight.castShadow = true;
         directionalLight.shadow.mapSize.width = 2048;
         directionalLight.shadow.mapSize.height = 2048;
         this.scene.add(directionalLight);
+        
+        // Additional light for better Earth visibility
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        fillLight.position.set(-5, -5, -5);
+        this.scene.add(fillLight);
         
         // Stars
         this.createStarField();
@@ -108,40 +113,116 @@ class AsteroidImpactSimulator {
     }
     
     async loadEarthModel() {
+        console.log('🌍 Starting Earth model loading...');
+        
+        // Always create a working Earth model first
+        this.createEnhancedEarth();
+        
+        // Try to load enhanced textures if available
         try {
-            console.log('🌍 Loading Earth model...');
             if (typeof createEarthModel === 'function') {
+                console.log('📸 Attempting to load enhanced Earth textures...');
                 const textureLoader = new THREE.TextureLoader();
                 const earthGroup = await new Promise((resolve, reject) => {
                     createEarthModel(textureLoader, (earth) => {
                         if (earth) {
-                            console.log('✅ Earth model created successfully');
+                            console.log('✅ Enhanced Earth model with textures created');
                             resolve(earth);
                         } else {
-                            console.error('❌ Earth model creation failed');
-                            reject(new Error('Earth model creation failed'));
+                            console.warn('⚠️ Enhanced Earth model creation failed, using basic model');
+                            resolve(null);
                         }
                     });
                 });
                 
                 if (earthGroup) {
+                    // Remove basic Earth and add enhanced one
+                    if (this.earth) {
+                        this.scene.remove(this.earth);
+                    }
                     this.earth = earthGroup;
                     this.earth.scale.setScalar(2);
                     this.earth.name = 'Earth';
                     this.scene.add(this.earth);
-                    console.log('✅ Enhanced Earth model loaded and added to scene');
+                    console.log('✅ Enhanced Earth model with textures loaded');
                     return;
                 }
             } else {
-                console.warn('⚠️ createEarthModel function not available');
+                console.log('ℹ️ Enhanced Earth model function not available, using basic model');
             }
         } catch (error) {
-            console.error('❌ Failed to load enhanced Earth model:', error);
+            console.error('❌ Enhanced Earth model failed:', error);
+            console.log('ℹ️ Continuing with basic Earth model');
         }
+    }
+    
+    createEnhancedEarth() {
+        console.log('🌍 Creating enhanced Earth model...');
         
-        // Fallback basic Earth
-        console.log('🔄 Using fallback basic Earth model');
-        this.createBasicEarth();
+        // Create Earth geometry
+        const geometry = new THREE.SphereGeometry(2, 64, 64);
+        
+        // Create Earth material with realistic colors
+        const material = new THREE.MeshPhongMaterial({
+            color: 0x4a90e2,
+            shininess: 100,
+            specular: new THREE.Color(0x222222),
+            emissive: new THREE.Color(0x001122),
+            emissiveIntensity: 0.1
+        });
+        
+        // Create Earth mesh
+        this.earth = new THREE.Mesh(geometry, material);
+        this.earth.castShadow = true;
+        this.earth.receiveShadow = true;
+        this.earth.name = 'Earth';
+        this.earth.position.set(0, 0, 0); // Ensure Earth is at origin
+        this.scene.add(this.earth);
+        
+        console.log('🌍 Earth mesh created and added to scene at position:', this.earth.position);
+        
+        // Add atmospheric glow effect
+        const glowGeometry = new THREE.SphereGeometry(2.05, 32, 32);
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: 0x4a90e2,
+            transparent: true,
+            opacity: 0.1,
+            side: THREE.BackSide
+        });
+        
+        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+        glow.name = 'EarthGlow';
+        this.scene.add(glow);
+        
+        console.log('✅ Enhanced Earth model created and added to scene');
+        
+        // Try to load Earth texture
+        this.loadEarthTexture();
+    }
+    
+    loadEarthTexture() {
+        const textureLoader = new THREE.TextureLoader();
+        
+        textureLoader.load(
+            '/static/assets/images/earthmap.jpg',
+            (texture) => {
+                console.log('📸 Earth texture loaded successfully');
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                
+                // Update Earth material with texture
+                if (this.earth && this.earth.material) {
+                    this.earth.material.map = texture;
+                    this.earth.material.needsUpdate = true;
+                    console.log('✅ Earth texture applied to model');
+                }
+            },
+            undefined,
+            (error) => {
+                console.warn('⚠️ Could not load Earth texture:', error);
+                console.log('ℹ️ Using solid color Earth model');
+            }
+        );
     }
     
     createBasicEarth() {
