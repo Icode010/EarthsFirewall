@@ -1,205 +1,213 @@
-# Impact scenario model for Asteroid Impact Simulator
-# ImpactScenario class definition
-# Attributes:
-#   - asteroid (Asteroid object)
-#   - impact_point (latitude, longitude)
-#   - impact_angle (degrees)
-#   - impact_velocity (km/s)
-#   - impact_energy (Joules)
-#   - tnt_equivalent (megatons)
-#   - crater_diameter (km)
-#   - environmental_effects (dict)
-# 
-# Methods:
-#   - __init__: Initialize scenario
-#   - calculate_impact_energy(): E = 0.5 * m * v^2
-#   - calculate_crater_size(): Use scaling laws
-#   - assess_environmental_effects(): Determine tsunamis, seismic
-#   - to_dict(): Serialize for JSON response
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
+import math
 
-# import math
-# from models.asteroid import Asteroid
-# from config import EARTH_RADIUS
-# 
-# class ImpactScenario:
-#     def __init__(self, asteroid, impact_point, impact_angle=45):
-#         """
-#         Initialize impact scenario
-#         
-#         Args:
-#             asteroid (Asteroid): Asteroid object
-#             impact_point (dict): {'lat': float, 'lon': float}
-#             impact_angle (float): Impact angle in degrees (0 = grazing, 90 = vertical)
-#         """
-#         self.asteroid = asteroid
-#         self.impact_point = impact_point
-#         self.impact_angle = impact_angle
-#         self.impact_velocity = asteroid.velocity
-#         self.impact_energy = self.calculate_impact_energy()
-#         self.tnt_equivalent = self.energy_to_tnt_equivalent()
-#         self.crater_diameter = self.calculate_crater_size()
-#         self.environmental_effects = self.assess_environmental_effects()
-#     
-#     def calculate_impact_energy(self):
-#         """
-#         Calculate kinetic energy of impact
-#         E = 0.5 * m * v²
-#         """
-#         mass_kg = self.asteroid.mass
-#         velocity_ms = self.impact_velocity * 1000  # Convert km/s to m/s
-#         
-#         # Account for impact angle (vertical component)
-#         vertical_velocity = velocity_ms * math.sin(math.radians(self.impact_angle))
-#         
-#         energy_joules = 0.5 * mass_kg * (vertical_velocity ** 2)
-#         return energy_joules
-#     
-#     def energy_to_tnt_equivalent(self):
-#         """
-#         Convert impact energy to TNT equivalent
-#         1 megaton TNT = 4.184 × 10^15 Joules
-#         """
-#         megatons_tnt = self.impact_energy / (4.184e15)
-#         return megatons_tnt
-#     
-#     def calculate_crater_size(self):
-#         """
-#         Calculate crater diameter using scaling laws
-#         Based on experimental and theoretical crater scaling
-#         """
-#         # Simplified crater scaling (can be made more sophisticated)
-#         # D = k * (E)^(1/3) where k is a constant
-#         
-#         # Energy in megatons TNT
-#         energy_mt = self.tnt_equivalent
-#         
-#         # Scaling factor (empirically derived)
-#         k = 0.1  # km per megaton^(1/3)
-#         
-#         # Account for impact angle
-#         angle_factor = math.sin(math.radians(self.impact_angle)) ** 0.3
-#         
-#         crater_diameter = k * (energy_mt ** (1/3)) * angle_factor
-#         
-#         # Minimum crater size (even small impacts create craters)
-#         crater_diameter = max(crater_diameter, 0.1)  # 100m minimum
-#         
-#         return crater_diameter
-#     
-#     def assess_environmental_effects(self):
-#         """
-#         Assess environmental effects of impact
-#         """
-#         effects = {}
-#         
-#         # Blast radius (area of total destruction)
-#         # Based on energy scaling
-#         blast_radius = self.crater_diameter * 2  # km
-#         effects['blast_radius'] = blast_radius
-#         
-#         # Thermal radiation radius
-#         # Thermal effects extend much further than blast
-#         thermal_radius = self.crater_diameter * 10  # km
-#         effects['thermal_radius'] = thermal_radius
-#         
-#         # Seismic effects
-#         # Convert to Richter scale equivalent
-#         seismic_magnitude = self.calculate_seismic_magnitude()
-#         effects['seismic_magnitude'] = seismic_magnitude
-#         
-#         # Tsunami risk (if ocean impact)
-#         tsunami_risk = self.assess_tsunami_risk()
-#         effects['tsunami_risk'] = tsunami_risk
-#         
-#         # Atmospheric effects
-#         atmospheric_effects = self.assess_atmospheric_effects()
-#         effects['atmospheric'] = atmospheric_effects
-#         
-#         return effects
-#     
-#     def calculate_seismic_magnitude(self):
-#         """
-#         Calculate seismic magnitude equivalent
-#         """
-#         # Convert energy to seismic magnitude
-#         # M = (log10(E) - 4.8) / 1.5
-#         # where E is in Joules
-#         
-#         if self.impact_energy <= 0:
-#             return 0
-#         
-#         magnitude = (math.log10(self.impact_energy) - 4.8) / 1.5
-#         return max(0, magnitude)  # Minimum magnitude of 0
-#     
-#     def assess_tsunami_risk(self):
-#         """
-#         Assess tsunami risk based on impact location and energy
-#         """
-#         # Simplified tsunami assessment
-#         # Real implementation would use ocean depth data
-#         
-#         tsunami_risk = {
-#             'high_risk': False,
-#             'wave_height': 0,  # meters
-#             'affected_coastlines': []
-#         }
-#         
-#         # Check if impact is in ocean (simplified)
-#         lat = self.impact_point.get('lat', 0)
-#         lon = self.impact_point.get('lon', 0)
-#         
-#         # Simple ocean check (not accurate, would need real ocean data)
-#         is_ocean = abs(lat) < 60 and abs(lon) < 180  # Simplified
-#         
-#         if is_ocean and self.tnt_equivalent > 1:  # > 1 megaton
-#             tsunami_risk['high_risk'] = True
-#             # Estimate wave height based on energy
-#             tsunami_risk['wave_height'] = min(100, self.tnt_equivalent * 10)  # meters
-#             tsunami_risk['affected_coastlines'] = ['Global']  # Simplified
-#         
-#         return tsunami_risk
-#     
-#     def assess_atmospheric_effects(self):
-#         """
-#         Assess atmospheric effects of impact
-#         """
-#         atmospheric = {
-#             'dust_ejected': 0,  # tons
-#             'cooling_effect': 0,  # degrees C
-#             'ozone_depletion': False
-#         }
-#         
-#         # Dust ejected (simplified calculation)
-#         if self.tnt_equivalent > 10:  # > 10 megatons
-#             atmospheric['dust_ejected'] = self.tnt_equivalent * 1000  # tons
-#             atmospheric['cooling_effect'] = min(5, self.tnt_equivalent / 100)  # degrees C
-#             atmospheric['ozone_depletion'] = self.tnt_equivalent > 100
-#         
-#         return atmospheric
-#     
-#     def get_devastation_radius(self):
-#         """
-#         Get total devastation radius
-#         """
-#         return self.environmental_effects.get('blast_radius', 0)
-#     
-#     def to_dict(self):
-#         """
-#         Convert scenario to dictionary for JSON serialization
-#         """
-#         return {
-#             'asteroid': self.asteroid.to_dict(),
-#             'impact_point': self.impact_point,
-#             'impact_angle': self.impact_angle,
-#             'impact_velocity': self.impact_velocity,
-#             'impact_energy': self.impact_energy,
-#             'tnt_equivalent': self.tnt_equivalent,
-#             'crater_diameter': self.crater_diameter,
-#             'environmental_effects': self.environmental_effects
-#         }
-#     
-#     def __str__(self):
-#         return f"Impact Scenario: {self.asteroid.name} -> {self.impact_point}"
-#     
-#     def __repr__(self):
-#         return f"ImpactScenario(asteroid={self.asteroid.name}, point={self.impact_point})"
+@dataclass
+class ImpactSimulation:
+    """Represents an asteroid impact simulation result"""
+    
+    # Asteroid data
+    asteroid_name: str
+    asteroid_diameter: float  # km
+    asteroid_mass: float  # kg
+    asteroid_velocity: float  # km/s
+    
+    # Impact parameters
+    impact_angle: float  # degrees
+    impact_location: Tuple[float, float]  # lat, lon
+    target_material: str  # rock, water, ice
+    
+    # Impact results
+    kinetic_energy: float  # joules
+    tnt_equivalent: float  # megatons
+    equivalent_magnitude: float  # earthquake magnitude
+    
+    # Crater formation
+    crater_diameter: float  # km
+    crater_depth: float  # km
+    crater_volume: float  # km³
+    
+    # Environmental effects
+    blast_effects: Dict
+    seismic_effects: Dict
+    tsunami_effects: Optional[Dict] = None
+    
+    # Timestamp
+    simulation_timestamp: Optional[str] = None
+    
+    def calculate_impact_energy(self, mass: float, velocity: float, angle: float) -> float:
+        """Calculate kinetic energy of impact"""
+        angle_rad = math.radians(angle)
+        effective_mass = mass * math.sin(angle_rad)
+        velocity_ms = velocity * 1000  # Convert km/s to m/s
+        return 0.5 * effective_mass * (velocity_ms ** 2)
+    
+    def energy_to_tnt_equivalent(self, energy_joules: float) -> float:
+        """Convert energy to TNT equivalent in megatons"""
+        return energy_joules / (4.184e15)  # 1 MT TNT = 4.184e15 J
+    
+    def energy_to_magnitude(self, energy_joules: float) -> float:
+        """Convert energy to equivalent earthquake magnitude"""
+        if energy_joules <= 0:
+            return 0
+        return (math.log10(energy_joules) - 4.8) / 1.5
+    
+    def calculate_crater_dimensions(self, energy_joules: float) -> Dict:
+        """Calculate crater dimensions based on impact energy"""
+        tnt_equivalent = self.energy_to_tnt_equivalent(energy_joules)
+        
+        # Crater scaling laws (simplified)
+        if tnt_equivalent < 1e6:  # Less than 1 megaton
+            diameter = 1.2 * (tnt_equivalent ** 0.294)
+            depth = diameter / 5.0
+        else:
+            diameter = 1.8 * (tnt_equivalent ** 0.294)
+            depth = diameter / 10.0
+        
+        volume = math.pi * (diameter/2)**2 * depth
+        
+        return {
+            'diameter_km': diameter,
+            'depth_km': depth,
+            'volume_km3': volume,
+            'tnt_equivalent_megatons': tnt_equivalent
+        }
+    
+    def calculate_blast_effects(self, energy_joules: float, distances: List[float]) -> Dict:
+        """Calculate blast effects at various distances"""
+        tnt_equivalent = self.energy_to_tnt_equivalent(energy_joules)
+        blast_effects = {}
+        
+        for distance in distances:
+            # Overpressure calculation (simplified)
+            overpressure = 1000 * (tnt_equivalent ** (1/3)) / (distance ** 2)
+            
+            # Damage level based on overpressure
+            if overpressure > 200:
+                damage_level = "Complete destruction"
+            elif overpressure > 100:
+                damage_level = "Severe damage"
+            elif overpressure > 50:
+                damage_level = "Moderate damage"
+            elif overpressure > 20:
+                damage_level = "Light damage"
+            else:
+                damage_level = "No significant damage"
+            
+            blast_effects[f'{distance}km'] = {
+                'overpressure_kpa': overpressure,
+                'damage_level': damage_level,
+                'distance_km': distance
+            }
+        
+        return blast_effects
+    
+    def calculate_seismic_effects(self, magnitude: float) -> Dict:
+        """Calculate seismic effects"""
+        # Ground motion parameters (simplified)
+        pga = 0.39 * math.exp(0.5 * magnitude - 2.0)  # Peak Ground Acceleration
+        pga = max(0.001, min(pga, 2.0))  # Clamp to reasonable range
+        
+        pgv = 0.16 * math.exp(0.6 * magnitude - 2.0)  # Peak Ground Velocity
+        pgv = max(0.1, min(pgv, 200))
+        
+        mmi = 3.66 + 1.66 * magnitude  # Modified Mercalli Intensity
+        mmi = max(1.0, min(mmi, 12.0))
+        
+        return {
+            'pga': pga,
+            'pgv': pgv,
+            'mmi': mmi,
+            'magnitude': magnitude
+        }
+    
+    def calculate_tsunami_effects(self, energy_joules: float, water_depth: float = 4000, distance_to_coast: float = 1000) -> Dict:
+        """Calculate tsunami effects for oceanic impacts"""
+        if self.target_material != 'water':
+            return None
+        
+        tnt_equivalent = self.energy_to_tnt_equivalent(energy_joules)
+        
+        # Initial wave height (simplified model)
+        initial_height = 0.5 * (tnt_equivalent ** (1/3)) * (water_depth ** (-1/4))
+        
+        # Wave height at coast (exponential decay)
+        coastal_height = initial_height * math.exp(-distance_to_coast / 1000)
+        
+        # Inundation distance (simplified)
+        inundation_distance = 2.0 * coastal_height
+        
+        return {
+            'initial_wave_height_m': initial_height,
+            'coastal_wave_height_m': coastal_height,
+            'inundation_distance_km': inundation_distance,
+            'tsunami_arrival_time_min': distance_to_coast / 500  # Average tsunami speed
+        }
+    
+    def to_dict(self) -> Dict:
+        """Convert simulation to dictionary"""
+        return {
+            'asteroid': {
+                'name': self.asteroid_name,
+                'diameter_km': self.asteroid_diameter,
+                'mass_kg': self.asteroid_mass,
+                'velocity_km_s': self.asteroid_velocity
+            },
+            'impact_parameters': {
+                'angle_degrees': self.impact_angle,
+                'location': {
+                    'latitude': self.impact_location[0],
+                    'longitude': self.impact_location[1]
+                },
+                'target_material': self.target_material
+            },
+            'results': {
+                'kinetic_energy_joules': self.kinetic_energy,
+                'tnt_equivalent_megatons': self.tnt_equivalent,
+                'equivalent_magnitude': self.equivalent_magnitude
+            },
+            'crater': {
+                'diameter_km': self.crater_diameter,
+                'depth_km': self.crater_depth,
+                'volume_km3': self.crater_volume
+            },
+            'blast_effects': self.blast_effects,
+            'seismic_effects': self.seismic_effects,
+            'tsunami_effects': self.tsunami_effects,
+            'simulation_timestamp': self.simulation_timestamp
+        }
+    
+    @classmethod
+    def from_simulation_data(cls, simulation_data: Dict) -> 'ImpactSimulation':
+        """Create ImpactSimulation from simulation data"""
+        asteroid = simulation_data['asteroid']
+        energy = simulation_data['energy']
+        crater = simulation_data['crater']
+        seismic = simulation_data['seismic']
+        blast = simulation_data['blast_effects']
+        tsunami = simulation_data.get('tsunami_effects')
+        
+        return cls(
+            asteroid_name=asteroid['name'],
+            asteroid_diameter=asteroid['diameter_km'],
+            asteroid_mass=asteroid['mass_kg'],
+            asteroid_velocity=asteroid['velocity_km_s'],
+            impact_angle=asteroid['impact_angle_deg'],
+            impact_location=tuple(simulation_data['impact_location'].values()),
+            target_material=simulation_data['impact_location']['target_material'],
+            kinetic_energy=energy['kinetic_energy_joules'],
+            tnt_equivalent=energy['tnt_equivalent_megatons'],
+            equivalent_magnitude=energy['equivalent_magnitude'],
+            crater_diameter=crater['diameter_km'],
+            crater_depth=crater['depth_km'],
+            crater_volume=crater['volume_km3'],
+            blast_effects=blast,
+            seismic_effects=seismic,
+            tsunami_effects=tsunami
+        )
+    
+    def __str__(self):
+        return f"ImpactSimulation: {self.asteroid_name} -> {self.tnt_equivalent:.2f} MT"
+    
+    def __repr__(self):
+        return f"ImpactSimulation(asteroid='{self.asteroid_name}', energy={self.tnt_equivalent:.2f}MT)"

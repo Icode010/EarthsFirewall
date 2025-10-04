@@ -2,9 +2,15 @@
 from flask import Flask, render_template, jsonify, send_from_directory
 from flask_cors import CORS
 import os
+import logging
 
-# Import simulation routes
-from .api.simulation_routes import simulation_bp
+# Import API blueprints
+from api.routes import api_bp
+from api.simulation_routes import simulation_bp
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__, 
@@ -14,7 +20,8 @@ app = Flask(__name__,
 # Configure CORS
 CORS(app)
 
-# Register simulation blueprint
+# Register API blueprints
+app.register_blueprint(api_bp)
 app.register_blueprint(simulation_bp)
 
 # Serve static files
@@ -27,22 +34,42 @@ def static_files(filename):
 def index():
     return render_template('index.html')
 
-# API routes (placeholder)
-@app.route('/api/asteroids')
-def get_asteroids():
-    return jsonify({
-        'asteroids': [
-            {'id': 1, 'name': 'Impactor-2025', 'diameter': 0.5, 'velocity': 15.2},
-            {'id': 2, 'name': 'Test Asteroid', 'diameter': 1.2, 'velocity': 12.8}
-        ]
-    })
+# Simulation route
+@app.route('/simulation')
+def simulation():
+    return render_template('simulator.html')
 
-@app.route('/api/simulate/impact', methods=['POST'])
-def simulate_impact():
+# Information route
+@app.route('/information')
+def information():
+    return render_template('information.html')
+
+# Tutorial route
+@app.route('/tutorial')
+def tutorial():
+    return render_template('tutorial.html')
+
+# API status endpoint
+@app.route('/api/status')
+def api_status():
+    """API status endpoint"""
     return jsonify({
-        'impact_energy': '1.2e15 J',
-        'crater_diameter': '2.5 km',
-        'tnt_equivalent': '0.3 megatons'
+        'status': 'online',
+        'version': '2.0.0',
+        'features': [
+            'NASA NEO Data Integration',
+            'USGS Seismic Data',
+            'Real-time Impact Simulation',
+            'Mitigation Strategy Analysis',
+            '3D Earth Visualization',
+            'Tsunami Modeling'
+        ],
+        'endpoints': {
+            'asteroids': '/api/asteroids/neo',
+            'impact_simulation': '/api/simulation/impact',
+            'mitigation': '/api/mitigation/strategies',
+            'seismic': '/api/seismic/earthquakes'
+        }
     })
 
 # Health check for Railway
@@ -62,4 +89,8 @@ def internal_error(error):
 if __name__ == '__main__':
     # Get port from environment variable (Railway sets this)
     port = int(os.environ.get('PORT', 5000))
+    logger.info(f"🚀 Starting Earth's Firewall - Asteroid Impact Simulator")
+    logger.info(f"📡 NASA API Integration: Active")
+    logger.info(f"🌍 3D Visualization: Active")
+    logger.info(f"🛡️ Mitigation System: Active")
     app.run(host='0.0.0.0', port=port, debug=False)

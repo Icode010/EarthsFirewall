@@ -1,34 +1,6 @@
-{% extends "base.html" %}
+/* Asteroid Impact Simulator Styles */
 
-{% block title %}Asteroid Impact Simulator{% endblock %}
-
-{% block content %}
-<div class="simulator-container">
-  <div class="simulator-header">
-    <h1>🌍 Asteroid Impact Simulator</h1>
-    <p>Explore the effects of asteroid impacts on Earth using real NASA data and advanced 3D visualization</p>
-    <div class="header-stats">
-      <span class="stat">📡 Live NASA Data</span>
-      <span class="stat">🌊 Tsunami Modeling</span>
-      <span class="stat">🛡️ Mitigation Strategies</span>
-      <span class="stat">🌍 3D Earth Visualization</span>
-    </div>
-  </div>
-
-  <div class="simulator-main">
-    <div id="asteroid-impact-simulator" class="visualization-container">
-      <!-- 3D visualization will be rendered here -->
-    </div>
-  </div>
-</div>
-
-<!-- Three.js Scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="{{ url_for('static', filename='js/visualization/new-earth-model.js') }}"></script>
-<script src="{{ url_for('static', filename='js/asteroid-impact-simulator.js') }}"></script>
-
-  <style>
+/* Base Styles */
 .simulator-container {
   display: flex;
   flex-direction: column;
@@ -36,6 +8,7 @@
   background: linear-gradient(135deg, #0c1445 0%, #1a1a2e 100%);
   color: white;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
 }
 
 .simulator-header {
@@ -44,6 +17,7 @@
   background: rgba(0, 0, 0, 0.3);
   border-bottom: 1px solid #333;
   backdrop-filter: blur(10px);
+  z-index: 10;
 }
 
 .simulator-header h1 {
@@ -76,6 +50,12 @@
   border: 1px solid rgba(74, 158, 255, 0.3);
   font-size: 0.9em;
   color: #4a9eff;
+  transition: all 0.3s ease;
+}
+
+.stat:hover {
+  background: rgba(74, 158, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 .simulator-main {
@@ -105,6 +85,11 @@
   z-index: 100;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
+  transition: all 0.3s ease;
+}
+
+.simulator-controls:hover {
+  border-color: rgba(74, 158, 255, 0.3);
 }
 
 .simulator-controls h3 {
@@ -150,6 +135,12 @@
   outline: none;
   border-color: #4a9eff;
   box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.control-group select option {
+  background: #1a1a2e;
+  color: white;
 }
 
 .custom-asteroid-inputs,
@@ -176,16 +167,18 @@
   cursor: pointer;
   transition: all 0.3s ease;
   margin: 10px 0;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
 }
 
 .primary-btn:hover {
   background: linear-gradient(45deg, #c0392b, #a93226);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
 }
 
 .primary-btn:active {
   transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(231, 76, 60, 0.3);
 }
 
 button {
@@ -197,11 +190,13 @@ button {
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 14px;
+  font-weight: 500;
 }
 
 button:hover {
   background: rgba(74, 158, 255, 0.3);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.2);
 }
 
 .animation-controls {
@@ -215,6 +210,14 @@ button:hover {
 .animation-controls label {
   font-size: 0.9em;
   color: #ccc;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.animation-controls input[type="range"] {
+  flex: 1;
+  margin: 0;
 }
 
 /* Simulation Results Styles */
@@ -232,6 +235,11 @@ button:hover {
   z-index: 100;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
+  transition: all 0.3s ease;
+}
+
+.simulation-results:hover {
+  border-color: rgba(39, 174, 96, 0.3);
 }
 
 .results-section h3 {
@@ -254,22 +262,34 @@ button:hover {
   border-radius: 8px;
   padding: 15px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.result-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .result-card h4 {
   margin: 0 0 10px 0;
   color: #fff;
   font-size: 1em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .result-card p {
   margin: 5px 0;
   font-size: 0.9em;
   color: #ccc;
+  line-height: 1.4;
 }
 
 .result-card strong {
   color: #4a9eff;
+  font-weight: 600;
 }
 
 .mitigation-grid {
@@ -285,6 +305,19 @@ button:hover {
   padding: 15px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mitigation-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
 }
 
 .mitigation-card.high {
@@ -292,14 +325,31 @@ button:hover {
   background: rgba(39, 174, 96, 0.1);
 }
 
+.mitigation-card.high::before {
+  background: #27ae60;
+}
+
 .mitigation-card.medium {
   border-color: #f39c12;
   background: rgba(243, 156, 18, 0.1);
 }
 
+.mitigation-card.medium::before {
+  background: #f39c12;
+}
+
 .mitigation-card.low {
   border-color: #e74c3c;
   background: rgba(231, 76, 60, 0.1);
+}
+
+.mitigation-card.low::before {
+  background: #e74c3c;
+}
+
+.mitigation-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
 .mitigation-card h4 {
@@ -317,6 +367,8 @@ button:hover {
 .mitigation-card button {
   margin-top: 10px;
   width: 100%;
+  padding: 10px;
+  font-weight: 600;
 }
 
 .recommendation {
@@ -325,17 +377,30 @@ button:hover {
   border-radius: 8px;
   padding: 15px;
   margin-top: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.recommendation::before {
+  content: '🎯';
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 1.5em;
+  opacity: 0.3;
 }
 
 .recommendation h4 {
   margin: 0 0 10px 0;
   color: #27ae60;
+  font-size: 1.1em;
 }
 
 .recommendation p {
   margin: 0;
   color: #ccc;
   font-size: 0.9em;
+  line-height: 1.5;
 }
 
 /* Message Styles */
@@ -350,18 +415,20 @@ button:hover {
   z-index: 1000;
   max-width: 300px;
   animation: slideIn 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .message-error {
-  background: #e74c3c;
+  background: linear-gradient(45deg, #e74c3c, #c0392b);
 }
 
 .message-success {
-  background: #27ae60;
+  background: linear-gradient(45deg, #27ae60, #229954);
 }
 
 .message-info {
-  background: #3498db;
+  background: linear-gradient(45deg, #3498db, #2980b9);
 }
 
 @keyframes slideIn {
@@ -372,6 +439,33 @@ button:hover {
   to {
     transform: translateX(0);
     opacity: 1;
+  }
+}
+
+/* Loading States */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+  position: relative;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #4a9eff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
@@ -443,6 +537,12 @@ button:hover {
     align-items: flex-start;
     gap: 10px;
   }
+  
+  .simulator-controls,
+  .simulation-results {
+    margin: 5px;
+    padding: 15px;
+  }
 }
 
 /* Scrollbar Styling */
@@ -467,5 +567,129 @@ button:hover {
 .simulation-results::-webkit-scrollbar-thumb:hover {
   background: rgba(74, 158, 255, 0.7);
 }
-</style>
-{% endblock %}
+
+/* Custom Range Slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-track {
+  background: #1a2541;
+  height: 6px;
+  border-radius: 3px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #4a9eff;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  border: 2px solid #2b56b6;
+  box-shadow: 0 0 0 4px rgba(74, 158, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: #5ba9ff;
+  box-shadow: 0 0 0 6px rgba(74, 158, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Firefox */
+input[type="range"]::-moz-range-track {
+  background: #1a2541;
+  height: 6px;
+  border-radius: 3px;
+  border: none;
+}
+
+input[type="range"]::-moz-range-thumb {
+  background: #4a9eff;
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  border: 2px solid #2b56b6;
+  box-shadow: 0 0 0 4px rgba(74, 158, 255, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  background: #5ba9ff;
+  box-shadow: 0 0 0 6px rgba(74, 158, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Focus States */
+.control-group input:focus,
+.control-group select:focus {
+  transform: translateY(-1px);
+}
+
+/* Hover Effects */
+.result-card:hover h4,
+.mitigation-card:hover h4 {
+  color: #4a9eff;
+}
+
+/* Animation for new content */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-card,
+.mitigation-card,
+.recommendation {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Success/Error States */
+.success {
+  border-color: #27ae60 !important;
+  background: rgba(39, 174, 96, 0.1) !important;
+}
+
+.error {
+  border-color: #e74c3c !important;
+  background: rgba(231, 76, 60, 0.1) !important;
+}
+
+/* Tooltip Styles */
+.tooltip {
+  position: relative;
+  cursor: help;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+}
