@@ -4,40 +4,86 @@
 
 {% block content %}
 <div class="page-container">
-    <div class="page-header">
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="breadcrumb">
+            <a href="{{ url_for('index') }}" class="breadcrumb-link">Home</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Information</span>
+        </div>
         <h1 class="page-title">Asteroid Defense Information</h1>
         <p class="page-subtitle">Understanding NASA's Planetary Defense Efforts</p>
-    </div>
+    </section>
 
-    <div class="content-section">
-        <h2>NASA's Planetary Defense Program</h2>
-        <p>NASA's Planetary Defense Coordination Office (PDCO) is responsible for detecting, tracking, and characterizing near-Earth objects (NEOs) that could pose a threat to Earth. The program focuses on early detection and developing mitigation strategies to protect our planet.</p>
+    <!-- NASA Program Section -->
+    <section class="content-section">
+        <div class="section-header">
+            <h2 class="section-title">NASA's Planetary Defense Program</h2>
+            <p class="section-description">
+                NASA's Planetary Defense Coordination Office (PDCO) is responsible for detecting, 
+                tracking, and characterizing near-Earth objects (NEOs) that could pose a threat to Earth.
+            </p>
+        </div>
         
         <div class="info-grid">
             <div class="info-card">
-                <h3>Detection and Tracking</h3>
-                <p>NASA uses ground-based telescopes and space-based observatories to detect and track asteroids and comets that come within 30 million miles of Earth's orbit. The Near-Earth Object Observations Program provides funding for ground-based observations and supports the development of new detection technologies.</p>
+                <h3 class="card-title">Detection and Tracking</h3>
+                <p class="card-description">
+                    NASA uses ground-based telescopes and space-based observatories to detect and track 
+                    asteroids and comets that come within 30 million miles of Earth's orbit.
+                </p>
+                <ul class="card-list">
+                    <li>Ground-based telescope networks</li>
+                    <li>Space-based infrared observatories</li>
+                    <li>Automated detection systems</li>
+                    <li>International collaboration</li>
+                </ul>
             </div>
             
             <div class="info-card">
-                <h3>Current Monitoring Systems</h3>
-                <ul>
-                    <li><strong>Catalina Sky Survey</strong> - University of Arizona</li>
-                    <li><strong>Pan-STARRS</strong> - University of Hawaii</li>
-                    <li><strong>NEOWISE</strong> - NASA's Wide-field Infrared Survey Explorer</li>
-                    <li><strong>ATLAS</strong> - Asteroid Terrestrial-impact Last Alert System</li>
-                </ul>
+                <h3 class="card-title">Current Monitoring Systems</h3>
+                <div class="systems-list">
+                    <div class="system-item">
+                        <h4>Catalina Sky Survey</h4>
+                        <p>University of Arizona - Primary discovery telescope</p>
+                    </div>
+                    <div class="system-item">
+                        <h4>Pan-STARRS</h4>
+                        <p>University of Hawaii - Wide-field survey telescope</p>
+                    </div>
+                    <div class="system-item">
+                        <h4>NEOWISE</h4>
+                        <p>NASA's Wide-field Infrared Survey Explorer</p>
+                    </div>
+                    <div class="system-item">
+                        <h4>ATLAS</h4>
+                        <p>Asteroid Terrestrial-impact Last Alert System</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="content-section">
-        <h2>Types of Mitigation Methods</h2>
+    <!-- Defense Methods Section -->
+    <section class="content-section">
+        <div class="section-header">
+            <h2 class="section-title">Defense Mitigation Methods</h2>
+            <p class="section-description">
+                NASA and international partners are developing multiple approaches to deflect or destroy 
+                threatening asteroids before they reach Earth.
+            </p>
+        </div>
         
         <div class="methods-grid">
             <div class="method-card">
-                <h3>Kinetic Impactor</h3>
-                <p>The kinetic impactor method involves sending a spacecraft to collide with an asteroid at high speed, changing its velocity and trajectory. This method is most effective for smaller asteroids and requires significant lead time to plan and execute the mission.</p>
+                <div class="method-header">
+                    <h3 class="method-title">Kinetic Impactor</h3>
+                    <div class="method-icon impactor-icon"></div>
+                </div>
+                <p class="method-description">
+                    A spacecraft collides with an asteroid at high speed, changing its velocity and trajectory. 
+                    This method is most effective for smaller asteroids and requires significant lead time.
+                </p>
                 
                 <div class="pros-cons">
                     <div class="pros">
@@ -46,6 +92,7 @@
                             <li>Proven technology</li>
                             <li>Relatively simple concept</li>
                             <li>Effective for small to medium asteroids</li>
+                            <li>Demonstrated by DART mission</li>
                         </ul>
                     </div>
                     <div class="cons">
@@ -54,22 +101,30 @@
                             <li>Requires precise targeting</li>
                             <li>Limited effectiveness for very large asteroids</li>
                             <li>May fragment the asteroid</li>
+                            <li>Requires years of advance planning</li>
                         </ul>
                     </div>
                 </div>
             </div>
             
             <div class="method-card">
-                <h3>Gravity Tractor</h3>
-                <p>A gravity tractor uses the gravitational attraction between a spacecraft and an asteroid to gradually change the asteroid's trajectory. The spacecraft hovers near the asteroid, using its own mass to create a gravitational pull.</p>
+                <div class="method-header">
+                    <h3 class="method-title">Gravity Tractor</h3>
+                    <div class="method-icon tractor-icon"></div>
+                </div>
+                <p class="method-description">
+                    A spacecraft hovers near an asteroid, using its own mass to create a gravitational pull 
+                    that gradually changes the asteroid's trajectory over time.
+                </p>
                 
                 <div class="pros-cons">
                     <div class="pros">
                         <h4>Advantages</h4>
                         <ul>
-                            <li>Non-destructive</li>
+                            <li>Non-destructive approach</li>
                             <li>Works on any asteroid composition</li>
                             <li>Predictable results</li>
+                            <li>No risk of fragmentation</li>
                         </ul>
                     </div>
                     <div class="cons">
@@ -78,71 +133,232 @@
                             <li>Requires long mission duration</li>
                             <li>Less effective for very large asteroids</li>
                             <li>Needs precise station-keeping</li>
+                            <li>Requires significant fuel</li>
                         </ul>
                     </div>
                 </div>
             </div>
             
             <div class="method-card">
-                <h3>Laser Ablation</h3>
-                <p>Laser ablation involves using focused laser beams to vaporize material from the asteroid's surface, creating thrust that changes the asteroid's trajectory. This method can be used from a distance and allows for precise control.</p>
+                <div class="method-header">
+                    <h3 class="method-title">Laser Ablation</h3>
+                    <div class="method-icon laser-icon"></div>
+                </div>
+                <p class="method-description">
+                    Focused laser beams vaporize material from the asteroid's surface, creating thrust 
+                    that changes the asteroid's trajectory. This method allows for precise control.
+                </p>
                 
                 <div class="pros-cons">
                     <div class="pros">
                         <h4>Advantages</h4>
                         <ul>
-                            <li>Precise control</li>
+                            <li>Precise control capability</li>
                             <li>Can work from distance</li>
                             <li>Adjustable thrust levels</li>
+                            <li>No physical contact required</li>
                         </ul>
                     </div>
                     <div class="cons">
                         <h4>Limitations</h4>
                         <ul>
                             <li>Requires significant power</li>
-                            <li>Effectiveness depends on asteroid composition</li>
+                            <li>Effectiveness depends on composition</li>
                             <li>Complex technology</li>
+                            <li>Limited range effectiveness</li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="content-section">
-        <h2>How Each Method Affects Different Meteor Types</h2>
+    <!-- Asteroid Types Section -->
+    <section class="content-section">
+        <div class="section-header">
+            <h2 class="section-title">Asteroid Composition Types</h2>
+            <p class="section-description">
+                Different asteroid compositions require different defense strategies. Understanding 
+                these types is crucial for effective planetary defense planning.
+            </p>
+        </div>
         
-        <h3>Carbonaceous Asteroids (C-type)</h3>
-        <p>These are the most common type of asteroids, composed primarily of carbon compounds. They are relatively soft and porous, making them good candidates for kinetic impactors and laser ablation. Gravity tractors work well on all asteroid types.</p>
-        
-        <h3>Silicate Asteroids (S-type)</h3>
-        <p>Composed of silicate materials and nickel-iron, these asteroids are harder and more dense. Kinetic impactors may be less effective due to their hardness, while laser ablation and gravity tractors remain viable options.</p>
-        
-        <h3>Metallic Asteroids (M-type)</h3>
-        <p>These asteroids are composed primarily of nickel and iron, making them very dense and hard. They are the most challenging to deflect, requiring more powerful kinetic impactors or longer-duration gravity tractor missions.</p>
-        
-        <h3>Comets</h3>
-        <p>Comets are composed of ice, dust, and rocky material. They are generally easier to deflect than asteroids due to their lower density, but their unpredictable behavior and potential for fragmentation make deflection more complex.</p>
-    </div>
+        <div class="asteroid-types">
+            <div class="asteroid-type">
+                <h3 class="type-title">Carbonaceous Asteroids (C-type)</h3>
+                <div class="type-content">
+                    <div class="type-info">
+                        <p class="type-description">
+                            The most common type of asteroids, composed primarily of carbon compounds. 
+                            They are relatively soft and porous, making them good candidates for 
+                            kinetic impactors and laser ablation.
+                        </p>
+                        <div class="type-characteristics">
+                            <h4>Characteristics:</h4>
+                            <ul>
+                                <li>Dark, carbon-rich surface</li>
+                                <li>Low density and porosity</li>
+                                <li>Most common type (75% of asteroids)</li>
+                                <li>Good candidates for deflection</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="asteroid-type">
+                <h3 class="type-title">Silicate Asteroids (S-type)</h3>
+                <div class="type-content">
+                    <div class="type-info">
+                        <p class="type-description">
+                            Composed of silicate materials and nickel-iron, these asteroids are harder 
+                            and more dense. They require more powerful deflection methods.
+                        </p>
+                        <div class="type-characteristics">
+                            <h4>Characteristics:</h4>
+                            <ul>
+                                <li>Bright, silicate-rich surface</li>
+                                <li>Higher density than C-types</li>
+                                <li>About 17% of known asteroids</li>
+                                <li>More challenging to deflect</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="asteroid-type">
+                <h3 class="type-title">Metallic Asteroids (M-type)</h3>
+                <div class="type-content">
+                    <div class="type-info">
+                        <p class="type-description">
+                            Composed primarily of nickel and iron, these asteroids are very dense and hard. 
+                            They are the most challenging to deflect and require the most powerful methods.
+                        </p>
+                        <div class="type-characteristics">
+                            <h4>Characteristics:</h4>
+                            <ul>
+                                <li>Metallic, iron-rich composition</li>
+                                <li>Very high density</li>
+                                <li>About 8% of known asteroids</li>
+                                <li>Most difficult to deflect</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <div class="content-section">
-        <h2>Real-World Examples</h2>
+    <!-- Real Examples Section -->
+    <section class="content-section">
+        <div class="section-header">
+            <h2 class="section-title">Real-World Missions</h2>
+            <p class="section-description">
+                NASA and international partners have conducted several missions to test and validate 
+                planetary defense technologies.
+            </p>
+        </div>
         
-        <h3>DART Mission (Double Asteroid Redirection Test)</h3>
-        <p>NASA's DART mission, launched in 2021, was the first test of a kinetic impactor for planetary defense. The spacecraft successfully impacted the asteroid Dimorphos in September 2022, demonstrating the feasibility of this approach.</p>
-        
-        <h3>Hera Mission</h3>
-        <p>The European Space Agency's Hera mission will study the aftermath of the DART impact, providing detailed information about the effectiveness of kinetic impactor deflection.</p>
-        
-        <h3>NEOWISE Observations</h3>
-        <p>NASA's NEOWISE mission has discovered and characterized thousands of near-Earth objects, providing crucial data for understanding the population of potentially hazardous asteroids.</p>
-    </div>
+        <div class="missions-grid">
+            <div class="mission-card">
+                <h3 class="mission-title">DART Mission</h3>
+                <p class="mission-subtitle">Double Asteroid Redirection Test</p>
+                <p class="mission-description">
+                    NASA's DART mission, launched in 2021, was the first test of a kinetic impactor 
+                    for planetary defense. The spacecraft successfully impacted the asteroid Dimorphos 
+                    in September 2022, demonstrating the feasibility of this approach.
+                </p>
+                <div class="mission-results">
+                    <h4>Results:</h4>
+                    <ul>
+                        <li>Successfully changed asteroid's orbit</li>
+                        <li>Reduced orbital period by 32 minutes</li>
+                        <li>Validated kinetic impactor technology</li>
+                        <li>Provided data for future missions</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mission-card">
+                <h3 class="mission-title">Hera Mission</h3>
+                <p class="mission-subtitle">European Space Agency Follow-up</p>
+                <p class="mission-description">
+                    The European Space Agency's Hera mission will study the aftermath of the DART impact, 
+                    providing detailed information about the effectiveness of kinetic impactor deflection 
+                    and the resulting crater formation.
+                </p>
+                <div class="mission-results">
+                    <h4>Objectives:</h4>
+                    <ul>
+                        <li>Study DART impact crater</li>
+                        <li>Measure asteroid's new mass</li>
+                        <li>Analyze deflection effectiveness</li>
+                        <li>Validate impact models</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mission-card">
+                <h3 class="mission-title">NEOWISE Observations</h3>
+                <p class="mission-subtitle">Near-Earth Object Discovery</p>
+                <p class="mission-description">
+                    NASA's NEOWISE mission has discovered and characterized thousands of near-Earth objects, 
+                    providing crucial data for understanding the population of potentially hazardous asteroids 
+                    and their physical properties.
+                </p>
+                <div class="mission-results">
+                    <h4>Achievements:</h4>
+                    <ul>
+                        <li>Discovered 1,000+ near-Earth objects</li>
+                        <li>Characterized asteroid properties</li>
+                        <li>Improved impact risk assessment</li>
+                        <li>Enhanced detection capabilities</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <div class="content-section">
-        <h2>Future Developments</h2>
-        <p>NASA and international partners continue to develop new technologies for planetary defense, including advanced detection systems, improved deflection methods, and enhanced modeling capabilities. The goal is to have a comprehensive planetary defense system capable of protecting Earth from any credible asteroid threat.</p>
+    <!-- Future Development Section -->
+    <section class="content-section">
+        <div class="section-header">
+            <h2 class="section-title">Future Developments</h2>
+            <p class="section-description">
+                NASA and international partners continue to develop new technologies for planetary defense, 
+                including advanced detection systems, improved deflection methods, and enhanced modeling capabilities.
+            </p>
+        </div>
         
-        <p>Research is ongoing into new mitigation techniques, including nuclear deflection (as a last resort), enhanced gravity tractors, and combination approaches that use multiple methods simultaneously.</p>
-    </div>
+        <div class="future-content">
+            <div class="future-text">
+                <h3>Advanced Detection Systems</h3>
+                <p>
+                    Next-generation telescopes and space-based observatories will provide earlier detection 
+                    of potentially hazardous asteroids, giving us more time to plan and execute defense missions.
+                </p>
+                
+                <h3>Enhanced Deflection Methods</h3>
+                <p>
+                    Research is ongoing into new mitigation techniques, including nuclear deflection (as a last resort), 
+                    enhanced gravity tractors, and combination approaches that use multiple methods simultaneously.
+                </p>
+                
+                <h3>International Collaboration</h3>
+                <p>
+                    Global cooperation is essential for effective planetary defense. International partnerships 
+                    are being strengthened to ensure coordinated response to any credible asteroid threat.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <section class="page-navigation">
+        <div class="nav-actions">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+            <a href="{{ url_for('simulation') }}" class="btn btn-primary">Try Simulation</a>
+        </div>
+    </section>
 </div>
 {% endblock %}

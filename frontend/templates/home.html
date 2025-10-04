@@ -4,59 +4,148 @@
 
 {% block content %}
 <div class="page-container">
-    <div class="page-header">
-        <h1 class="page-title">Earth's Firewall</h1>
-        <p class="page-subtitle">Asteroid Impact Simulator & Defense System</p>
-    </div>
-    
-    <!-- Huge gap for asteroid belt -->
-    <div class="asteroid-belt-zone">
-        <div id="threejs-asteroid-container"></div>
-    </div>
-
-    <div class="content-section">
-        <h2>About Our Team</h2>
-        <p>We are SPALRB, a dedicated team based in Charlotte, NC, participating in the 2025 NASA Space Apps Challenge. Our mission is to create an innovative and educational platform that simulates asteroid impact scenarios and demonstrates various planetary defense strategies.</p>
-        
-        <p>Our team combines expertise in software development, physics simulation, and 3D visualization to build a comprehensive asteroid defense simulation that serves both educational and research purposes.</p>
-        
-        <h3>Our Mission</h3>
-        <p>To develop a realistic, interactive simulation that helps users understand the science behind asteroid impacts and the various mitigation strategies being researched by NASA and the international space community.</p>
-        
-        <h3>Key Features</h3>
-        <ul>
-            <li>Real-time 3D visualization of asteroid trajectories</li>
-            <li>Physics-based impact calculations using NASA data</li>
-            <li>Interactive defense strategy testing</li>
-            <li>Educational content about planetary defense</li>
-            <li>Multiple difficulty levels for different user types</li>
-        </ul>
-    </div>
-
-    <div class="content-section">
-        <h2>NASA Space Apps Challenge 2025</h2>
-        <p>This project is developed for the NASA Space Apps Challenge, an international hackathon that brings together coders, scientists, designers, storytellers, makers, builders, and technologists to solve real-world problems on Earth and in space.</p>
-        
-        <p>Our focus is on the "Asteroid Impact Simulation" challenge, where we aim to create tools that help the public understand the real threats and solutions related to near-Earth objects.</p>
-    </div>
-
-    <div class="content-section">
-        <h2>Get Started</h2>
-        <p>Explore our platform to learn about asteroid defense strategies, understand the physics of impacts, and test your skills in protecting Earth from potential threats.</p>
-        
-        <div style="text-align: center; margin-top: 2rem;">
-            <a href="{{ url_for('simulation') }}" class="btn btn-primary" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, #00d4ff 0%, #8b5cf6 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">
-                Launch 3D Simulation
-            </a>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Earth's Firewall</h1>
+            <p class="hero-subtitle">Advanced Asteroid Defense Simulation</p>
+            <p class="hero-description">
+                Experience NASA's cutting-edge planetary defense technology through our interactive 3D simulation. 
+                Learn about asteroid threats and test real defense strategies used by space agencies worldwide.
+            </p>
+            <div class="hero-actions">
+                <a href="{{ url_for('simulation') }}" class="btn btn-primary btn-large">Launch Simulation</a>
+                <a href="{{ url_for('information') }}" class="btn btn-secondary btn-large">Learn More</a>
+            </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Asteroid Belt Visualization -->
+    <section class="visualization-section">
+        <div class="asteroid-belt-zone">
+            <div id="threejs-asteroid-container"></div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="section-header">
+            <h2 class="section-title">Advanced Features</h2>
+            <p class="section-subtitle">Powered by real NASA data and scientific accuracy</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <div class="icon-3d"></div>
+                </div>
+                <h3 class="feature-title">3D Visualization</h3>
+                <p class="feature-description">
+                    Interactive 3D environment showing asteroid trajectories, impact scenarios, 
+                    and defense system deployment in real-time.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <div class="icon-physics"></div>
+                </div>
+                <h3 class="feature-title">Physics Simulation</h3>
+                <p class="feature-description">
+                    Accurate physics calculations based on NASA's impact models, 
+                    including kinetic energy, crater formation, and devastation zones.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <div class="icon-defense"></div>
+                </div>
+                <h3 class="feature-title">Defense Strategies</h3>
+                <p class="feature-description">
+                    Test multiple defense methods including kinetic impactors, 
+                    gravity tractors, and laser ablation systems.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <div class="icon-education"></div>
+                </div>
+                <h3 class="feature-title">Educational Content</h3>
+                <p class="feature-description">
+                    Comprehensive learning materials about planetary defense, 
+                    asteroid science, and NASA's protection efforts.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section">
+        <div class="section-header">
+            <h2 class="section-title">About Our Mission</h2>
+            <p class="section-subtitle">NASA Space Apps Challenge 2025</p>
+        </div>
+        
+        <div class="about-content">
+            <div class="about-text">
+                <h3>Our Team</h3>
+                <p>
+                    We are SPALRB, a dedicated team participating in the 2025 NASA Space Apps Challenge. 
+                    Our mission is to create an innovative and educational platform that simulates asteroid 
+                    impact scenarios and demonstrates various planetary defense strategies.
+                </p>
+                
+                <h3>Our Goal</h3>
+                <p>
+                    To develop a realistic, interactive simulation that helps users understand the science 
+                    behind asteroid impacts and the various mitigation strategies being researched by NASA 
+                    and the international space community.
+                </p>
+                
+                <h3>NASA Partnership</h3>
+                <p>
+                    This project is developed for the NASA Space Apps Challenge, an international hackathon 
+                    that brings together coders, scientists, designers, and technologists to solve real-world 
+                    problems on Earth and in space.
+                </p>
+            </div>
+            
+            <div class="about-stats">
+                <div class="stat-item">
+                    <div class="stat-number">10,000+</div>
+                    <div class="stat-label">Known Asteroids</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Defense Methods</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">NASA Data</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title">Ready to Defend Earth?</h2>
+            <p class="cta-description">
+                Launch the simulation and test your skills in protecting our planet from potential asteroid threats.
+            </p>
+            <div class="cta-actions">
+                <a href="{{ url_for('simulation') }}" class="btn btn-primary btn-large">Start Simulation</a>
+                <a href="{{ url_for('tutorial') }}" class="btn btn-outline btn-large">View Tutorial</a>
+            </div>
+        </div>
+    </section>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<!-- Three.js Asteroid Belt -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="{{ url_for('static', filename='js/threejs-asteroid-belt.js') }}"></script>
-<!-- Gliding Scroll Effect -->
 <script src="{{ url_for('static', filename='js/gliding-scroll.js') }}"></script>
 {% endblock %}

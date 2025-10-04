@@ -4,42 +4,273 @@
 
 {% block content %}
 <div class="page-container">
-    <div class="page-header">
-        <h1 class="page-title">Tutorial</h1>
-        <p class="page-subtitle">Learn how to use Earth's Firewall</p>
-    </div>
-
-    <div class="content-section">
-        <h2>Coming Soon</h2>
-        <p>This tutorial section is currently under development. We're working on comprehensive guides to help you get the most out of Earth's Firewall.</p>
-        
-        <h3>Planned Tutorial Content</h3>
-        <ul>
-            <li>Getting Started Guide</li>
-            <li>Understanding the Interface</li>
-            <li>Physics Simulation Basics</li>
-            <li>Defense Strategy Selection</li>
-            <li>Advanced Simulation Techniques</li>
-            <li>Interpreting Results</li>
-        </ul>
-        
-        <p>Check back soon for detailed tutorials that will help you master the asteroid defense simulation platform.</p>
-    </div>
-
-    <div class="content-section">
-        <h2>Quick Start</h2>
-        <p>In the meantime, you can begin exploring by:</p>
-        <ol>
-            <li>Visiting the 3D Simulation page to see the interactive environment</li>
-            <li>Reading the Information page to understand the science behind asteroid defense</li>
-            <li>Experimenting with different asteroid parameters and defense strategies</li>
-        </ol>
-        
-        <div style="text-align: center; margin-top: 2rem;">
-            <a href="{{ url_for('simulation') }}" class="btn btn-primary" style="display: inline-block; padding: 1rem 2rem; background: linear-gradient(135deg, #00d4ff 0%, #8b5cf6 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">
-                Try the Simulation
-            </a>
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="breadcrumb">
+            <a href="{{ url_for('index') }}" class="breadcrumb-link">Home</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Tutorial</span>
         </div>
-    </div>
+        <h1 class="page-title">Tutorial</h1>
+        <p class="page-subtitle">Learn how to use Earth's Firewall effectively</p>
+    </section>
+
+    <!-- Coming Soon Section -->
+    <section class="content-section">
+        <div class="coming-soon">
+            <div class="coming-soon-icon">
+                <div class="icon-construction"></div>
+            </div>
+            <h2 class="coming-soon-title">Tutorial Coming Soon</h2>
+            <p class="coming-soon-description">
+                We're working on comprehensive guides to help you get the most out of Earth's Firewall. 
+                Our tutorial system will include step-by-step instructions, interactive examples, 
+                and detailed explanations of all features.
+            </p>
+        </div>
+    </section>
+
+    <!-- Planned Content Section -->
+    <section class="content-section">
+        <div class="section-header">
+            <h2 class="section-title">Planned Tutorial Content</h2>
+            <p class="section-description">
+                Our tutorial system will cover all aspects of the simulation platform, 
+                from basic navigation to advanced defense strategies.
+            </p>
+        </div>
+        
+        <div class="tutorial-grid">
+            <div class="tutorial-card">
+                <div class="tutorial-icon">
+                    <div class="icon-getting-started"></div>
+                </div>
+                <h3 class="tutorial-title">Getting Started Guide</h3>
+                <p class="tutorial-description">
+                    Learn the basics of navigating the interface, understanding the 3D environment, 
+                    and setting up your first simulation.
+                </p>
+                <ul class="tutorial-topics">
+                    <li>Interface overview</li>
+                    <li>Basic navigation</li>
+                    <li>First simulation setup</li>
+                    <li>Understanding the controls</li>
+                </ul>
+            </div>
+            
+            <div class="tutorial-card">
+                <div class="tutorial-icon">
+                    <div class="icon-physics"></div>
+                </div>
+                <h3 class="tutorial-title">Physics Simulation Basics</h3>
+                <p class="tutorial-description">
+                    Understand the scientific principles behind asteroid impacts, orbital mechanics, 
+                    and the physics calculations used in the simulation.
+                </p>
+                <ul class="tutorial-topics">
+                    <li>Orbital mechanics</li>
+                    <li>Impact physics</li>
+                    <li>Energy calculations</li>
+                    <li>Trajectory analysis</li>
+                </ul>
+            </div>
+            
+            <div class="tutorial-card">
+                <div class="tutorial-icon">
+                    <div class="icon-defense"></div>
+                </div>
+                <h3 class="tutorial-title">Defense Strategy Selection</h3>
+                <p class="tutorial-description">
+                    Learn how to choose the right defense method for different asteroid types, 
+                    sizes, and threat scenarios.
+                </p>
+                <ul class="tutorial-topics">
+                    <li>Kinetic impactor strategy</li>
+                    <li>Gravity tractor deployment</li>
+                    <li>Laser ablation systems</li>
+                    <li>Combination approaches</li>
+                </ul>
+            </div>
+            
+            <div class="tutorial-card">
+                <div class="tutorial-icon">
+                    <div class="icon-advanced"></div>
+                </div>
+                <h3 class="tutorial-title">Advanced Techniques</h3>
+                <p class="tutorial-description">
+                    Master advanced simulation techniques, custom scenarios, 
+                    and professional-level analysis tools.
+                </p>
+                <ul class="tutorial-topics">
+                    <li>Custom asteroid creation</li>
+                    <li>Multi-mission planning</li>
+                    <li>Risk assessment</li>
+                    <li>Performance optimization</li>
+                </ul>
+            </div>
+            
+            <div class="tutorial-card">
+                <div class="tutorial-icon">
+                    <div class="icon-results"></div>
+                </div>
+                <h3 class="tutorial-title">Interpreting Results</h3>
+                <p class="tutorial-description">
+                    Learn how to analyze simulation results, understand impact predictions, 
+                    and evaluate defense mission effectiveness.
+                </p>
+                <ul class="tutorial-topics">
+                    <li>Impact zone analysis</li>
+                    <li>Deflection effectiveness</li>
+                    <li>Risk assessment metrics</li>
+                    <li>Mission success criteria</li>
+                </ul>
+            </div>
+            
+            <div class="tutorial-card">
+                <div class="tutorial-icon">
+                    <div class="icon-troubleshooting"></div>
+                </div>
+                <h3 class="tutorial-title">Troubleshooting Guide</h3>
+                <p class="tutorial-description">
+                    Common issues, performance optimization, and tips for getting the best 
+                    experience from the simulation platform.
+                </p>
+                <ul class="tutorial-topics">
+                    <li>Performance optimization</li>
+                    <li>Common issues</li>
+                    <li>Browser compatibility</li>
+                    <li>System requirements</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section class="content-section">
+        <div class="section-header">
+            <h2 class="section-title">Quick Start Guide</h2>
+            <p class="section-description">
+                While we're developing the full tutorial system, here's a quick guide to get you started 
+                with the basic features of Earth's Firewall.
+            </p>
+        </div>
+        
+        <div class="quick-start">
+            <div class="quick-start-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Launch the Simulation</h3>
+                        <p>
+                            Click the "Launch Simulation" button to enter the 3D environment. 
+                            Take a moment to explore the interface and familiarize yourself with the controls.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Select an Asteroid</h3>
+                        <p>
+                            Choose from pre-configured asteroid scenarios or create a custom asteroid 
+                            with specific parameters like size, velocity, and composition.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Choose Defense Strategy</h3>
+                        <p>
+                            Select a defense method based on the asteroid's characteristics. 
+                            Consider factors like size, composition, and available lead time.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Run the Simulation</h3>
+                        <p>
+                            Execute your defense mission and observe the results. Analyze the effectiveness 
+                            of your chosen strategy and learn from the outcomes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Learning Resources Section -->
+    <section class="content-section">
+        <div class="section-header">
+            <h2 class="section-title">Learning Resources</h2>
+            <p class="section-description">
+                Explore these resources to deepen your understanding of planetary defense 
+                and asteroid science while we develop our comprehensive tutorial system.
+            </p>
+        </div>
+        
+        <div class="resources-grid">
+            <div class="resource-card">
+                <h3 class="resource-title">NASA Planetary Defense</h3>
+                <p class="resource-description">
+                    Official NASA resources on planetary defense, including current missions, 
+                    research, and educational materials.
+                </p>
+                <a href="https://www.nasa.gov/planetarydefense" target="_blank" class="resource-link">
+                    Visit NASA PDCO
+                </a>
+            </div>
+            
+            <div class="resource-card">
+                <h3 class="resource-title">CNEOS Database</h3>
+                <p class="resource-description">
+                    NASA's Center for Near-Earth Object Studies provides comprehensive data 
+                    on asteroids and comets that approach Earth.
+                </p>
+                <a href="https://cneos.jpl.nasa.gov/" target="_blank" class="resource-link">
+                    Explore CNEOS
+                </a>
+            </div>
+            
+            <div class="resource-card">
+                <h3 class="resource-title">DART Mission</h3>
+                <p class="resource-description">
+                    Learn about NASA's Double Asteroid Redirection Test mission, 
+                    the first demonstration of kinetic impactor technology.
+                </p>
+                <a href="https://www.nasa.gov/dart" target="_blank" class="resource-link">
+                    DART Mission Info
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title">Ready to Start Learning?</h2>
+            <p class="cta-description">
+                While we're developing our comprehensive tutorial system, you can begin exploring 
+                the simulation platform and learning through hands-on experience.
+            </p>
+            <div class="cta-actions">
+                <a href="{{ url_for('simulation') }}" class="btn btn-primary btn-large">Launch Simulation</a>
+                <a href="{{ url_for('information') }}" class="btn btn-secondary btn-large">Learn the Science</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation -->
+    <section class="page-navigation">
+        <div class="nav-actions">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+            <a href="{{ url_for('simulation') }}" class="btn btn-primary">Try Simulation</a>
+        </div>
+    </section>
 </div>
 {% endblock %}
