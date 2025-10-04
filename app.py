@@ -1,7 +1,27 @@
 # Main Flask application for Asteroid Impact Simulator
 from flask import Flask, render_template, jsonify, send_from_directory
-from flask_cors import CORS
 import os
+
+# Import flask_cors with explicit error handling
+try:
+    # Try importing the module first
+    import flask_cors
+    print(f"flask_cors module imported successfully, version: {getattr(flask_cors, '__version__', 'unknown')}")
+    
+    # Then import the CORS class
+    from flask_cors import CORS
+    print("CORS class imported successfully")
+    CORS_AVAILABLE = True
+    
+except ImportError as e:
+    print(f"Warning: flask-cors not available. Error: {e}")
+    print("CORS support disabled.")
+    CORS = None
+    CORS_AVAILABLE = False
+except Exception as e:
+    print(f"Unexpected error importing flask_cors: {e}")
+    CORS = None
+    CORS_AVAILABLE = False
 
 # Import simulation routes
 try:
@@ -17,14 +37,18 @@ app = Flask(__name__,
             static_folder='frontend/static')
 
 # Configure CORS
-CORS(app)
+if CORS_AVAILABLE:
+    CORS(app)
+    print("CORS enabled successfully")
+else:
+    print("Warning: CORS not configured. Cross-origin requests may be blocked.")
 
 # Register simulation blueprint if available
 if SIMULATION_ROUTES_AVAILABLE:
     app.register_blueprint(simulation_bp)
-    print("✅ Simulation routes registered successfully!")
+    print("Success: Simulation routes registered successfully!")
 else:
-    print("⚠️  Running with basic API only. Advanced simulation features not available.")
+    print("Warning: Running with basic API only. Advanced simulation features not available.")
 
 # Serve static files
 @app.route('/static/<path:filename>')
