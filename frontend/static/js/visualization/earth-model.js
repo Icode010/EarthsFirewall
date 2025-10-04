@@ -1,4 +1,4 @@
-// 🌍 Earth Model - Extracted from Rockypocky77/3D-Earth
+// 🌍 Earth Model - Enhanced from Assets folder
 // High-quality 3D Earth with realistic textures, clouds, and atmospheric effects
 
 // Earth Configuration
@@ -153,30 +153,9 @@ function createEarthModel(textureLoader, onComplete) {
             console.log('📸 Earth texture loaded successfully');
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            // Create a simple bump map from the texture
-            const canvas = document.createElement('canvas');
-            canvas.width = texture.image.width;
-            canvas.height = texture.image.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(texture.image, 0, 0);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imageData.data;
-            
-            // Convert to grayscale for bump map
-            for (let i = 0; i < data.length; i += 4) {
-                const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-                data[i] = gray;
-                data[i + 1] = gray;
-                data[i + 2] = gray;
-            }
-            ctx.putImageData(imageData, 0, 0);
-            
-            const bumpTexture = new THREE.CanvasTexture(canvas);
             
             const earthMaterial = new THREE.MeshPhongMaterial({
                 map: texture,
-                bumpMap: bumpTexture,
-                bumpScale: 0.1,
                 shininess: 100,
                 specular: new THREE.Color(0x222222),
                 emissive: new THREE.Color(0x001122),
@@ -201,6 +180,7 @@ function createEarthModel(textureLoader, onComplete) {
             console.log('📸 Earth lights texture loaded successfully');
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
+            
             const lightsMaterial = new THREE.MeshBasicMaterial({
                 map: texture,
                 blending: THREE.AdditiveBlending
@@ -224,6 +204,7 @@ function createEarthModel(textureLoader, onComplete) {
             console.log('📸 Cloud texture loaded successfully');
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
+            
             const cloudsMaterial = new THREE.MeshStandardMaterial({
                 map: texture,
                 transparent: true,
@@ -288,12 +269,10 @@ class EarthAnimationController {
 }
 
 // Export for use in other modules
-window.EarthModelAssets = {
-    createEarthModel,
-    createStarfield,
-    getFresnelMaterial,
-    EarthAnimationController,
-    EARTH_MODEL_CONFIG
-};
+window.createEarthModel = createEarthModel;
+window.createStarfield = createStarfield;
+window.getFresnelMaterial = getFresnelMaterial;
+window.EarthAnimationController = EarthAnimationController;
+window.EARTH_MODEL_CONFIG = EARTH_MODEL_CONFIG;
 
-console.log('🌍 Earth model assets loaded!');
+console.log('🌍 Enhanced Earth model loaded!');

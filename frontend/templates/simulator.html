@@ -21,7 +21,7 @@
     <!-- 3D Visualization -->
     <div id="asteroid-impact-simulator" class="visualization-container">
       <!-- 3D scene will be rendered here -->
-  </div>
+    </div>
 
     <!-- Control Panel -->
     <div class="simulator-controls">
@@ -34,6 +34,12 @@
           <select id="asteroidSelect" class="asteroid-select">
             <option value="">Loading asteroids...</option>
           </select>
+  </div>
+
+        <!-- Asteroid Preview and Info -->
+        <div class="asteroid-preview-section">
+          <div id="asteroidPreview" class="asteroid-preview"></div>
+          <div id="asteroidInfo" class="asteroid-info"></div>
     </div>
     
         <div class="control-group">
@@ -108,6 +114,8 @@
 </script>
 <script src="{{ url_for('static', filename='js/visualization/earth-model.js') }}"></script>
 <script src="{{ url_for('static', filename='js/visualization/asteroid-model.js') }}"></script>
+<script src="{{ url_for('static', filename='js/visualization/asteroid-selector.js') }}"></script>
+<script src="{{ url_for('static', filename='js/visualization/trajectory-system.js') }}"></script>
 <script src="{{ url_for('static', filename='js/asteroid-impact-simulator.js') }}"></script>
 
 <style>
@@ -240,11 +248,75 @@
   padding-right: 35px;
 }
 
-.control-group select option {
-  background: #1a1a2e;
-  color: white;
-  padding: 10px;
-}
+    .control-group select option {
+      background: #1a1a2e;
+      color: white;
+      padding: 10px;
+    }
+    
+    /* Asteroid Preview Section */
+    .asteroid-preview-section {
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      border: 1px solid #333;
+    }
+    
+    .asteroid-preview {
+      width: 200px;
+      height: 150px;
+      margin: 0 auto 15px auto;
+      border: 2px solid #444;
+      border-radius: 8px;
+      background: #000;
+      overflow: hidden;
+    }
+    
+    .asteroid-info {
+      color: white;
+      font-size: 12px;
+    }
+    
+    .asteroid-info h3 {
+      margin: 0 0 10px 0;
+      color: #4a9eff;
+      font-size: 16px;
+      text-align: center;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    
+    .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .info-item label {
+      font-weight: bold;
+      color: #888;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+    
+    .info-item span {
+      color: white;
+      font-size: 11px;
+    }
+    
+    .hazard-yes {
+      color: #ff4444;
+      font-weight: bold;
+    }
+    
+    .hazard-no {
+      color: #44ff44;
+      font-weight: bold;
+    }
 
 .control-group select:focus,
 .control-group input:focus {
