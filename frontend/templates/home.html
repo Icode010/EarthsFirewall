@@ -9,8 +9,10 @@
         <p class="page-subtitle">Asteroid Impact Simulator & Defense System</p>
     </div>
     
-    <!-- Spacer for better visual separation -->
-    <div style="height: 4rem;"></div>
+    <!-- Huge gap for asteroid belt -->
+    <div class="asteroid-belt-zone">
+        <div id="threejs-asteroid-container"></div>
+    </div>
 
     <div class="content-section">
         <h2>About Our Team</h2>
@@ -52,6 +54,7 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- Asteroid Belt Animation -->
-<script src="{{ url_for('static', filename='js/asteroid-belt.js') }}"></script>
+<!-- Three.js Asteroid Belt -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="{{ url_for('static', filename='js/threejs-asteroid-belt.js') }}"></script>
 {% endblock %}

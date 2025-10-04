@@ -909,6 +909,24 @@ body {
     border-bottom: none;
 }
 
+/* Asteroid Belt Zone */
+.asteroid-belt-zone {
+    height: 60vh;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
+    margin: 4rem 0;
+}
+
+#threejs-asteroid-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 /* Mobile Responsive for Information Page */
 @media (max-width: 768px) {
     .info-grid, .methods-grid {
@@ -917,5 +935,10 @@ body {
     
     .pros-cons {
         grid-template-columns: 1fr;
+    }
+    
+    .asteroid-belt-zone {
+        height: 40vh;
+        margin: 2rem 0;
     }
 }
