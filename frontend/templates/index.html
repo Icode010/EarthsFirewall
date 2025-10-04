@@ -3,246 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌍 Earth's Firewall - Asteroid Impact Simulator</title>
+    <title>Earth's Firewall - Asteroid Impact Simulator</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/controls.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/visualizations.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/navigation.css') }}">
+    <style>
+        /* Beautiful twinkling starfield background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(2px 2px at 20% 10%, #ffffff, transparent 60%),
+                radial-gradient(1.5px 1.5px at 80% 30%, #9cc7ff, transparent 60%),
+                radial-gradient(1.8px 1.8px at 60% 80%, #ffffff, transparent 60%),
+                radial-gradient(1.2px 1.2px at 30% 60%, #8db7ff, transparent 60%),
+                radial-gradient(1px 1px at 40% 20%, #ffffff, transparent 50%),
+                radial-gradient(1.5px 1.5px at 70% 70%, #a8c8ff, transparent 60%),
+                radial-gradient(1px 1px at 90% 40%, #ffffff, transparent 50%),
+                radial-gradient(1.3px 1.3px at 10% 80%, #9cc7ff, transparent 60%),
+                radial-gradient(1px 1px at 50% 50%, #ffffff, transparent 50%),
+                radial-gradient(1.4px 1.4px at 15% 60%, #8db7ff, transparent 60%);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            animation: twinkle 8s ease-in-out infinite;
+            z-index: -1;
+            opacity: 0.6;
+        }
+        
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(1px 1px at 25% 15%, #ffffff, transparent 50%),
+                radial-gradient(1.2px 1.2px at 75% 25%, #a8c8ff, transparent 60%),
+                radial-gradient(0.8px 0.8px at 45% 85%, #ffffff, transparent 50%),
+                radial-gradient(1.1px 1.1px at 85% 45%, #9cc7ff, transparent 60%),
+                radial-gradient(0.9px 0.9px at 35% 35%, #ffffff, transparent 50%),
+                radial-gradient(1.3px 1.3px at 65% 65%, #8db7ff, transparent 60%);
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            animation: twinkle 12s ease-in-out infinite reverse;
+            z-index: -1;
+            opacity: 0.4;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            25% { opacity: 0.8; }
+            50% { opacity: 0.4; }
+            75% { opacity: 0.9; }
+        }
+    </style>
     <!-- Three.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- D3.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <h1 class="title">🌍 Earth's Firewall</h1>
-            <p class="subtitle">Asteroid Impact Simulator & Defense System</p>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <div class="main-container">
-        <!-- Left Control Panel -->
-        <div class="control-panel">
-            <div class="panel-header">
-                <h2>🎛️ Mission Control</h2>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h1>Earth's Firewall</h1>
             </div>
+            <div class="nav-menu">
+                <a href="/" class="nav-link active">Home</a>
+                <a href="/simulation" class="nav-link">Simulation</a>
+                <a href="/information" class="nav-link">Information</a>
+                <a href="/tutorial" class="nav-link">Tutorial</a>
+            </div>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- LEFT: 3D Visualization -->
+        <section class="panel panel--left" role="main" aria-label="3D Earth Visualization">
+            <header class="panel__header">
+                <h2 class="panel__title">Earth Defense System</h2>
+            </header>
             
-            <!-- Asteroid Selection -->
-            <div class="control-section">
-                <h3>🪨 Asteroid Selection</h3>
-                <div class="input-group">
-                    <label for="asteroid-select">Choose Threat:</label>
-                    <select id="asteroid-select" class="select-input">
+            <div class="visualization-container">
+                <div id="asteroid-belt-zone" class="asteroid-belt-zone">
+                    <canvas id="earthCanvas"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- CENTER: Mission Control -->
+        <section class="panel panel--center" role="complementary" aria-label="Mission Control">
+            <header class="panel__header">
+                <h2 class="panel__title">Mission Control</h2>
+            </header>
+
+            <section class="section" aria-labelledby="asteroid-selection-title">
+                <h3 id="asteroid-selection-title" class="section__title">Asteroid Selection</h3>
+                <div class="control-group">
+                    <label for="asteroid-select" class="control-label">Threat Level</label>
+                    <select id="asteroid-select" class="control-select">
                         <option value="impactor-2025">Impactor-2025 (NASA Threat)</option>
                         <option value="custom">Custom Asteroid</option>
+                        <option value="apophis">Apophis (99942)</option>
+                        <option value="bennu">Bennu (101955)</option>
                     </select>
                 </div>
-            </div>
+            </section>
 
-            <!-- Parameters -->
-            <div class="control-section">
-                <h3>📊 Impact Parameters</h3>
-                
-                <div class="slider-group">
-                    <label for="size-slider">Diameter: <span id="size-value">0.5 km</span></label>
-                    <input type="range" id="size-slider" min="0.1" max="10" step="0.1" value="0.5" class="slider">
+            <section class="section" aria-labelledby="impact-parameters-title">
+                <h3 id="impact-parameters-title" class="section__title">Impact Parameters</h3>
+                <div class="control-group">
+                    <label for="diameter-slider" class="control-label">Diameter: <span id="diameter-value">0.5 km</span></label>
+                    <input type="range" id="diameter-slider" class="control-slider" min="0.1" max="10" step="0.1" value="0.5">
                 </div>
-
-                <div class="slider-group">
-                    <label for="velocity-slider">Velocity: <span id="velocity-value">15.2 km/s</span></label>
-                    <input type="range" id="velocity-slider" min="5" max="50" step="0.1" value="15.2" class="slider">
+                <div class="control-group">
+                    <label for="velocity-slider" class="control-label">Velocity: <span id="velocity-value">15.2 km/s</span></label>
+                    <input type="range" id="velocity-slider" class="control-slider" min="5" max="50" step="0.1" value="15.2">
                 </div>
-
-                <div class="slider-group">
-                    <label for="angle-slider">Impact Angle: <span id="angle-value">45°</span></label>
-                    <input type="range" id="angle-slider" min="0" max="90" step="1" value="45" class="slider">
+                <div class="control-group">
+                    <label for="angle-slider" class="control-label">Impact Angle: <span id="angle-value">45°</span></label>
+                    <input type="range" id="angle-slider" class="control-slider" min="0" max="90" step="1" value="45">
                 </div>
-            </div>
+            </section>
 
-            <!-- Action Buttons -->
-            <div class="control-section">
-                <h3>🚀 Mission Actions</h3>
-                <div class="button-group">
-                    <button id="simulate-btn" class="btn btn-primary">💥 Simulate Impact</button>
-                    <button id="deflect-btn" class="btn btn-warning">🛡️ Test Deflection</button>
-                    <button id="game-btn" class="btn btn-danger">🎮 Defend Earth!</button>
-                    <button id="reset-btn" class="btn btn-secondary">🔄 Reset</button>
+            <section class="section" aria-labelledby="defense-strategy-title">
+                <h3 id="defense-strategy-title" class="section__title">Defense Strategy</h3>
+                <div class="control-group">
+                    <label for="strategy-select" class="control-label">Defense Method</label>
+                    <select id="strategy-select" class="control-select">
+                        <option value="kinetic">Kinetic Impactor</option>
+                        <option value="gravity">Gravity Tractor</option>
+                        <option value="laser">Laser Ablation</option>
+                    </select>
                 </div>
-            </div>
+            </section>
 
-            <!-- Deflection Strategy -->
-            <div class="control-section">
-                <h3>🛡️ Defense Strategy</h3>
-                <div class="strategy-group">
-                    <label class="radio-label">
-                        <input type="radio" name="strategy" value="kinetic" checked>
-                        <span class="radio-custom"></span>
-                        Kinetic Impactor
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="strategy" value="gravity">
-                        <span class="radio-custom"></span>
-                        Gravity Tractor
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="strategy" value="laser">
-                        <span class="radio-custom"></span>
-                        Laser Ablation
-                    </label>
+            <section class="section">
+                <div class="action-buttons">
+                    <button id="simulate-btn" class="btn btn--primary">Simulate Impact</button>
+                    <button id="deflect-btn" class="btn btn--secondary">Test Deflection</button>
+                    <button id="game-btn" class="btn btn--success">Defend Earth!</button>
                 </div>
-            </div>
-        </div>
+            </section>
+        </section>
 
-        <!-- Center Visualization -->
-        <div class="visualization-container">
-            <div class="canvas-wrapper">
-                <canvas id="three-canvas"></canvas>
-                <div class="canvas-overlay">
-                    <div class="impact-stats" id="impact-stats">
-                        <h3>💥 Impact Prediction</h3>
-                        <div class="stat-item">
-                            <span class="stat-label">Energy:</span>
-                            <span class="stat-value" id="energy-value">1.2e15 J</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">TNT Equivalent:</span>
-                            <span class="stat-value" id="tnt-value">0.3 megatons</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Crater Size:</span>
-                            <span class="stat-value" id="crater-value">2.5 km</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- RIGHT: Mission Data / Insights -->
+        <aside class="panel panel--right" role="complementary" aria-label="Mission Data">
+            <header class="panel__header">
+                <h2 class="panel__title">Mission Data</h2>
+            </header>
 
-        <!-- Right Info Panel -->
-        <div class="info-panel">
-            <div class="panel-header">
-                <h2>📊 Mission Data</h2>
-            </div>
+            <section class="section" aria-labelledby="asteroid-details-title">
+                <h3 id="asteroid-details-title" class="section__title">Asteroid Details</h3>
+                <dl class="info-grid">
+                    <div class="info"><dt class="info__label">Name</dt><dd id="asteroid-name" class="info__value">Impactor-2025</dd></div>
+                    <div class="info"><dt class="info__label">Diameter</dt><dd id="asteroid-diameter" class="info__value">0.5 km</dd></div>
+                    <div class="info"><dt class="info__label">Velocity</dt><dd id="asteroid-velocity" class="info__value">15.2 km/s</dd></div>
+                    <div class="info"><dt class="info__label">Mass</dt><dd id="asteroid-mass" class="info__value">1.2e12 kg</dd></div>
+                </dl>
+            </section>
 
-            <!-- Asteroid Info -->
-            <div class="info-section">
-                <h3>🪨 Asteroid Details</h3>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">Name:</span>
-                        <span class="info-value" id="asteroid-name">Impactor-2025</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Diameter:</span>
-                        <span class="info-value" id="asteroid-diameter">0.5 km</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Velocity:</span>
-                        <span class="info-value" id="asteroid-velocity">15.2 km/s</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Mass:</span>
-                        <span class="info-value" id="asteroid-mass">1.2e12 kg</span>
-                    </div>
-                </div>
-            </div>
+            <section class="section" aria-labelledby="impact-analysis-title">
+                <h3 id="impact-analysis-title" class="section__title">Impact Analysis</h3>
+                <dl class="zones">
+                    <div class="zone zone--total"><dt class="zone__label">Total Destruction</dt><dd id="zone-total" class="zone__value">5.2 km</dd></div>
+                    <div class="zone zone--severe"><dt class="zone__label">Severe Damage</dt><dd id="zone-severe" class="zone__value">15.8 km</dd></div>
+                    <div class="zone zone--moderate"><dt class="zone__label">Moderate Damage</dt><dd id="zone-moderate" class="zone__value">45.2 km</dd></div>
+                </dl>
+            </section>
 
-            <!-- Impact Prediction -->
-            <div class="info-section">
-                <h3>💥 Impact Analysis</h3>
-                <div class="impact-zones">
-                    <div class="zone-item zone-total">
-                        <span class="zone-label">Total Destruction:</span>
-                        <span class="zone-value" id="zone-total">5.2 km</span>
-                    </div>
-                    <div class="zone-item zone-severe">
-                        <span class="zone-label">Severe Damage:</span>
-                        <span class="zone-value" id="zone-severe">15.8 km</span>
-                    </div>
-                    <div class="zone-item zone-moderate">
-                        <span class="zone-label">Moderate Damage:</span>
-                        <span class="zone-value" id="zone-moderate">45.2 km</span>
-                    </div>
-                </div>
-            </div>
+            <section class="section" aria-labelledby="environmental-effects-title">
+                <h3 id="environmental-effects-title" class="section__title">Environmental Effects</h3>
+                <ul class="effects">
+                    <li class="effect">Tsunami Risk: <strong id="tsunami-risk">High</strong></li>
+                    <li class="effect">Seismic: <strong id="seismic-magnitude">6.2 Richter</strong></li>
+                    <li class="effect">Atmospheric: <strong id="atmospheric-effect">Dust Cloud</strong></li>
+                </ul>
+            </section>
 
-            <!-- Environmental Effects -->
-            <div class="info-section">
-                <h3>🌊 Environmental Effects</h3>
-                <div class="effects-list">
-                    <div class="effect-item">
-                        <span class="effect-icon">🌊</span>
-                        <span class="effect-text">Tsunami Risk: <span id="tsunami-risk">High</span></span>
-                    </div>
-                    <div class="effect-item">
-                        <span class="effect-icon">🌍</span>
-                        <span class="effect-text">Seismic: <span id="seismic-magnitude">6.2 Richter</span></span>
-                    </div>
-                    <div class="effect-item">
-                        <span class="effect-icon">🌫️</span>
-                        <span class="effect-text">Atmospheric: <span id="atmospheric-effect">Dust Cloud</span></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Deflection Results -->
-            <div class="info-section" id="deflection-results" style="display: none;">
-                <h3>🛡️ Defense Results</h3>
-                <div class="deflection-status">
-                    <div class="status-item">
-                        <span class="status-label">Deflection Success:</span>
-                        <span class="status-value success" id="deflection-success">85%</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-label">New Miss Distance:</span>
-                        <span class="status-value" id="miss-distance">12,500 km</span>
-                    </div>
-                    <div class="status-item">
-                        <span class="status-label">Time to Impact:</span>
-                        <span class="status-value" id="time-to-impact">2.3 days</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            <section class="section is-hidden" id="deflection-results" aria-labelledby="defense-results-title" aria-live="polite">
+                <h3 id="defense-results-title" class="section__title">Defense Results</h3>
+                <dl class="status">
+                    <div class="status__row"><dt class="status__label">Deflection Success</dt><dd id="deflection-success" class="status__value status__value--ok">85%</dd></div>
+                    <div class="status__row"><dt class="status__label">New Miss Distance</dt><dd id="miss-distance" class="status__value">12,500 km</dd></div>
+                    <div class="status__row"><dt class="status__label">Time to Impact</dt><dd id="time-to-impact" class="status__value">2.3 days</dd></div>
+                </dl>
+            </section>
+        </aside>
+    </main>
 
     <!-- Game Mode Overlay -->
-    <div class="game-overlay" id="game-overlay" style="display: none;">
-        <div class="game-header">
-            <h2>🎮 Defend Earth Challenge</h2>
-            <div class="game-stats">
-                <div class="game-stat">
-                    <span class="stat-label">Score:</span>
-                    <span class="stat-value" id="game-score">0</span>
-                </div>
-                <div class="game-stat">
-                    <span class="stat-label">Level:</span>
-                    <span class="stat-value" id="game-level">1</span>
-                </div>
-                <div class="game-stat">
-                    <span class="stat-label">Time:</span>
-                    <span class="stat-value" id="game-time">60s</span>
-                </div>
+    <section class="overlay overlay--game is-hidden" id="game-overlay" aria-hidden="true" aria-label="Defend Earth Challenge">
+        <header class="overlay__header">
+            <h2 class="overlay__title">Defend Earth Challenge</h2>
+            <div class="game-metrics">
+                <div class="metric"><span class="metric__label">Score</span><span id="game-score" class="metric__value">0</span></div>
+                <div class="metric"><span class="metric__label">Level</span><span id="game-level" class="metric__value">1</span></div>
+                <div class="metric"><span class="metric__label">Time</span><span id="game-time" class="metric__value">60s</span></div>
             </div>
+        </header>
+        <div class="overlay__actions">
+            <button id="start-game" class="btn btn--success" type="button">Start Mission</button>
+            <button id="exit-game" class="btn btn--secondary" type="button">Exit</button>
         </div>
-        <div class="game-controls">
-            <button id="start-game" class="btn btn-success">🚀 Start Mission</button>
-            <button id="exit-game" class="btn btn-secondary">❌ Exit</button>
-        </div>
-    </div>
+    </section>
 
     <!-- Loading Screen -->
-    <div class="loading-screen" id="loading-screen">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <h3>🌍 Initializing Earth's Firewall...</h3>
-            <p>Loading asteroid data and 3D models...</p>
+    <section class="overlay overlay--loading" id="loading-screen" aria-live="polite" aria-busy="true">
+        <div class="loading">
+            <div class="loading__spinner" aria-hidden="true"></div>
+            <h3 class="loading__title">Initializing Earth's Firewall…</h3>
+            <p class="loading__subtitle">Loading asteroid data and 3D models…</p>
         </div>
-    </div>
+    </section>
 
-    <!-- Scripts -->
+    <!-- App Scripts -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/api-client.js') }}"></script>
     <script src="{{ url_for('static', filename='js/visualization/scene-setup.js') }}"></script>
@@ -251,5 +240,7 @@
     <script src="{{ url_for('static', filename='js/simulation/simulation-engine.js') }}"></script>
     <script src="{{ url_for('static', filename='js/ui/controls.js') }}"></script>
     <script src="{{ url_for('static', filename='js/ui/game-mode.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/gliding-scroll.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/navigation.js') }}"></script>
 </body>
 </html>

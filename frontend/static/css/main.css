@@ -1,1115 +1,201 @@
-/* 🌍 Earth's Firewall - NASA-Approved Professional Theme */
+/* ===== main.css — NASA-grade system (tokens + base + layout) ===== */
 
-/* CSS Reset with smooth scrolling */
+/* Tokens */
+:root{
+  /* Core palette */
+  --bg: #0a0a0f;
+  --bg-2: #121624;
+  --bg-3: #0f1426;
+  --panel: #0e1424cc;
+  --panel-border: #223154;
+  --surface: #0c1223;
+  --ink: #ffffff;
+  --muted: #b7c3d6;
+  --muter: #8a97ab;
+
+  /* Accents */
+  --accent: #00d4ff;
+  --accent-2: #76a6ff;
+  --warn: #ffaa00;
+  --danger: #ff4d4d;
+  --success: #2fd180;
+
+  /* Elevation */
+  --shadow-1: 0 6px 18px rgba(0,0,0,.35);
+  --shadow-2: 0 12px 32px rgba(0,0,0,.45);
+  --shadow-3: 0 18px 60px rgba(0,0,0,.6);
+
+  /* Borders & radii */
+  --hair: 1px solid rgba(255,255,255,.08);
+  --hair-strong: 1px solid rgba(255,255,255,.18);
+  --r-xs: 8px; --r: 12px; --r-lg: 18px; --r-xl: 22px;
+
+  /* Motion */
+  --t: 220ms cubic-bezier(.2,.7,.2,1);
+  --t2: 360ms cubic-bezier(.2,.7,.2,1.1);
+}
+
+/* Reset + base */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; overflow-x:hidden}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:16px/1.55 Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  position:relative;
+}
+
+/* One starfield (de-duped across files) */
+body::before, body::after{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background-repeat:no-repeat; background-size:100% 100%;
+  opacity:.45; animation:twinkle 10s ease-in-out infinite;
+}
+body::before{ 
+  background:
+    radial-gradient(2px 2px at 20% 10%, #fff, transparent 60%),
+    radial-gradient(1.5px 1.5px at 80% 30%, #9cc7ff, transparent 60%),
+    radial-gradient(1.8px 1.8px at 60% 80%, #fff, transparent 60%),
+    radial-gradient(1.2px 1.2px at 30% 60%, #8db7ff, transparent 60%);
+}
+body::after{
+  opacity:.28; animation-direction:reverse;
+  background:
+    radial-gradient(1px 1px at 25% 15%, #fff, transparent 50%),
+    radial-gradient(1.2px 1.2px at 75% 25%, #a8c8ff, transparent 60%),
+    radial-gradient(.8px .8px at 45% 85%, #fff, transparent 50%);
+}
+@keyframes twinkle{0%,100%{opacity:.25} 25%{opacity:.8} 50%{opacity:.4} 75%{opacity:.9}}
+
+/* Containers */
+.container{max-width:1440px; margin:0 auto; padding:0 24px}
+.layout{
+  display:grid; grid-template-columns: 360px 1fr 360px; gap:18px;
+  min-height: calc(100vh - 92px); padding:18px; align-items:stretch;
+}
+
+/* Header */
+.site-header{
+  position:sticky; top:0; z-index:1000;
+  backdrop-filter:saturate(140%) blur(14px);
+  background:linear-gradient(180deg, #0d1222ee, #0c1120ee);
+  border-bottom:var(--hair-strong); box-shadow:var(--shadow-1);
+}
+.header__inner{display:flex; align-items:center; justify-content:space-between; height:72px}
+.brand__title{margin:0; font-weight:800; letter-spacing:.2px}
+.brand__subtitle{margin:4px 0 0; color:var(--muted); font-size:.95rem}
+
+/* Panels (left/right) */
+.panel{
+  background:var(--panel); border:1px solid var(--panel-border);
+  border-radius:var(--r-lg); box-shadow:var(--shadow-2);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.panel__header{padding:14px 16px; border-bottom:var(--hair)}
+.panel__title{margin:0; font-size:1.05rem; font-weight:700}
+.section{padding:14px 16px; border-bottom:var(--hair)}
+.section:last-child{border-bottom:0}
+
+/* Stage (center) */
+.stage{position:relative; background: radial-gradient(1200px 800px at 50% 20%, #0d1324, #070b16 68%, #04060c 100%); border-radius:var(--r-xl); border:1px solid #1c2846; box-shadow:var(--shadow-3); overflow:hidden}
+.stage__canvas-wrap{position:relative; inset:0; width:100%; height:100%}
+.stage__canvas{position:absolute; inset:0; width:100%; height:100%; display:block}
+
+/* Readouts overlay */
+.overlay{position:absolute; inset:0; pointer-events:none}
+.overlay--readouts{inset:auto 12px 12px auto}
+.readouts{pointer-events:auto; background:#0b1220cc; border:1px solid #203056; border-radius:14px; padding:12px 14px; backdrop-filter: blur(12px); box-shadow:var(--shadow-1)}
+.readouts__title{margin:0 0 8px; font-size:.95rem; color:var(--muted)}
+.readouts__grid{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.readout{background:#0b1324; border:1px solid #1f2944; border-radius:10px; padding:10px}
+.readout__label{font-size:.8rem; color:var(--muter)}
+.readout__value{font-weight:800}
+
+/* Buttons (base) */
+.btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; border-radius:12px; border:1px solid #274275; background:linear-gradient(180deg,#132245,#0e1833); color:#eaf2ff; cursor:pointer; transition:transform var(--t), box-shadow var(--t)}
+.btn:hover{transform:translateY(-1px) translateZ(0); will-change:transform; box-shadow:0 10px 26px rgba(0,212,255,.18)}
+.btn--primary{border-color:#2b7aa1}
+.btn--warning{border-color:#7c5a1e}
+.btn--danger{border-color:#5c2130}
+.btn--secondary{border-color:#2a406d; background:transparent}
+
+/* Accessibility */
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+/* Back-compat aliases so old classes still render */
+.main-container{display:contents}           /* uses .layout grid */
+.control-panel{ /* left panel alias */ }
+.info-panel{ /* right panel alias */ }
+.visualization-container{ /* stage alias */ }
+.impact-stats{ /* readouts alias */ }
+
+/* Legacy support for existing classes */
+.header{composes: site-header}
+.main{composes: layout}
+.asteroid-belt-zone{composes: stage}
+#earthCanvas{composes: stage__canvas}
+
+/* Gliding Scroll Effect */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 2rem;
+}
+
+/* Smooth scrolling for all elements */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html {
     scroll-behavior: smooth;
-    overflow-x: hidden;
 }
 
-/* Root Variables - NASA Professional Color Scheme */
-:root {
-    /* NASA Professional Color Palette */
-    --bg-primary: #0a0a0f;
-    --bg-secondary: #1a1a2e;
-    --bg-tertiary: #16213e;
-    --bg-accent: #0f3460;
-    --bg-card: #1e1e2e;
-    
-    /* NASA Text Colors */
-    --text-primary: #ffffff;
-    --text-secondary: #b8c5d1;
-    --text-muted: #7a8b99;
-    --text-accent: #00d4ff;
-    --text-warning: #ffaa00;
-    --text-danger: #ff4444;
-    --text-success: #00ff88;
-    
-    /* White Glow Effects */
-    --glow-primary: 0 0 30px rgba(255, 255, 255, 0.4);
-    --glow-strong: 0 0 50px rgba(255, 255, 255, 0.6);
-    --glow-subtle: 0 0 15px rgba(255, 255, 255, 0.2);
-    --glow-intense: 0 0 80px rgba(255, 255, 255, 0.8);
-    
-    /* Gradients */
-    --gradient-white: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-    --gradient-glow: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
-    --gradient-subtle: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
-    
-    /* Shadows */
-    --shadow-deep: 0 20px 60px rgba(0, 0, 0, 0.8);
-    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.5);
-    --shadow-button: 0 8px 25px rgba(0, 0, 0, 0.3);
-    
-    /* Borders */
-    --border-radius: 12px;
-    --border-radius-large: 20px;
-    --border-glow: 1px solid rgba(255, 255, 255, 0.3);
-    --border-subtle: 1px solid rgba(255, 255, 255, 0.1);
-    
-    /* Transitions */
-    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    --transition-elastic: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    --transition-snap: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* Base Styles */
+/* Enhanced scroll behavior */
 body {
-    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    line-height: 1.6;
+    scroll-behavior: smooth;
     overflow-x: hidden;
-    scroll-behavior: smooth;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    position: relative;
 }
 
-/* NASA Starfield Background */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-        radial-gradient(2px 2px at 20px 30px, #ffffff, transparent),
-        radial-gradient(2px 2px at 40px 70px, #ffffff, transparent),
-        radial-gradient(1px 1px at 90px 40px, #ffffff, transparent),
-        radial-gradient(1px 1px at 130px 80px, #ffffff, transparent),
-        radial-gradient(2px 2px at 160px 30px, #ffffff, transparent),
-        radial-gradient(1px 1px at 200px 60px, #ffffff, transparent),
-        radial-gradient(1px 1px at 240px 20px, #ffffff, transparent),
-        radial-gradient(2px 2px at 280px 50px, #ffffff, transparent),
-        radial-gradient(1px 1px at 320px 80px, #ffffff, transparent),
-        radial-gradient(1px 1px at 360px 40px, #ffffff, transparent),
-        radial-gradient(2px 2px at 400px 70px, #ffffff, transparent),
-        radial-gradient(1px 1px at 440px 10px, #ffffff, transparent),
-        radial-gradient(1px 1px at 480px 60px, #ffffff, transparent),
-        radial-gradient(2px 2px at 520px 30px, #ffffff, transparent),
-        radial-gradient(1px 1px at 560px 90px, #ffffff, transparent),
-        radial-gradient(1px 1px at 600px 20px, #ffffff, transparent),
-        radial-gradient(2px 2px at 640px 50px, #ffffff, transparent),
-        radial-gradient(1px 1px at 680px 80px, #ffffff, transparent),
-        radial-gradient(1px 1px at 720px 30px, #ffffff, transparent),
-        radial-gradient(2px 2px at 760px 60px, #ffffff, transparent);
-    background-repeat: repeat;
-    background-size: 800px 100px;
-    animation: twinkle 20s linear infinite;
-    z-index: -1;
-    opacity: 0.8;
+/* Smooth transitions for all interactive elements */
+a, button, input, select, textarea {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes twinkle {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
-}
-
-/* Gliding Scroll Effect */
-html {
-    scroll-behavior: smooth;
-    scroll-padding-top: 2rem;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--bg-secondary);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--text-secondary);
-    border-radius: 4px;
-    transition: var(--transition-smooth);
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--text-primary);
-    box-shadow: var(--glow-subtle);
-}
-
-/* Header Styles - NASA Professional */
-.header {
-    background: linear-gradient(135deg, rgba(10, 10, 15, 0.95) 0%, rgba(26, 26, 46, 0.95) 100%);
-    border-bottom: 1px solid rgba(0, 212, 255, 0.3);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    backdrop-filter: blur(20px);
-    transition: var(--transition-smooth);
-}
-
-.header:hover {
-    box-shadow: var(--shadow-deep), var(--glow-subtle);
-}
-
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 1.5rem 2rem;
-}
-
-.header-left {
-    flex: 1;
-}
-
-.title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    background: var(--gradient-white);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: var(--glow-subtle);
-    transition: var(--transition-smooth);
-    letter-spacing: -0.02em;
-}
-
-.title:hover {
-    transform: scale(1.02);
-    text-shadow: var(--glow-primary);
-}
-
-.subtitle {
-    color: var(--text-secondary);
-    font-size: 1.1rem;
-    font-weight: 400;
-    margin-top: 0.5rem;
-    transition: var(--transition-smooth);
-}
-
-.subtitle:hover {
-    color: var(--text-primary);
-    text-shadow: var(--glow-subtle);
-}
-
-/* Home Button */
-.home-button {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem 2rem;
-    background: var(--gradient-white);
-    color: var(--bg-primary);
-    text-decoration: none;
-    border-radius: var(--border-radius);
-    font-weight: 600;
-    font-size: 1rem;
-    transition: var(--transition-bounce);
-    box-shadow: var(--shadow-button);
-    border: 2px solid transparent;
-    position: relative;
-    overflow: hidden;
-}
-
-.home-button::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    transition: var(--transition-smooth);
-}
-
-.home-button:hover::before {
-    left: 100%;
-}
-
-.home-button:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: var(--shadow-button), var(--glow-strong);
-    color: var(--bg-primary);
-    text-decoration: none;
-}
-
-.home-button:active {
-    transform: translateY(-1px) scale(1.02);
-    transition: var(--transition-snap);
-}
-
-.home-button svg {
-    transition: var(--transition-bounce);
-    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.3));
-}
-
-.home-button:hover svg {
-    transform: scale(1.2) rotate(5deg);
-    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
-}
-
-/* Main Container */
-.main-container {
-    display: flex;
-    min-height: calc(100vh - 120px);
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 2rem;
-    gap: 2rem;
-    transition: var(--transition-smooth);
-}
-
-/* Control Panel - NASA Professional */
-.control-panel {
-    flex: 0 0 400px;
-    background: linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(22, 33, 62, 0.9) 100%);
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(0, 212, 255, 0.2);
-    backdrop-filter: blur(20px);
-    transition: var(--transition-smooth);
-    position: relative;
-    overflow: hidden;
-}
-
-.control-panel::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--gradient-white);
-    box-shadow: var(--glow-subtle);
-}
-
-.control-panel:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-card), var(--glow-subtle);
-    border-color: rgba(255, 255, 255, 0.2);
-}
-
-.panel-header {
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.panel-header h2 {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-    text-shadow: var(--glow-subtle);
-    transition: var(--transition-smooth);
-}
-
-.panel-header h2:hover {
-    text-shadow: var(--glow-primary);
-    transform: scale(1.02);
-}
-
-/* Form Groups */
-.form-group {
-    margin-bottom: 1.5rem;
-    transition: var(--transition-smooth);
-}
-
-.form-group:hover {
-    transform: translateX(5px);
-}
-
-.form-group label {
-    display: block;
-    color: var(--text-secondary);
-    font-weight: 500;
-    margin-bottom: 0.75rem;
-    font-size: 0.95rem;
-    transition: var(--transition-smooth);
-}
-
-.form-group:hover label {
-    color: var(--text-primary);
-    text-shadow: var(--glow-subtle);
-}
-
-/* Dropdown */
-.dropdown {
-    width: 100%;
-    padding: 0.875rem 1rem;
-    background: var(--bg-accent);
-    border: var(--border-subtle);
-    border-radius: var(--border-radius);
-    color: var(--text-primary);
-    font-size: 1rem;
-    transition: var(--transition-smooth);
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 0.75rem center;
-    background-repeat: no-repeat;
-    background-size: 1.5em 1.5em;
-    padding-right: 2.5rem;
-}
-
-.dropdown:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: var(--glow-subtle);
-    transform: translateY(-2px);
-}
-
-.dropdown:focus {
-    outline: none;
-    border-color: var(--text-primary);
-    box-shadow: var(--glow-primary);
-    transform: translateY(-2px);
-}
-
-/* Sliders */
-.slider-group {
-    margin-bottom: 1.5rem;
-    transition: var(--transition-smooth);
-}
-
-.slider-group:hover {
-    transform: translateX(5px);
-}
-
-.slider-group label {
-    display: block;
-    color: var(--text-secondary);
-    font-weight: 500;
-    margin-bottom: 0.75rem;
-    font-size: 0.95rem;
-    transition: var(--transition-smooth);
-}
-
-.slider-group:hover label {
-    color: var(--text-primary);
-    text-shadow: var(--glow-subtle);
-}
-
-.slider {
-    width: 100%;
-    height: 8px;
-    background: var(--bg-accent);
-    border-radius: 4px;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-    border: var(--border-subtle);
-}
-
-.slider:hover {
-    height: 10px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), var(--glow-subtle);
-    transform: translateY(-1px);
-}
-
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 24px;
-    height: 24px;
-    background: var(--gradient-white);
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: var(--shadow-button), var(--glow-primary);
-    transition: var(--transition-bounce);
-    border: 2px solid var(--bg-primary);
-}
-
-.slider::-webkit-slider-thumb:hover {
-    transform: scale(1.3);
-    box-shadow: var(--shadow-button), var(--glow-strong);
-    border-color: var(--text-primary);
-}
-
-.slider::-webkit-slider-thumb:active {
-    transform: scale(1.1);
-    transition: var(--transition-snap);
-}
-
-/* Buttons - NASA Professional */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 1rem 2rem;
-    background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
-    color: #ffffff;
-    text-decoration: none;
-    border: 1px solid rgba(0, 212, 255, 0.3);
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: var(--transition-bounce);
-    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
-    position: relative;
-    overflow: hidden;
-    min-width: 140px;
-}
-
-.btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    transition: var(--transition-smooth);
-}
-
-.btn:hover::before {
-    left: 100%;
-}
-
+/* Smooth hover effects */
 .btn:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: var(--shadow-button), var(--glow-strong);
-    color: var(--bg-primary);
-    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
-.btn:active {
-    transform: translateY(-1px) scale(1.02);
-    transition: var(--transition-snap);
+/* Smooth focus effects */
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.3);
+    border-color: var(--accent);
 }
 
-.btn-primary {
-    background: var(--gradient-white);
-    box-shadow: var(--shadow-button), var(--glow-subtle);
+/* Smooth loading animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.btn-primary:hover {
-    box-shadow: var(--shadow-button), var(--glow-strong);
+.fade-in {
+    animation: fadeIn 0.6s ease-out;
 }
 
-.btn-secondary {
-    background: var(--gradient-subtle);
-    border: var(--border-glow);
+/* Smooth slide animations */
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
 }
 
-.btn-secondary:hover {
-    background: var(--gradient-white);
-    box-shadow: var(--shadow-button), var(--glow-primary);
+.slide-in {
+    animation: slideIn 0.5s ease-out;
 }
 
-/* Radio Buttons */
-.radio-group {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 2rem;
+/* Smooth scale animations */
+@keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 
-.radio-option {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem;
-    background: var(--bg-accent);
-    border: var(--border-subtle);
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    transition: var(--transition-smooth);
-    position: relative;
-    overflow: hidden;
-}
-
-.radio-option::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transition: var(--transition-smooth);
-}
-
-.radio-option:hover::before {
-    left: 100%;
-}
-
-.radio-option:hover {
-    transform: translateX(5px);
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: var(--glow-subtle);
-}
-
-.radio-option input[type="radio"] {
-    width: 20px;
-    height: 20px;
-    accent-color: var(--text-primary);
-    cursor: pointer;
-    transition: var(--transition-smooth);
-}
-
-.radio-option input[type="radio"]:checked {
-    transform: scale(1.2);
-    box-shadow: var(--glow-subtle);
-}
-
-.radio-option label {
-    color: var(--text-primary);
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-}
-
-.radio-option:hover label {
-    text-shadow: var(--glow-subtle);
-}
-
-/* Results Panel - NASA Professional */
-.results-panel {
-    flex: 1;
-    background: linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(22, 33, 62, 0.9) 100%);
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(0, 212, 255, 0.2);
-    backdrop-filter: blur(20px);
-    transition: var(--transition-smooth);
-    position: relative;
-    overflow: hidden;
-}
-
-.results-panel::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--gradient-white);
-    box-shadow: var(--glow-subtle);
-}
-
-.results-panel:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-card), var(--glow-subtle);
-    border-color: rgba(255, 255, 255, 0.2);
-}
-
-.results-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.results-header h2 {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-    text-shadow: var(--glow-subtle);
-    transition: var(--transition-smooth);
-}
-
-.results-header h2:hover {
-    text-shadow: var(--glow-primary);
-    transform: scale(1.02);
-}
-
-.results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.result-item {
-    background: var(--bg-accent);
-    padding: 1.5rem;
-    border-radius: var(--border-radius);
-    border: var(--border-subtle);
-    text-align: center;
-    transition: var(--transition-smooth);
-    position: relative;
-    overflow: hidden;
-}
-
-.result-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    transition: var(--transition-smooth);
-}
-
-.result-item:hover::before {
-    left: 100%;
-}
-
-.result-item:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--glow-subtle);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.result-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-    text-shadow: var(--glow-subtle);
-    transition: var(--transition-smooth);
-}
-
-.result-item:hover .result-value {
-    text-shadow: var(--glow-primary);
-    transform: scale(1.05);
-}
-
-.result-label {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: var(--transition-smooth);
-}
-
-.result-item:hover .result-label {
-    color: var(--text-primary);
-    text-shadow: var(--glow-subtle);
-}
-
-/* 3D Visualization Container */
-.visualization-container {
-    flex: 1;
-    background: var(--bg-primary);
-    border-radius: var(--border-radius-large);
-    border: var(--border-glow);
-    box-shadow: var(--shadow-deep);
-    overflow: hidden;
-    position: relative;
-    transition: var(--transition-smooth);
-}
-
-.visualization-container:hover {
-    box-shadow: var(--shadow-deep), var(--glow-subtle);
-    border-color: rgba(255, 255, 255, 0.4);
-}
-
-.visualization-header {
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-    padding: 1.5rem;
-    border-bottom: var(--border-glow);
-    text-align: center;
-}
-
-.visualization-header h3 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    text-shadow: var(--glow-subtle);
-    transition: var(--transition-smooth);
-}
-
-.visualization-header h3:hover {
-    text-shadow: var(--glow-primary);
-    transform: scale(1.02);
-}
-
-.visualization-content {
-    height: 500px;
-    position: relative;
-    background: radial-gradient(ellipse at center, var(--bg-secondary) 0%, var(--bg-primary) 100%);
-}
-
-/* Loading Animation */
-.loading-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: var(--bg-primary);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    transition: var(--transition-smooth);
-}
-
-.loading-spinner {
-    width: 60px;
-    height: 60px;
-    border: 3px solid var(--bg-accent);
-    border-top: 3px solid var(--text-primary);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-    box-shadow: var(--glow-subtle);
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.loading-text {
-    color: var(--text-primary);
-    font-size: 1.2rem;
-    font-weight: 600;
-    text-shadow: var(--glow-subtle);
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
-}
-
-/* Gliding Scroll Effect */
-html {
-    scroll-behavior: smooth;
-    scroll-padding-top: 2rem;
-}
-
-/* Add momentum to scroll */
-body {
-    scroll-behavior: smooth;
-    overscroll-behavior: contain;
-}
-
-/* Smooth scroll with momentum */
-@media (prefers-reduced-motion: no-preference) {
-    html {
-        scroll-behavior: smooth;
-    }
-    
-    * {
-        scroll-behavior: smooth;
-    }
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-    .main-container {
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-    
-    .control-panel {
-        flex: none;
-    }
-    
-    .visualization-container {
-        min-height: 400px;
-    }
-}
-
-@media (max-width: 768px) {
-    .header-content {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-        padding: 1rem;
-    }
-    
-    .title {
-        font-size: 2rem;
-    }
-    
-    .main-container {
-        padding: 1rem;
-        gap: 1rem;
-    }
-    
-    .control-panel,
-    .results-panel {
-        padding: 1.5rem;
-    }
-    
-    .btn {
-        padding: 0.875rem 1.5rem;
-        font-size: 0.9rem;
-    }
-    
-    .home-button {
-        padding: 0.75rem 1.5rem;
-        font-size: 0.9rem;
-    }
-    
-    .results-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .radio-group {
-        gap: 0.75rem;
-    }
-    
-    .radio-option {
-        padding: 0.875rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .title {
-        font-size: 1.75rem;
-    }
-    
-    .subtitle {
-        font-size: 1rem;
-    }
-    
-    .control-panel,
-    .results-panel {
-        padding: 1rem;
-    }
-    
-    .btn {
-        padding: 0.75rem 1.25rem;
-        font-size: 0.85rem;
-        min-width: 120px;
-    }
-    
-    .home-button {
-        padding: 0.625rem 1.25rem;
-        font-size: 0.85rem;
-    }
-}
-
-/* Information Page Enhancements - NASA Professional */
-.info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin: 2rem 0;
-}
-
-.info-card {
-    background: linear-gradient(135deg, rgba(26, 26, 46, 0.9) 0%, rgba(22, 33, 62, 0.9) 100%);
-    border: 1px solid rgba(0, 212, 255, 0.2);
-    border-radius: 12px;
-    padding: 2rem;
-    transition: var(--transition-smooth);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(20px);
-}
-
-.info-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--gradient-white);
-    box-shadow: var(--glow-subtle);
-}
-
-.info-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-card), var(--glow-subtle);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.info-card h3 {
-    color: var(--text-primary);
-    margin-bottom: 1rem;
-    font-size: 1.3rem;
-    font-weight: 600;
-    text-shadow: var(--glow-subtle);
-    transition: var(--transition-smooth);
-}
-
-.info-card:hover h3 {
-    text-shadow: var(--glow-primary);
-    transform: scale(1.02);
-}
-
-.methods-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2rem;
-    margin: 2rem 0;
-}
-
-.method-card {
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-    border: var(--border-subtle);
-    border-radius: var(--border-radius-large);
-    padding: 2rem;
-    transition: var(--transition-smooth);
-    position: relative;
-    overflow: hidden;
-}
-
-.method-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--gradient-white);
-    box-shadow: var(--glow-subtle);
-}
-
-.method-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-card), var(--glow-subtle);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.method-card h3 {
-    color: var(--text-primary);
-    margin-bottom: 1rem;
-    font-size: 1.4rem;
-    font-weight: 600;
-    text-shadow: var(--glow-subtle);
-    transition: var(--transition-smooth);
-}
-
-.method-card:hover h3 {
-    text-shadow: var(--glow-primary);
-    transform: scale(1.02);
-}
-
-.pros-cons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-}
-
-.pros, .cons {
-    padding: 1.5rem;
-    border-radius: var(--border-radius);
-    border: var(--border-subtle);
-    transition: var(--transition-smooth);
-}
-
-.pros {
-    background: linear-gradient(135deg, rgba(68, 255, 68, 0.1) 0%, rgba(68, 255, 68, 0.05) 100%);
-    border-color: rgba(68, 255, 68, 0.3);
-}
-
-.cons {
-    background: linear-gradient(135deg, rgba(255, 68, 68, 0.1) 0%, rgba(255, 68, 68, 0.05) 100%);
-    border-color: rgba(255, 68, 68, 0.3);
-}
-
-.pros:hover, .cons:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--glow-subtle);
-}
-
-.pros h4 {
-    color: #44ff44;
-    margin-bottom: 0.75rem;
-    font-weight: 600;
-    text-shadow: 0 0 10px rgba(68, 255, 68, 0.5);
-    transition: var(--transition-smooth);
-}
-
-.cons h4 {
-    color: #ff4444;
-    margin-bottom: 0.75rem;
-    font-weight: 600;
-    text-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
-    transition: var(--transition-smooth);
-}
-
-.pros h4:hover, .cons h4:hover {
-    transform: scale(1.05);
-}
-
-.pros ul, .cons ul {
-    list-style: none;
-    padding: 0;
-}
-
-.pros li, .cons li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    transition: var(--transition-smooth);
-}
-
-.pros li:last-child, .cons li:last-child {
-    border-bottom: none;
-}
-
-.pros li:hover, .cons li:hover {
-    transform: translateX(5px);
-    text-shadow: var(--glow-subtle);
-}
-
-/* Asteroid Belt Zone - NASA Professional */
-.asteroid-belt-zone {
-    height: 60vh;
-    width: 100%;
-    position: relative;
-    overflow: hidden;
-    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
-    margin: 4rem 0;
-    border-radius: 12px;
-    border: 1px solid rgba(0, 212, 255, 0.2);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-    transition: var(--transition-smooth);
-}
-
-.asteroid-belt-zone:hover {
-    box-shadow: var(--shadow-deep), var(--glow-subtle);
-    border-color: rgba(255, 255, 255, 0.2);
-}
-
-#threejs-asteroid-container {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-/* Mobile Responsive for Information Page */
-@media (max-width: 768px) {
-    .info-grid, .methods-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .pros-cons {
-        grid-template-columns: 1fr;
-    }
-    
-    .asteroid-belt-zone {
-        height: 40vh;
-        margin: 2rem 0;
-    }
-    
-    .header-content {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-    
-    .header-right {
-        justify-content: center;
-    }
-    
-    .home-button {
-        padding: 0.6rem 1.2rem;
-        font-size: 0.85rem;
-    }
+.scale-in {
+    animation: scaleIn 0.4s ease-out;
 }

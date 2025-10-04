@@ -75,10 +75,10 @@ def information():
 def tutorial():
     return render_template('tutorial.html')
 
-# 3D Simulation page (original index.html)
+# 3D Simulation page - New fullscreen design
 @app.route('/simulation')
 def simulation():
-    return send_from_directory('.', 'index.html')
+    return render_template('simulator.html')
 
 # API routes (placeholder)
 @app.route('/api/asteroids')
