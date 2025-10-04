@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Earth Model - Extracted Assets</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            display: block;
+        }
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 100;
+        }
+        #info h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h2>🌍 3D Earth Model</h2>
+        <p>Realistic Earth with textures, clouds, and atmospheric glow</p>
+        <p>Drag to rotate • Scroll to zoom</p>
+    </div>
+    
+    <div id="controls">
+        <p><strong>Features:</strong></p>
+        <p>• High-resolution Earth texture</p>
+        <p>• City lights on night side</p>
+        <p>• Animated cloud layer</p>
+        <p>• Atmospheric glow effect</p>
+        <p>• Realistic lighting</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.161/examples/js/controls/OrbitControls.js"></script>
+    <script src="earth-model.js"></script>
+    <script>
+        let scene, camera, renderer, earthGroup, starfield;
+        let animationController;
+        let controls;
+
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            
+            // Camera
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.body.appendChild(renderer.domElement);
+            
+            // Enable color management
+            THREE.ColorManagement.enabled = true;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+            
+            // Add orbit controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.autoRotate = false;
+            
+            // Create Earth model
+            const textureLoader = new THREE.TextureLoader();
+            
+            EarthModelAssets.createEarthModel(textureLoader, (earth) => {
+                earthGroup = earth;
+                scene.add(earthGroup);
+                
+                // Start animation
+                animationController = new EarthModelAssets.EarthAnimationController(earthGroup);
+                animationController.startAnimation();
+            });
+            
+            // Create starfield
+            starfield = EarthModelAssets.createStarfield(5000);
+            scene.add(starfield);
+            
+            // Setup lighting
+            setupLighting();
+            
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+            
+            // Start render loop
+            animate();
+        }
+        
+        function setupLighting() {
+            // Ambient light
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+            scene.add(ambientLight);
+            
+            // Main directional light (sun)
+            const sunLight = new THREE.DirectionalLight(0xffffff, 2.0);
+            sunLight.position.set(-2.2, 0.7, 1.6);
+            scene.add(sunLight);
+            
+            // Rim light
+            const rimLight = new THREE.DirectionalLight(0x4080ff, 0.3);
+            rimLight.position.set(2, 1, -2);
+            scene.add(rimLight);
+            
+            // Back light
+            const backLight = new THREE.DirectionalLight(0xff8040, 0.2);
+            backLight.position.set(0, -2, -3);
+            scene.add(backLight);
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update controls
+            if (controls) {
+                controls.update();
+            }
+            
+            // Rotate starfield slowly
+            if (starfield) {
+                starfield.rotation.y += EarthModelAssets.EARTH_MODEL_CONFIG.starRotationSpeed;
+            }
+            
+            // Render scene
+            renderer.render(scene, camera);
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Initialize when page loads
+        init();
+    </script>
+</body>
+</html>

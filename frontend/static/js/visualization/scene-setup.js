@@ -1,5 +1,5 @@
-// 🌍 Amazing 3D Scene Setup - Professional Quality
-console.log('🎨 Initializing amazing 3D scene...');
+// 🌍 Amazing 3D Scene Setup - Professional Quality with New Earth Model
+console.log('🎨 Initializing amazing 3D scene with new Earth model...');
 
 // Global 3D Scene Variables
 let scene, camera, renderer, controls;
@@ -8,6 +8,7 @@ let ambientLight, directionalLight, pointLight;
 let stars, atmosphere;
 let animationId;
 let isAnimating = false;
+let newEarthGroup, newStarfield;
 
 // Scene Configuration
 const SCENE_CONFIG = {
@@ -63,11 +64,11 @@ async function initializeAmazingScene() {
         // Add amazing lighting
         setupAmazingLighting();
 
-        // Create amazing Earth
-        await createAmazingEarth();
+        // Create new Earth model from Assets
+        await createNewEarthModel();
 
-        // Create star field
-        createAmazingStarField();
+        // Create new star field
+        createNewStarfield();
 
         // Create atmosphere
         createAmazingAtmosphere();
@@ -349,14 +350,14 @@ function startAmazingAnimation() {
             window.updateCamera();
         }
         
-        // Rotate Earth
-        if (earth) {
-            earth.rotation.y += SCENE_CONFIG.animationSpeed;
+        // Update new Earth rotation
+        if (window.NewEarthModel && window.NewEarthModel.isNewEarthCreated()) {
+            window.NewEarthModel.updateNewEarthRotation();
         }
         
-        // Rotate stars slowly
-        if (stars) {
-            stars.rotation.y += SCENE_CONFIG.animationSpeed * 0.1;
+        // Rotate new stars slowly
+        if (newStarfield) {
+            newStarfield.rotation.y -= 0.0002;
         }
         
         // Rotate atmosphere
@@ -533,11 +534,39 @@ function showSceneError(message) {
     }
 }
 
+// Create new Earth model from Assets
+async function createNewEarthModel() {
+    console.log('🌍 Creating new Earth model in scene...');
+    
+    if (window.NewEarthModel) {
+        newEarthGroup = await window.NewEarthModel.createNewEarthModel();
+        return newEarthGroup;
+    } else {
+        console.warn('⚠️ NewEarthModel not loaded, falling back to original Earth');
+        return await createAmazingEarth();
+    }
+}
+
+// Create new starfield
+function createNewStarfield() {
+    console.log('⭐ Creating new starfield...');
+    
+    if (window.NewEarthModel) {
+        newStarfield = window.NewEarthModel.createNewStarfield();
+        scene.add(newStarfield);
+    } else {
+        console.warn('⚠️ NewEarthModel not loaded, falling back to original starfield');
+        createAmazingStarField();
+    }
+}
+
 // Export functions for global use
 window.initializeAmazingScene = initializeAmazingScene;
 window.createAsteroid = createAsteroid;
 window.createOrbitPath = createOrbitPath;
 window.createImpactZone = createImpactZone;
 window.stopAnimation = stopAnimation;
+window.createNewEarthModel = createNewEarthModel;
+window.createNewStarfield = createNewStarfield;
 
 console.log('🎨 Scene setup module loaded!');
