@@ -35,21 +35,30 @@ class AsteroidSelector {
     async loadAsteroidData() {
         try {
             console.log('📡 Loading asteroid data from NASA...');
-            const response = await fetch(`${this.simulation.apiBaseUrl}/asteroids/neo?limit=20`);
-            const data = await response.json();
             
-            if (data.success) {
-                this.asteroids = data.asteroids;
-                console.log(`✅ Loaded ${this.asteroids.length} asteroids`);
-                
-                // Sort by diameter (largest first)
-                this.asteroids.sort((a, b) => b.diameter_km - a.diameter_km);
-            } else {
-                console.warn('⚠️ Failed to load asteroid data, using fallback');
-                this.asteroids = this.getFallbackAsteroids();
+            // Try to load from API first
+            if (this.simulation.apiBaseUrl) {
+                const response = await fetch(`${this.simulation.apiBaseUrl}/asteroids/neo?limit=20`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.asteroids) {
+                        this.asteroids = data.asteroids;
+                        console.log(`✅ Loaded ${this.asteroids.length} asteroids from API`);
+                        
+                        // Sort by diameter (largest first)
+                        this.asteroids.sort((a, b) => b.diameter_km - a.diameter_km);
+                        return;
+                    }
+                }
             }
+            
+            // Fallback to static data
+            console.warn('⚠️ API not available, using fallback asteroid data');
+            this.asteroids = this.getFallbackAsteroids();
+            
         } catch (error) {
             console.error('❌ Error loading asteroid data:', error);
+            console.log('🔄 Using fallback asteroid data');
             this.asteroids = this.getFallbackAsteroids();
         }
     }
@@ -62,6 +71,9 @@ class AsteroidSelector {
                 diameter_km: 0.37,
                 velocity_km_s: 30.73,
                 is_potentially_hazardous: true,
+                close_approach_date: "2029-04-13",
+                miss_distance_km: 31900,
+                orbital_period_days: 323.6,
                 absolute_magnitude: 19.7,
                 spectral_type: "S",
                 composition: "rock"
@@ -290,14 +302,26 @@ class AsteroidSelector {
         // Clear existing options
         select.innerHTML = '<option value="">Select an asteroid...</option>';
         
-        // Add asteroid options
+        // Add asteroid options with enhanced display
         this.asteroids.forEach((asteroid, index) => {
             const option = document.createElement('option');
             option.value = index;
-            option.textContent = `${asteroid.name || asteroid.designation} (${asteroid.diameter_km.toFixed(2)} km)`;
-            if (asteroid.is_potentially_hazardous) {
-                option.textContent += ' ⚠️ PHA';
+            
+            // Create enhanced display name
+            let displayName = asteroid.name || asteroid.designation;
+            let displayInfo = `(${asteroid.diameter_km.toFixed(2)} km, ${asteroid.velocity_km_s.toFixed(1)} km/s)`;
+            
+            // Add composition info if available
+            if (asteroid.composition) {
+                displayInfo += ` - ${asteroid.composition}`;
             }
+            
+            // Add hazard warning
+            if (asteroid.is_potentially_hazardous) {
+                displayInfo += ' ⚠️ PHA';
+            }
+            
+            option.textContent = `${displayName} ${displayInfo}`;
             select.appendChild(option);
         });
         
@@ -306,13 +330,29 @@ class AsteroidSelector {
 
     setupEventListeners() {
         const select = document.getElementById('asteroidSelect');
-        if (!select) return;
+        if (!select) {
+            console.error('❌ Asteroid select dropdown not found!');
+            return;
+        }
+        
+        console.log('✅ Setting up dropdown event listeners');
         
         select.addEventListener('change', (e) => {
             const index = parseInt(e.target.value);
+            console.log(`🪨 Dropdown changed to index: ${index}`);
             if (index >= 0 && index < this.asteroids.length) {
                 this.selectAsteroid(this.asteroids[index]);
             }
+        });
+        
+        // Add click event for debugging
+        select.addEventListener('click', (e) => {
+            console.log('🪨 Dropdown clicked');
+        });
+        
+        // Add focus event for debugging
+        select.addEventListener('focus', (e) => {
+            console.log('🪨 Dropdown focused');
         });
     }
 

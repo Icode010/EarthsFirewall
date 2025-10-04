@@ -128,6 +128,9 @@
   color: white;
   font-size: 14px;
   transition: all 0.3s ease;
+  cursor: pointer;
+  z-index: 10;
+  position: relative;
 }
 
 .control-group select:focus,
@@ -141,6 +144,17 @@
 .control-group select option {
   background: #1a1a2e;
   color: white;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.control-group select option:hover {
+  background: #2a2a3e;
+}
+
+.asteroid-select {
+  min-width: 300px;
+  max-width: 100%;
 }
 
 .custom-asteroid-inputs,
