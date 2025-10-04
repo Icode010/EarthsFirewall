@@ -117,34 +117,84 @@ class TrajectorySystem {
         };
     }
 
-    // Create orbital path visualization
+    // Create sleek orbital path visualization
     createOrbitalPath(orbitalPath) {
-        const geometry = new THREE.BufferGeometry().setFromPoints(orbitalPath);
-        const material = new THREE.LineBasicMaterial({
-            color: 0x00ff88,
-            opacity: 0.3,
-            transparent: true,
-            linewidth: 2
-        });
+        console.log('Creating sleek orbital path visualization...');
         
-        this.orbitalPath = new THREE.Line(geometry, material);
-        this.orbitalPath.name = 'OrbitalPath';
-        this.simulation.scene.add(this.orbitalPath);
-    }
-
-    // Create approach trajectory visualization
-    createApproachTrajectory(approachPath) {
-        const geometry = new THREE.BufferGeometry().setFromPoints(approachPath);
+        const geometry = new THREE.BufferGeometry().setFromPoints(orbitalPath);
+        
+        // Create main trajectory line
         const material = new THREE.LineBasicMaterial({
-            color: 0xffaa00,
-            opacity: 0.6,
+            color: 0x00aaff,
+            opacity: 0.9,
             transparent: true,
             linewidth: 3
         });
         
+        this.orbitalPath = new THREE.Line(geometry, material);
+        this.orbitalPath.name = 'OrbitalPath';
+        
+        // Add glow effect for professional look
+        const glowGeometry = new THREE.BufferGeometry().setFromPoints(orbitalPath);
+        const glowMaterial = new THREE.LineBasicMaterial({
+            color: 0x00aaff,
+            opacity: 0.3,
+            transparent: true,
+            linewidth: 8,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const glowLine = new THREE.Line(glowGeometry, glowMaterial);
+        glowLine.name = 'OrbitalPathGlow';
+        
+        this.simulation.scene.add(glowLine);
+        this.simulation.scene.add(this.orbitalPath);
+        
+        // Store references for auto-scaling
+        this.orbitalPath.userData = { baseLinewidth: 3, baseOpacity: 0.9 };
+        glowLine.userData = { baseLinewidth: 8, baseOpacity: 0.3 };
+        
+        console.log('✅ Sleek orbital path created with glow effect and auto-scaling');
+    }
+
+    // Create sleek approach trajectory visualization
+    createApproachTrajectory(approachPath) {
+        console.log('Creating sleek approach trajectory...');
+        
+        const geometry = new THREE.BufferGeometry().setFromPoints(approachPath);
+        
+        // Create main approach line
+        const material = new THREE.LineBasicMaterial({
+            color: 0xff6600,
+            opacity: 0.9,
+            transparent: true,
+            linewidth: 4
+        });
+        
         this.trajectoryLine = new THREE.Line(geometry, material);
         this.trajectoryLine.name = 'ApproachTrajectory';
+        
+        // Add animated glow effect
+        const glowGeometry = new THREE.BufferGeometry().setFromPoints(approachPath);
+        const glowMaterial = new THREE.LineBasicMaterial({
+            color: 0xff6600,
+            opacity: 0.4,
+            transparent: true,
+            linewidth: 10,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const glowLine = new THREE.Line(glowGeometry, glowMaterial);
+        glowLine.name = 'ApproachTrajectoryGlow';
+        
+        this.simulation.scene.add(glowLine);
         this.simulation.scene.add(this.trajectoryLine);
+        
+        // Store references for auto-scaling
+        this.trajectoryLine.userData = { baseLinewidth: 4, baseOpacity: 0.9 };
+        glowLine.userData = { baseLinewidth: 10, baseOpacity: 0.4 };
+        
+        console.log('✅ Sleek approach trajectory created with animated glow and auto-scaling');
     }
 
     // Create impact trajectory visualization

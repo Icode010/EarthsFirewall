@@ -66,9 +66,12 @@ class AsteroidImpactSimulator {
     
     async setupThreeJS() {
         try {
-            // Scene
-            this.scene = new THREE.Scene();
-            this.scene.background = new THREE.Color(0x000011);
+        // Scene
+        this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color(0x000011);
+        
+        // Make scene globally accessible for auto-scaling functions
+        window.scene = this.scene;
             
             // Camera
             this.camera = new THREE.PerspectiveCamera(
@@ -90,29 +93,61 @@ class AsteroidImpactSimulator {
             throw new Error('Three.js initialization failed: ' + error.message);
         }
         
-        // Controls - Enhanced for better user interaction
-        if (typeof OrbitControls !== 'undefined') {
-            this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-            this.controls.enableDamping = true;
-            this.controls.dampingFactor = 0.05;
-            this.controls.enableZoom = true;
-            this.controls.enablePan = true;
-            this.controls.enableRotate = true;
-            this.controls.autoRotate = false; // Disable auto-rotate for manual control
-            this.controls.maxDistance = 50; // Allow zooming out for trajectory viewing
-            this.controls.minDistance = 1.0; // Allow getting very close to Earth
-            this.controls.maxPolarAngle = Math.PI; // Allow full rotation
-            this.controls.minPolarAngle = 0;
-            this.controls.rotateSpeed = 1.0; // Manual rotation speed
-            this.controls.zoomSpeed = 1.0; // Manual zoom speed
-            this.controls.panSpeed = 1.0; // Manual pan speed
+        // Controls - Enhanced for Earth interaction
+        console.log('OrbitControls available:', typeof OrbitControls !== 'undefined');
+        console.log('THREE.OrbitControls available:', typeof THREE.OrbitControls !== 'undefined');
+        
+        // Try to use enhanced Earth camera controls first
+        if (typeof createEarthCameraControls === 'function') {
+            try {
+                this.controls = createEarthCameraControls(this.camera, this.renderer.domElement, this.earth);
+                console.log('Enhanced Earth camera controls initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize enhanced Earth camera controls:', error);
+                this.controls = null;
+            }
+        }
+        
+        // Fallback to standard controls if enhanced controls failed
+        if (!this.controls) {
+            let ControlsClass = null;
+            if (typeof OrbitControls !== 'undefined') {
+                ControlsClass = OrbitControls;
+            } else if (typeof THREE.OrbitControls !== 'undefined') {
+                ControlsClass = THREE.OrbitControls;
+            }
             
-            // Add event listeners for better feedback
-            this.controls.addEventListener('change', () => {
-                // Camera controls are working
-            });
-            
-            console.log('Camera controls initialized - drag to rotate, scroll to zoom');
+            if (ControlsClass) {
+                try {
+                    this.controls = new ControlsClass(this.camera, this.renderer.domElement);
+                    this.controls.enableDamping = true;
+                    this.controls.dampingFactor = 0.05;
+                    this.controls.enableZoom = true;
+                    this.controls.enablePan = true;
+                    this.controls.enableRotate = true;
+                    this.controls.autoRotate = false; // Disable auto-rotate for manual control
+                    this.controls.maxDistance = 20; // Allow zooming out for trajectory viewing
+                    this.controls.minDistance = 1.2; // Allow getting close to Earth
+                    this.controls.maxPolarAngle = Math.PI; // Allow full rotation
+                    this.controls.minPolarAngle = 0;
+                    this.controls.rotateSpeed = 1.0; // Manual rotation speed
+                    this.controls.zoomSpeed = 1.0; // Manual zoom speed
+                    this.controls.panSpeed = 1.0; // Manual pan speed
+                    
+                    // Add event listeners for better feedback
+                    this.controls.addEventListener('change', () => {
+                        // Camera controls are working
+                    });
+                    
+                    console.log('Standard camera controls initialized - drag to rotate, scroll to zoom, right-click to pan');
+                } catch (error) {
+                    console.error('Failed to initialize OrbitControls:', error);
+                    this.controls = null;
+                }
+            } else {
+                console.error('OrbitControls not available - camera controls will not work');
+                this.controls = null;
+            }
         }
         
         // Lighting - Realistic setup for Earth
@@ -151,9 +186,41 @@ class AsteroidImpactSimulator {
     }
     
     async loadEarthModel() {
-        console.log('🌍 Starting enhanced Earth model loading...');
+        console.log('🌍 Starting realistic Earth model loading...');
         
         try {
+            // Try realistic Earth model first
+            if (typeof createRealisticEarthModel === 'function') {
+                console.log('📸 Loading realistic Earth model with rotating clouds and city lights...');
+                this.earth = createRealisticEarthModel(this.scene, { x: 0, y: 0, z: 0 });
+                this.earth.scale.setScalar(2);
+                this.earth.name = 'RealisticEarth';
+                this.scene.add(this.earth);
+                
+                // Start realistic Earth animation with rotating clouds and lights
+                this.earthAnimationController = new RealisticEarthAnimationController(this.earth);
+                this.earthAnimationController.startAnimation();
+                console.log('✅ Realistic Earth model loaded with rotating clouds and city lights!');
+                
+                // Create realistic lighting
+                if (typeof createRealisticLighting === 'function') {
+                    createRealisticLighting(this.scene);
+                    console.log('✅ Realistic lighting setup complete');
+                }
+                
+                // Log Earth components for debugging
+                const components = this.earthAnimationController.getEarthComponents();
+                console.log('Realistic Earth components:', {
+                    earth: !!components.earth,
+                    lights: !!components.lights,
+                    clouds: !!components.clouds,
+                    atmosphere: !!components.atmosphere
+                });
+                
+                return;
+            }
+            
+            // Fallback to enhanced Earth model
             if (typeof createEarthModel === 'function') {
                 console.log('📸 Loading enhanced Earth model from Assets...');
                 const textureLoader = new THREE.TextureLoader();
@@ -681,7 +748,14 @@ class AsteroidImpactSimulator {
         // Create new asteroid with ultra-realistic model
         if (typeof window.createAmazingAsteroid === 'function') {
             const diameter = Math.max(0.05, Math.min(0.5, Math.log(asteroidData.diameter_km + 1) * 0.1));
-            this.asteroid = window.createAmazingAsteroid(diameter, {x: 8, y: 0, z: 0});
+            const position = {x: 8, y: 0, z: 0};
+            this.asteroid = window.createAmazingAsteroid(diameter, position);
+            
+            // Add asteroid to scene
+            if (this.asteroid) {
+                this.scene.add(this.asteroid);
+                console.log('Ultra-realistic asteroid added to scene:', this.asteroid.position);
+            }
             
             // Update material based on composition
             if (this.asteroid && this.asteroid.material) {
@@ -1550,8 +1624,12 @@ class AsteroidImpactSimulator {
         }
         
         // Ensure controls are always updated for proper zoom/drag functionality
-        if (this.controls) {
-            this.controls.update();
+        if (this.controls && typeof this.controls.update === 'function') {
+            try {
+                this.controls.update();
+            } catch (error) {
+                console.error('Error updating controls:', error);
+            }
         }
         
         // Animate asteroid if present
