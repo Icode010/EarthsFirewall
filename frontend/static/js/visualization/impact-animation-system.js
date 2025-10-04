@@ -661,6 +661,12 @@ class ImpactAnimationSystem {
 
     // Clear all impact effects
     clearImpactEffects() {
+        // Check if scene exists
+        if (!this.simulation || !this.simulation.scene) {
+            console.warn('Scene not available for clearing effects');
+            return;
+        }
+        
         this.impactEffects.forEach(effect => {
             if (effect && effect.parent) {
                 this.simulation.scene.remove(effect);
@@ -675,10 +681,10 @@ class ImpactAnimationSystem {
         ];
         
         objectNames.forEach(name => {
-            const objects = this.simulation.scene.getObjectsByProperty('name', name);
-            objects.forEach(obj => {
-                this.simulation.scene.remove(obj);
-            });
+            const object = this.simulation.scene.getObjectByName(name);
+            if (object) {
+                this.simulation.scene.remove(object);
+            }
         });
     }
 

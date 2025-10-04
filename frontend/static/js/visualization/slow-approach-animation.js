@@ -65,6 +65,16 @@ class SlowApproachAnimation {
                     this.simulation.scene.add(this.simulation.asteroid);
                     console.log('Ultra-realistic asteroid created for animation');
                 }
+            } else {
+                console.error('createAmazingAsteroid function not available');
+                // Create a basic asteroid as fallback
+                const geometry = new THREE.SphereGeometry(0.1, 16, 16);
+                const material = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+                this.simulation.asteroid = new THREE.Mesh(geometry, material);
+                this.simulation.asteroid.position.set(30, 8, 0);
+                if (this.simulation.scene) {
+                    this.simulation.scene.add(this.simulation.asteroid);
+                }
             }
         }
         
@@ -119,7 +129,7 @@ class SlowApproachAnimation {
         console.log('Phase 3: Final acceleration and live impact with crater formation...');
         
         const startPosition = this.simulation.asteroid.position.clone();
-        const impactPosition = new THREE.Vector3(0, 0, 2); // Earth surface
+        const impactPosition = new THREE.Vector3(0, 0, 1); // Earth surface (radius = 1.0)
         
         // Animate final acceleration and impact over 5 seconds
         await this.animateFinalImpactWithLiveCrater(startPosition, impactPosition, 5000, asteroidData, impactParams);
@@ -302,6 +312,7 @@ class SlowApproachAnimation {
                 if (this.asteroidParticles) {
                     this.asteroidParticles.position.copy(this.simulation.asteroid.position);
                     this.asteroidParticles.rotation.y += 0.005;
+                }
                 
                 if (progress < 1) {
                     requestAnimationFrame(animate);
@@ -533,6 +544,7 @@ class SlowApproachAnimation {
             console.log(`Cleaned up ${warningLights.length} warning lights and ${redObjects.length} red objects`);
         }
     }
+
     // Enhanced methods for ultra-realistic asteroid animation
     
     // Create enhanced asteroid trail
@@ -672,7 +684,7 @@ class SlowApproachAnimation {
                     
                     // Scale up as it approaches (dramatic effect)
                     const scaleMultiplier = 1 + progress * 0.5;
-                    this.simulation.asteroid.scale.multiplyScalar(scaleMultiplier / this.simulation.asteroid.scale.x);
+                    this.simulation.asteroid.scale.setScalar(scaleMultiplier);
                     
                     // Increase rotation speed
                     const rotationSpeed = 0.1 + progress * 0.5;
@@ -741,7 +753,7 @@ class SlowApproachAnimation {
             });
             
             const explosion = new THREE.Mesh(explosionGeometry, explosionMaterial);
-            explosion.position.set(0, 0, 2); // Earth surface
+            explosion.position.set(0, 0, 1); // Earth surface (radius = 1.0)
             explosion.name = 'ImpactExplosion';
             
             if (this.simulation.scene) {

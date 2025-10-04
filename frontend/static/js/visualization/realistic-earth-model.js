@@ -296,7 +296,9 @@ function createEarthCameraControls(camera, renderer, earthGroup) {
         return null;
     }
     
-    const controls = new ControlsClass(camera, renderer.domElement);
+    // Ensure we have a valid DOM element
+    const domElement = renderer.domElement || document.body;
+    const controls = new ControlsClass(camera, domElement);
     
     // Enhanced settings for Earth viewing
     controls.enableDamping = true;

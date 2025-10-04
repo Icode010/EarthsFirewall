@@ -309,10 +309,10 @@ class TrajectorySystem {
         const velocityVector = new THREE.ArrowHelper(
             new THREE.Vector3(-1, 0, 0), // Direction
             new THREE.Vector3(8, 0, 0), // Origin
-            velocity * 0.1, // Length
+            Math.min(velocity * 0.02, 1.0), // Length (much smaller, max 1.0)
             0xff0000, // Color
-            velocity * 0.05, // Head length
-            velocity * 0.03 // Head width
+            Math.min(velocity * 0.01, 0.2), // Head length (much smaller, max 0.2)
+            Math.min(velocity * 0.005, 0.1) // Head width (much smaller, max 0.1)
         );
         velocityVector.name = 'VelocityVector';
         this.simulation.scene.add(velocityVector);

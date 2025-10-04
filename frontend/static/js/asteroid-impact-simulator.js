@@ -97,11 +97,17 @@ class AsteroidImpactSimulator {
         console.log('OrbitControls available:', typeof OrbitControls !== 'undefined');
         console.log('THREE.OrbitControls available:', typeof THREE.OrbitControls !== 'undefined');
         
-        // Try to use enhanced Earth camera controls first
+        // Try to use enhanced Earth camera controls first (after renderer is ready)
         if (typeof createEarthCameraControls === 'function') {
             try {
-                this.controls = createEarthCameraControls(this.camera, this.renderer.domElement, this.earth);
-                console.log('Enhanced Earth camera controls initialized successfully');
+                // Ensure renderer.domElement is available
+                if (this.renderer && this.renderer.domElement) {
+                    this.controls = createEarthCameraControls(this.camera, this.renderer, this.earth);
+                    console.log('Enhanced Earth camera controls initialized successfully');
+                } else {
+                    console.warn('Renderer DOM element not ready for enhanced controls');
+                    this.controls = null;
+                }
             } catch (error) {
                 console.error('Failed to initialize enhanced Earth camera controls:', error);
                 this.controls = null;
@@ -183,6 +189,59 @@ class AsteroidImpactSimulator {
         
         // Handle resize
         window.addEventListener('resize', () => this.onWindowResize());
+        
+        // Initialize controls after renderer is ready
+        this.initializeControls();
+    }
+    
+    initializeControls() {
+        console.log('Initializing camera controls...');
+        
+        // Try to use enhanced Earth camera controls first
+        if (typeof createEarthCameraControls === 'function') {
+            try {
+                this.controls = createEarthCameraControls(this.camera, this.renderer.domElement, this.earth);
+                console.log('Enhanced Earth camera controls initialized successfully');
+                return;
+            } catch (error) {
+                console.error('Failed to initialize enhanced Earth camera controls:', error);
+            }
+        }
+        
+        // Fallback to standard controls
+        let ControlsClass = null;
+        if (typeof OrbitControls !== 'undefined') {
+            ControlsClass = OrbitControls;
+        } else if (typeof THREE.OrbitControls !== 'undefined') {
+            ControlsClass = THREE.OrbitControls;
+        }
+        
+        if (ControlsClass) {
+            try {
+                this.controls = new ControlsClass(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.enableZoom = true;
+                this.controls.enablePan = true;
+                this.controls.enableRotate = true;
+                this.controls.autoRotate = false;
+                this.controls.maxDistance = 20;
+                this.controls.minDistance = 1.2;
+                this.controls.maxPolarAngle = Math.PI;
+                this.controls.minPolarAngle = 0;
+                this.controls.rotateSpeed = 1.0;
+                this.controls.zoomSpeed = 1.0;
+                this.controls.panSpeed = 1.0;
+                
+                console.log('Standard camera controls initialized successfully');
+            } catch (error) {
+                console.error('Failed to initialize standard OrbitControls:', error);
+                this.controls = null;
+            }
+        } else {
+            console.error('OrbitControls not available');
+            this.controls = null;
+        }
     }
     
     async loadEarthModel() {
