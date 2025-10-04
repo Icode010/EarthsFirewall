@@ -469,7 +469,9 @@ class NASAAsteroidSystem {
         this.updateAsteroids();
         
         // Update controls
-        this.controls.update();
+        if (this.controls && typeof this.controls.update === 'function') {
+            this.controls.update();
+        }
         
         // Render with enhanced quality
         this.renderer.render(this.scene, this.camera);

@@ -12,7 +12,7 @@ const ASTEROID_VIEWER_CONFIG = {
 };
 
 // Global variables
-let asteroidScene, asteroidCamera, asteroidRenderer, asteroidMesh, starfield;
+let asteroidScene, asteroidCamera, asteroidRenderer, homeAsteroidMesh, starfield;
 let mouseX = 0, mouseY = 0;
 let targetRotationX = 0, targetRotationY = 0;
 let isDragging = false;
@@ -72,8 +72,8 @@ function createEnhancedAsteroid() {
     
     // Use the existing asteroid model if available
     if (typeof window.createAmazingAsteroid === 'function') {
-        asteroidMesh = window.createAmazingAsteroid(ASTEROID_VIEWER_CONFIG.asteroidSize, {x: 0, y: 0, z: 0});
-        asteroidScene.add(asteroidMesh);
+        homeAsteroidMesh = window.createAmazingAsteroid(ASTEROID_VIEWER_CONFIG.asteroidSize, {x: 0, y: 0, z: 0});
+        asteroidScene.add(homeAsteroidMesh);
         console.log('✅ Enhanced asteroid created using asset model!');
         return;
     }
@@ -182,11 +182,11 @@ function createDetailedAsteroid() {
     });
 
     // Create asteroid mesh
-    asteroidMesh = new THREE.Mesh(geometry, material);
-    asteroidMesh.castShadow = true;
-    asteroidMesh.receiveShadow = true;
-    asteroidMesh.name = 'HomeAsteroid';
-    asteroidScene.add(asteroidMesh);
+    homeAsteroidMesh = new THREE.Mesh(geometry, material);
+    homeAsteroidMesh.castShadow = true;
+    homeAsteroidMesh.receiveShadow = true;
+    homeAsteroidMesh.name = 'HomeAsteroid';
+    asteroidScene.add(homeAsteroidMesh);
 
     console.log('✅ Detailed asteroid created!');
 }
@@ -333,9 +333,9 @@ function animate() {
     }
     
     // Apply smooth rotation
-    if (asteroidMesh) {
-        asteroidMesh.rotation.y += (targetRotationY - asteroidMesh.rotation.y) * 0.1;
-        asteroidMesh.rotation.x += (targetRotationX - asteroidMesh.rotation.x) * 0.1;
+    if (homeAsteroidMesh) {
+        homeAsteroidMesh.rotation.y += (targetRotationY - homeAsteroidMesh.rotation.y) * 0.1;
+        homeAsteroidMesh.rotation.x += (targetRotationX - homeAsteroidMesh.rotation.x) * 0.1;
     }
     
     // Rotate starfield slowly
@@ -382,7 +382,7 @@ function destroyAsteroidViewer() {
     asteroidScene = null;
     asteroidCamera = null;
     asteroidRenderer = null;
-    asteroidMesh = null;
+    homeAsteroidMesh = null;
     starfield = null;
 }
 

@@ -151,8 +151,34 @@ function createEarthModel(textureLoader, onComplete) {
         '/static/assets/images/earthmap.jpg',
         (texture) => {
             console.log('📸 Earth texture loaded successfully');
+            // Create a simple bump map from the texture
+            const canvas = document.createElement('canvas');
+            canvas.width = texture.image.width;
+            canvas.height = texture.image.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(texture.image, 0, 0);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            // Convert to grayscale for bump map
+            for (let i = 0; i < data.length; i += 4) {
+                const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+                data[i] = gray;
+                data[i + 1] = gray;
+                data[i + 2] = gray;
+            }
+            ctx.putImageData(imageData, 0, 0);
+            
+            const bumpTexture = new THREE.CanvasTexture(canvas);
+            
             const earthMaterial = new THREE.MeshPhongMaterial({
-                map: texture
+                map: texture,
+                bumpMap: bumpTexture,
+                bumpScale: 0.1,
+                shininess: 100,
+                specular: new THREE.Color(0x222222),
+                emissive: new THREE.Color(0x001122),
+                emissiveIntensity: 0.05
             });
             
             const earthMesh = new THREE.Mesh(geometry, earthMaterial);
