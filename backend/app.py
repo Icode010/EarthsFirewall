@@ -39,6 +39,11 @@ def simulate_impact():
         'tnt_equivalent': '0.3 megatons'
     })
 
+# Health check for Railway
+@app.route('/health')
+def health_check():
+    return jsonify({'status': 'healthy', 'service': 'Asteroid Impact Simulator'})
+
 # Error handlers
 @app.errorhandler(404)
 def not_found(error):
@@ -49,4 +54,6 @@ def internal_error(error):
     return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Get port from environment variable (Railway sets this)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
