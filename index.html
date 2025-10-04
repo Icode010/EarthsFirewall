@@ -253,5 +253,21 @@
     <script src="frontend/static/js/visualization/impact-zone.js"></script>
     <script src="frontend/static/js/ui/controls.js"></script>
     <script src="frontend/static/js/ui/game-mode.js"></script>
+    
+    <!-- Initialize 3D Scene -->
+    <script>
+        // Initialize the 3D scene when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for all scripts to load
+            setTimeout(function() {
+                if (typeof initializeAmazingScene === 'function') {
+                    initializeAmazingScene();
+                }
+                if (typeof initializeApp === 'function') {
+                    initializeApp();
+                }
+            }, 1000);
+        });
+    </script>
 </body>
 </html>

@@ -8,6 +8,9 @@
         <h1 class="page-title">Earth's Firewall</h1>
         <p class="page-subtitle">Asteroid Impact Simulator & Defense System</p>
     </div>
+    
+    <!-- Spacer for better visual separation -->
+    <div style="height: 4rem;"></div>
 
     <div class="content-section">
         <h2>About Our Team</h2>
@@ -46,4 +49,9 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Asteroid Belt Animation -->
+<script src="{{ url_for('static', filename='js/asteroid-belt.js') }}"></script>
 {% endblock %}
