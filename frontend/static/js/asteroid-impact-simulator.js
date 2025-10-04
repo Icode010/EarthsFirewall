@@ -109,12 +109,18 @@ class AsteroidImpactSimulator {
     
     async loadEarthModel() {
         try {
+            console.log('🌍 Loading Earth model...');
             if (typeof createEarthModel === 'function') {
                 const textureLoader = new THREE.TextureLoader();
                 const earthGroup = await new Promise((resolve, reject) => {
                     createEarthModel(textureLoader, (earth) => {
-                        if (earth) resolve(earth);
-                        else reject(new Error('Earth model creation failed'));
+                        if (earth) {
+                            console.log('✅ Earth model created successfully');
+                            resolve(earth);
+                        } else {
+                            console.error('❌ Earth model creation failed');
+                            reject(new Error('Earth model creation failed'));
+                        }
                     });
                 });
                 
@@ -123,24 +129,31 @@ class AsteroidImpactSimulator {
                     this.earth.scale.setScalar(2);
                     this.earth.name = 'Earth';
                     this.scene.add(this.earth);
-                    console.log('✅ Enhanced Earth model loaded');
+                    console.log('✅ Enhanced Earth model loaded and added to scene');
                     return;
                 }
+            } else {
+                console.warn('⚠️ createEarthModel function not available');
             }
         } catch (error) {
-            console.warn('⚠️ Failed to load enhanced Earth model, using fallback:', error);
+            console.error('❌ Failed to load enhanced Earth model:', error);
         }
         
         // Fallback basic Earth
+        console.log('🔄 Using fallback basic Earth model');
         this.createBasicEarth();
     }
     
     createBasicEarth() {
         const geometry = new THREE.SphereGeometry(2, 64, 64);
+        
+        // Create a more realistic Earth material
         const material = new THREE.MeshPhongMaterial({
             color: 0x4a90e2,
             shininess: 100,
-            specular: new THREE.Color(0x222222)
+            specular: new THREE.Color(0x222222),
+            emissive: new THREE.Color(0x001122),
+            emissiveIntensity: 0.05
         });
         
         this.earth = new THREE.Mesh(geometry, material);
@@ -149,7 +162,20 @@ class AsteroidImpactSimulator {
         this.earth.name = 'Earth';
         this.scene.add(this.earth);
         
-        console.log('✅ Basic Earth model created');
+        // Add atmospheric glow effect
+        const glowGeometry = new THREE.SphereGeometry(2.05, 32, 32);
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: 0x4a90e2,
+            transparent: true,
+            opacity: 0.1,
+            side: THREE.BackSide
+        });
+        
+        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+        glow.name = 'EarthGlow';
+        this.scene.add(glow);
+        
+        console.log('✅ Enhanced basic Earth model created with atmospheric glow');
     }
     
     createStarField() {
@@ -354,6 +380,11 @@ class AsteroidImpactSimulator {
             }
             
             this.scene.add(this.asteroid);
+            
+            // Create trail and particles
+            this.asteroidTrail = window.createAsteroidTrail(this.scene, this.asteroid);
+            this.asteroidParticles = window.createAsteroidParticles(this.scene, this.asteroid);
+            
             console.log(`✅ Created asteroid visualization for ${asteroidData.name}`);
         } else {
             // Fallback basic asteroid
@@ -669,10 +700,12 @@ class AsteroidImpactSimulator {
         document.querySelector('.velocity-value').textContent = '15 km/s';
         
         // Clear 3D objects
-        if (this.asteroid) {
+        if (this.asteroid && typeof window.cleanupAsteroid === 'function') {
+            window.cleanupAsteroid(this.scene, this.asteroid);
+        } else if (this.asteroid) {
             this.scene.remove(this.asteroid);
-            this.asteroid = null;
         }
+        this.asteroid = null;
         
         if (this.asteroidTrajectory) {
             this.scene.remove(this.asteroidTrajectory);

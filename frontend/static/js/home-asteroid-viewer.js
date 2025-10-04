@@ -74,6 +74,11 @@ function createEnhancedAsteroid() {
     if (typeof window.createAmazingAsteroid === 'function') {
         homeAsteroidMesh = window.createAmazingAsteroid(ASTEROID_VIEWER_CONFIG.asteroidSize, {x: 0, y: 0, z: 0});
         asteroidScene.add(homeAsteroidMesh);
+        
+        // Create trail and particles
+        const trail = window.createAsteroidTrail(asteroidScene, homeAsteroidMesh);
+        const particles = window.createAsteroidParticles(asteroidScene, homeAsteroidMesh);
+        
         console.log('✅ Enhanced asteroid created using asset model!');
         return;
     }

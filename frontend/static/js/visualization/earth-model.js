@@ -151,6 +151,8 @@ function createEarthModel(textureLoader, onComplete) {
         '/static/assets/images/earthmap.jpg',
         (texture) => {
             console.log('📸 Earth texture loaded successfully');
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
             // Create a simple bump map from the texture
             const canvas = document.createElement('canvas');
             canvas.width = texture.image.width;
@@ -197,6 +199,8 @@ function createEarthModel(textureLoader, onComplete) {
         '/static/assets/images/earth_lights.png',
         (texture) => {
             console.log('📸 Earth lights texture loaded successfully');
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
             const lightsMaterial = new THREE.MeshBasicMaterial({
                 map: texture,
                 blending: THREE.AdditiveBlending
@@ -218,6 +222,8 @@ function createEarthModel(textureLoader, onComplete) {
         '/static/assets/images/cloud_combined.jpg',
         (texture) => {
             console.log('📸 Cloud texture loaded successfully');
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
             const cloudsMaterial = new THREE.MeshStandardMaterial({
                 map: texture,
                 transparent: true,

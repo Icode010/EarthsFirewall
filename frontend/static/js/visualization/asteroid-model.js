@@ -9,53 +9,30 @@ const ASTEROID_PHYSICS = {
     trailOpacity: 0.6
 };
 
-// Global asteroid variables
-let asteroidMesh, asteroidTrail, asteroidParticles;
-let asteroidPosition = { x: 0, y: 0, z: 3 };
-let asteroidVelocity = { x: 0, y: 0, z: -0.1 };
-let trailPoints = [];
-let isAsteroidAnimating = false;
-
 // Create amazing asteroid with realistic features
 function createAmazingAsteroid(diameter = 0.02, position = {x: 0, y: 0, z: 3}) {
     console.log('🪨 Creating amazing asteroid...');
-    
-    // Remove existing asteroid
-    if (asteroidMesh) {
-        scene.remove(asteroidMesh);
-    }
     
     // Create irregular asteroid geometry
     const asteroidGeometry = createIrregularAsteroidGeometry(diameter);
     
     // Create realistic asteroid material
-    const asteroidMaterial = new THREE.MeshPhongMaterial({
-        map: createAsteroidTexture(),
-        bumpMap: createAsteroidBumpTexture(),
-        bumpScale: 0.05,
-        shininess: 20,
-        specular: new THREE.Color(0x222222),
-        emissive: new THREE.Color(0x111111)
-    });
+    const asteroidMaterial = createAsteroidMaterial();
     
     // Create asteroid mesh
-    asteroidMesh = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
+    const asteroidMesh = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
     asteroidMesh.position.set(position.x, position.y, position.z);
     asteroidMesh.castShadow = true;
     asteroidMesh.receiveShadow = true;
     asteroidMesh.name = 'Asteroid';
     
-    // Add to scene
-    scene.add(asteroidMesh);
-    
-    // Create particle system for asteroid
-    createAsteroidParticles();
-    
-    // Create trail
-    createAsteroidTrail();
-    
-    // Start animation
-    startAsteroidAnimation();
+    // Store asteroid data
+    asteroidMesh.userData = {
+        diameter: diameter,
+        velocity: { x: 0, y: 0, z: -0.1 },
+        rotationSpeed: ASTEROID_PHYSICS.rotationSpeed,
+        isAnimating: false
+    };
     
     console.log('✅ Amazing asteroid created!');
     return asteroidMesh;
@@ -63,15 +40,16 @@ function createAmazingAsteroid(diameter = 0.02, position = {x: 0, y: 0, z: 3}) {
 
 // Create irregular asteroid geometry
 function createIrregularAsteroidGeometry(diameter) {
-    const geometry = new THREE.SphereGeometry(diameter, 16, 16);
+    // Start with icosahedron for more realistic shape
+    const geometry = new THREE.IcosahedronGeometry(diameter / 2, 2);
     
-    // Add noise to vertices for irregular shape
+    // Add random noise to vertices for irregular shape
     const vertices = geometry.attributes.position.array;
     for (let i = 0; i < vertices.length; i += 3) {
-        const noise = (Math.random() - 0.5) * 0.1;
-        vertices[i] += noise;     // x
-        vertices[i + 1] += noise; // y
-        vertices[i + 2] += noise; // z
+        const noise = (Math.random() - 0.5) * 0.3;
+        vertices[i] += noise * diameter;     // x
+        vertices[i + 1] += noise * diameter; // y
+        vertices[i + 2] += noise * diameter; // z
     }
     
     geometry.attributes.position.needsUpdate = true;
@@ -80,341 +58,272 @@ function createIrregularAsteroidGeometry(diameter) {
     return geometry;
 }
 
-// Create asteroid texture
-function createAsteroidTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 512;
-    const ctx = canvas.getContext('2d');
-    
-    // Base asteroid color
-    const gradient = ctx.createRadialGradient(256, 256, 0, 256, 256, 256);
-    gradient.addColorStop(0, '#8B4513');
-    gradient.addColorStop(0.5, '#A0522D');
-    gradient.addColorStop(1, '#654321');
-    
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 512, 512);
-    
-    // Add surface details
-    ctx.fillStyle = '#5D4E37';
-    for (let i = 0; i < 50; i++) {
-        const x = Math.random() * 512;
-        const y = Math.random() * 512;
-        const size = Math.random() * 20 + 5;
-        ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
-        ctx.fill();
-    }
-    
-    // Add craters
-    ctx.fillStyle = '#2F1B14';
-    for (let i = 0; i < 10; i++) {
-        const x = Math.random() * 512;
-        const y = Math.random() * 512;
-        const size = Math.random() * 15 + 5;
-        ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
-        ctx.fill();
-    }
-    
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    return texture;
-}
-
-// Create asteroid bump texture
-function createAsteroidBumpTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 512;
-    const ctx = canvas.getContext('2d');
-    
-    // Create noise pattern
-    const imageData = ctx.createImageData(512, 512);
-    const data = imageData.data;
-    
-    for (let i = 0; i < data.length; i += 4) {
-        const noise = Math.random() * 255;
-        data[i] = noise;
-        data[i + 1] = noise;
-        data[i + 2] = noise;
-        data[i + 3] = 255;
-    }
-    
-    ctx.putImageData(imageData, 0, 0);
-    
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    return texture;
-}
-
-// Create asteroid particles
-function createAsteroidParticles() {
-    if (asteroidParticles) {
-        scene.remove(asteroidParticles);
-    }
-    
-    const particleCount = 50;
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-    const colors = new Float32Array(particleCount * 3);
-    
-    for (let i = 0; i < particleCount; i++) {
-        const i3 = i * 3;
-        
-        // Random positions around asteroid
-        positions[i3] = (Math.random() - 0.5) * 0.1;
-        positions[i3 + 1] = (Math.random() - 0.5) * 0.1;
-        positions[i3 + 2] = (Math.random() - 0.5) * 0.1;
-        
-        // Dust colors
-        colors[i3] = 0.5 + Math.random() * 0.5;
-        colors[i3 + 1] = 0.3 + Math.random() * 0.3;
-        colors[i3 + 2] = 0.1 + Math.random() * 0.2;
-    }
-    
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-    
-    const material = new THREE.PointsMaterial({
-        size: 0.01,
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.6,
-        blending: THREE.AdditiveBlending
+// Create realistic asteroid material
+function createAsteroidMaterial() {
+    return new THREE.MeshPhongMaterial({
+        color: 0x8b7355, // Brownish-gray
+        shininess: 30,
+        specular: 0x222222,
+        roughness: 0.8,
+        metalness: 0.1,
+        bumpScale: 0.1,
+        transparent: false
     });
-    
-    asteroidParticles = new THREE.Points(geometry, material);
-    asteroidParticles.position.copy(asteroidMesh.position);
-    scene.add(asteroidParticles);
 }
 
-// Create asteroid trail
-function createAsteroidTrail() {
-    if (asteroidTrail) {
-        scene.remove(asteroidTrail);
+// Set asteroid velocity for animation
+function setAsteroidVelocity(velocity) {
+    // This function is called by external code to set asteroid movement
+    // The velocity will be used by the calling code for animation
+    if (typeof window.currentAsteroidVelocity === 'undefined') {
+        window.currentAsteroidVelocity = {};
     }
+    window.currentAsteroidVelocity = velocity;
+}
+
+// Create asteroid trail (called by external code)
+function createAsteroidTrail(scene, asteroidMesh) {
+    if (!scene || !asteroidMesh) return null;
     
-    const geometry = new THREE.BufferGeometry();
-    const material = new THREE.LineBasicMaterial({
-        color: 0xff6b35,
-        transparent: true,
+    const trailGeometry = new THREE.BufferGeometry();
+    const trailMaterial = new THREE.LineBasicMaterial({
+        color: 0xff6b6b,
         opacity: ASTEROID_PHYSICS.trailOpacity,
+        transparent: true,
         linewidth: 2
     });
     
-    asteroidTrail = new THREE.Line(geometry, material);
-    scene.add(asteroidTrail);
+    const trailPoints = [];
+    const trailLine = new THREE.Line(trailGeometry, trailMaterial);
+    trailLine.name = 'AsteroidTrail';
+    
+    // Store trail data
+    trailLine.userData = {
+        points: trailPoints,
+        maxPoints: ASTEROID_PHYSICS.trailLength
+    };
+    
+    scene.add(trailLine);
+    return trailLine;
 }
 
-// Start asteroid animation
-function startAsteroidAnimation() {
-    isAsteroidAnimating = true;
+// Update asteroid trail (called by external code)
+function updateAsteroidTrail(trail, asteroidPosition) {
+    if (!trail || !asteroidPosition) return;
     
-    function animateAsteroid() {
-        if (!isAsteroidAnimating || !asteroidMesh) return;
-        
-        // Rotate asteroid
-        asteroidMesh.rotation.x += ASTEROID_PHYSICS.rotationSpeed;
-        asteroidMesh.rotation.y += ASTEROID_PHYSICS.rotationSpeed * 0.7;
-        asteroidMesh.rotation.z += ASTEROID_PHYSICS.rotationSpeed * 0.3;
-        
-        // Update position
-        asteroidMesh.position.x += asteroidVelocity.x;
-        asteroidMesh.position.y += asteroidVelocity.y;
-        asteroidMesh.position.z += asteroidVelocity.z;
-        
-        // Update particles
-        if (asteroidParticles) {
-            asteroidParticles.position.copy(asteroidMesh.position);
-            asteroidParticles.rotation.x += 0.01;
-            asteroidParticles.rotation.y += 0.01;
-        }
-        
-        // Update trail
-        updateAsteroidTrail();
-        
-        requestAnimationFrame(animateAsteroid);
-    }
-    
-    animateAsteroid();
-}
-
-// Update asteroid trail
-function updateAsteroidTrail() {
-    if (!asteroidMesh || !asteroidTrail) return;
-    
-    // Add current position to trail
-    trailPoints.push(asteroidMesh.position.clone());
+    const trailData = trail.userData;
+    trailData.points.push(new THREE.Vector3(asteroidPosition.x, asteroidPosition.y, asteroidPosition.z));
     
     // Limit trail length
-    if (trailPoints.length > ASTEROID_PHYSICS.trailLength) {
-        trailPoints.shift();
+    if (trailData.points.length > trailData.maxPoints) {
+        trailData.points.shift();
     }
     
     // Update trail geometry
-    if (trailPoints.length > 1) {
-        const geometry = new THREE.BufferGeometry().setFromPoints(trailPoints);
-        asteroidTrail.geometry.dispose();
-        asteroidTrail.geometry = geometry;
+    if (trailData.points.length > 1) {
+        trail.geometry.setFromPoints(trailData.points);
     }
 }
 
-// Set asteroid velocity
-function setAsteroidVelocity(velocity) {
-    asteroidVelocity = velocity;
-    console.log('🚀 Asteroid velocity set:', velocity);
+// Create asteroid particles (called by external code)
+function createAsteroidParticles(scene, asteroidMesh) {
+    if (!scene || !asteroidMesh) return null;
+    
+    const particleCount = 50;
+    const particles = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    
+    for (let i = 0; i < particleCount * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 0.1;     // x
+        positions[i + 1] = (Math.random() - 0.5) * 0.1; // y
+        positions[i + 2] = (Math.random() - 0.5) * 0.1; // z
+    }
+    
+    particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    
+    const particleMaterial = new THREE.PointsMaterial({
+        color: 0xffaa00,
+        size: 0.005,
+        transparent: true,
+        opacity: 0.6
+    });
+    
+    const particleSystem = new THREE.Points(particles, particleMaterial);
+    particleSystem.name = 'AsteroidParticles';
+    
+    scene.add(particleSystem);
+    return particleSystem;
 }
 
-// Simulate asteroid impact
-function simulateAsteroidImpact() {
-    console.log('💥 Simulating asteroid impact...');
+// Update asteroid particles (called by external code)
+function updateAsteroidParticles(particles, asteroidMesh) {
+    if (!particles || !asteroidMesh) return;
     
-    if (!asteroidMesh) return;
+    particles.position.copy(asteroidMesh.position);
+    particles.rotation.copy(asteroidMesh.rotation);
     
-    // Create impact explosion
-    createImpactExplosion();
-    
-    // Create impact crater
-    createImpactCrater();
-    
-    // Create shockwave
-    createShockwave();
-    
-    // Remove asteroid
-    setTimeout(() => {
-        if (asteroidMesh) {
-            scene.remove(asteroidMesh);
-            asteroidMesh = null;
-        }
-    }, 1000);
+    // Animate particles
+    const positions = particles.geometry.attributes.position.array;
+    for (let i = 1; i < positions.length; i += 3) {
+        positions[i] += Math.sin(Date.now() * 0.001 + i) * 0.001;
+    }
+    particles.geometry.attributes.position.needsUpdate = true;
 }
 
-// Create impact explosion
-function createImpactExplosion() {
-    const explosionGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+// Create impact explosion effect (called by external code)
+function createImpactExplosion(scene, position) {
+    if (!scene || !position) return null;
+    
+    const explosionGeometry = new THREE.SphereGeometry(0.1, 8, 6);
     const explosionMaterial = new THREE.MeshBasicMaterial({
-        color: 0xff4500,
+        color: 0xff4400,
         transparent: true,
         opacity: 0.8
     });
     
     const explosion = new THREE.Mesh(explosionGeometry, explosionMaterial);
-    explosion.position.copy(asteroidMesh.position);
+    explosion.position.set(position.x, position.y, position.z);
+    explosion.name = 'ImpactExplosion';
+    
     scene.add(explosion);
     
     // Animate explosion
-    let scale = 0.1;
-    let opacity = 0.8;
-    
-    function animateExplosion() {
-        scale += 0.05;
-        opacity -= 0.02;
+    const startTime = Date.now();
+    const animateExplosion = () => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        const scale = 1 + elapsed * 5;
+        const opacity = Math.max(0, 1 - elapsed * 2);
         
         explosion.scale.setScalar(scale);
-        explosionMaterial.opacity = opacity;
+        explosion.material.opacity = opacity;
         
         if (opacity > 0) {
             requestAnimationFrame(animateExplosion);
         } else {
             scene.remove(explosion);
         }
-    }
+    };
     
     animateExplosion();
+    return explosion;
 }
 
-// Create impact crater
-function createImpactCrater() {
-    const craterGeometry = new THREE.RingGeometry(0.05, 0.2, 32);
-    const craterMaterial = new THREE.MeshBasicMaterial({
-        color: 0x8B4513,
+// Create impact crater (called by external code)
+function createImpactCrater(scene, position, size = 0.5) {
+    if (!scene || !position) return null;
+    
+    const craterGeometry = new THREE.CylinderGeometry(
+        size * 0.5, // top radius
+        size * 0.3, // bottom radius
+        size * 0.1, // height
+        16
+    );
+    
+    const craterMaterial = new THREE.MeshPhongMaterial({
+        color: 0x444444,
         transparent: true,
-        opacity: 0.7,
-        side: THREE.DoubleSide
+        opacity: 0.8
     });
     
     const crater = new THREE.Mesh(craterGeometry, craterMaterial);
-    crater.position.copy(asteroidMesh.position);
-    crater.rotation.x = -Math.PI / 2;
+    crater.position.set(position.x, position.y - size * 0.05, position.z);
+    crater.rotation.x = Math.PI / 2;
+    crater.name = 'ImpactCrater';
+    
     scene.add(crater);
+    return crater;
 }
 
-// Create shockwave
-function createShockwave() {
-    const shockwaveGeometry = new THREE.RingGeometry(0.1, 0.15, 32);
+// Create shockwave effect (called by external code)
+function createShockwave(scene, position, maxRadius = 2) {
+    if (!scene || !position) return null;
+    
+    const shockwaveGeometry = new THREE.RingGeometry(0.1, 0.2, 32);
     const shockwaveMaterial = new THREE.MeshBasicMaterial({
-        color: 0xff6b35,
+        color: 0xff6600,
         transparent: true,
-        opacity: 0.5,
+        opacity: 0.6,
         side: THREE.DoubleSide
     });
     
     const shockwave = new THREE.Mesh(shockwaveGeometry, shockwaveMaterial);
-    shockwave.position.copy(asteroidMesh.position);
-    shockwave.rotation.x = -Math.PI / 2;
+    shockwave.position.set(position.x, position.y, position.z);
+    shockwave.rotation.x = Math.PI / 2;
+    shockwave.name = 'Shockwave';
+    
     scene.add(shockwave);
     
     // Animate shockwave
-    let scale = 1;
-    let opacity = 0.5;
-    
-    function animateShockwave() {
-        scale += 0.1;
-        opacity -= 0.02;
+    const startTime = Date.now();
+    const animateShockwave = () => {
+        const elapsed = (Date.now() - startTime) / 1000;
+        const scale = elapsed * 2;
+        const opacity = Math.max(0, 1 - elapsed * 0.5);
         
         shockwave.scale.setScalar(scale);
-        shockwaveMaterial.opacity = opacity;
+        shockwave.material.opacity = opacity;
         
-        if (opacity > 0) {
+        if (opacity > 0 && scale < maxRadius) {
             requestAnimationFrame(animateShockwave);
         } else {
             scene.remove(shockwave);
         }
-    }
+    };
     
     animateShockwave();
+    return shockwave;
 }
 
-// Stop asteroid animation
-function stopAsteroidAnimation() {
-    isAsteroidAnimating = false;
-}
-
-// Reset asteroid
-function resetAsteroid() {
-    console.log('🔄 Resetting asteroid...');
+// Clean up asteroid and related objects (called by external code)
+function cleanupAsteroid(scene, asteroidMesh) {
+    if (!scene) return;
     
-    stopAsteroidAnimation();
-    
+    // Remove asteroid mesh
     if (asteroidMesh) {
         scene.remove(asteroidMesh);
-        asteroidMesh = null;
     }
     
-    if (asteroidTrail) {
-        scene.remove(asteroidTrail);
-        asteroidTrail = null;
+    // Remove trail
+    const trail = scene.getObjectByName('AsteroidTrail');
+    if (trail) {
+        scene.remove(trail);
     }
     
-    if (asteroidParticles) {
-        scene.remove(asteroidParticles);
-        asteroidParticles = null;
+    // Remove particles
+    const particles = scene.getObjectByName('AsteroidParticles');
+    if (particles) {
+        scene.remove(particles);
     }
     
-    trailPoints = [];
-    asteroidPosition = { x: 0, y: 0, z: 3 };
-    asteroidVelocity = { x: 0, y: 0, z: -0.1 };
+    // Remove explosion
+    const explosion = scene.getObjectByName('ImpactExplosion');
+    if (explosion) {
+        scene.remove(explosion);
+    }
+    
+    // Remove crater
+    const crater = scene.getObjectByName('ImpactCrater');
+    if (crater) {
+        scene.remove(crater);
+    }
+    
+    // Remove shockwave
+    const shockwave = scene.getObjectByName('Shockwave');
+    if (shockwave) {
+        scene.remove(shockwave);
+    }
 }
 
-// Export functions
+// Export functions for global use
 window.createAmazingAsteroid = createAmazingAsteroid;
 window.setAsteroidVelocity = setAsteroidVelocity;
-window.simulateAsteroidImpact = simulateAsteroidImpact;
-window.stopAsteroidAnimation = stopAsteroidAnimation;
-window.resetAsteroid = resetAsteroid;
+window.createAsteroidTrail = createAsteroidTrail;
+window.updateAsteroidTrail = updateAsteroidTrail;
+window.createAsteroidParticles = createAsteroidParticles;
+window.updateAsteroidParticles = updateAsteroidParticles;
+window.createImpactExplosion = createImpactExplosion;
+window.createImpactCrater = createImpactCrater;
+window.createShockwave = createShockwave;
+window.cleanupAsteroid = cleanupAsteroid;
 
 console.log('🪨 Asteroid model module loaded!');
