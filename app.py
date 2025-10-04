@@ -3,6 +3,14 @@ from flask import Flask, render_template, jsonify, send_from_directory
 from flask_cors import CORS
 import os
 
+# Import simulation routes
+try:
+    from backend.api.simulation_routes import simulation_bp
+    SIMULATION_ROUTES_AVAILABLE = True
+except ImportError:
+    SIMULATION_ROUTES_AVAILABLE = False
+    print("Warning: Simulation routes not available. Using basic API only.")
+
 # Initialize Flask app
 app = Flask(__name__, 
             template_folder='frontend/templates', 
@@ -10,6 +18,13 @@ app = Flask(__name__,
 
 # Configure CORS
 CORS(app)
+
+# Register simulation blueprint if available
+if SIMULATION_ROUTES_AVAILABLE:
+    app.register_blueprint(simulation_bp)
+    print("✅ Simulation routes registered successfully!")
+else:
+    print("⚠️  Running with basic API only. Advanced simulation features not available.")
 
 # Serve static files
 @app.route('/static/<path:filename>')

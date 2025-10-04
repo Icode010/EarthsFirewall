@@ -1,308 +1,307 @@
-# User Guide
+# 🌍 Earth's Firewall - User Guide
 
-## Getting Started
+## 🎯 Welcome to Earth's Firewall!
 
-### System Requirements
-- Modern web browser (Chrome, Firefox, Safari, Edge)
-- Internet connection for NASA data
-- JavaScript enabled
-- WebGL support for 3D visualization
+**Earth's Firewall** is an interactive asteroid defense simulation that combines real NASA data with engaging gameplay. Learn about planetary defense while having fun protecting Earth from asteroid threats!
 
-### First Launch
-1. Open the application in your browser
-2. Wait for asteroid data to load
-3. Select an asteroid from the dropdown
-4. Adjust impact parameters using sliders
-5. Click "Simulate Impact" to run the simulation
+---
 
-## Interface Overview
+## 🚀 Getting Started
 
-### Control Panel (Left Sidebar)
-- **Asteroid Selection**: Choose from real NASA asteroids or presets
-- **Impact Parameters**: Adjust size, velocity, angle, and location
-- **Mitigation Strategies**: Test deflection methods
-- **Simulation Controls**: Start, pause, reset simulations
+### First Time Setup
+1. **Open the Application**: Navigate to the homepage
+2. **Choose Your Mission**: Select a difficulty level (1-5)
+3. **Learn the Interface**: Familiarize yourself with the controls
+4. **Start Defending**: Begin your first asteroid defense mission!
+
+### Interface Overview
+- **Left Panel**: Mission Control - asteroid selection and parameters
+- **Center**: 3D Visualization - Earth and asteroid in real-time
+- **Right Panel**: Mission Data - asteroid details and impact analysis
+
+---
+
+## 🎮 Game Modes
+
+### 1. Simulation Mode
+**Purpose**: Learn about asteroid impacts and physics
+- **Select Asteroid**: Choose from real NASA data
+- **Adjust Parameters**: Modify size, velocity, impact angle
+- **Run Simulation**: See realistic impact effects
+- **Analyze Results**: Understand environmental consequences
+
+### 2. Defense Mode
+**Purpose**: Test different deflection strategies
+- **Choose Strategy**: Kinetic impactor, gravity tractor, or laser ablation
+- **Deploy Defense**: Execute your chosen method
+- **Monitor Results**: Track deflection success
+- **Learn Physics**: Understand why strategies work or fail
+
+### 3. Game Mode
+**Purpose**: Time-based defense challenges
+- **5 Difficulty Levels**: From small impacts to extinction events
+- **Time Pressure**: Limited time to save Earth
+- **Scoring System**: Points for successful defense
+- **Progressive Difficulty**: Unlock harder challenges
+
+---
+
+## 🛡️ Defense Strategies
+
+### Kinetic Impactor
+**How it works**: High-speed collision to change asteroid trajectory
+- **Best for**: Small to medium asteroids (10-100m)
+- **Time required**: Months to years
+- **Success rate**: High for smaller asteroids
+- **Cost**: Medium
+- **Risk**: Low
+
+**When to use**: When you have time to prepare and the asteroid is not too large
+
+### Gravity Tractor
+**How it works**: Use gravitational force to gradually deflect asteroid
+- **Best for**: Large asteroids (100m+)
+- **Time required**: Years
+- **Success rate**: High for larger asteroids
+- **Cost**: High
+- **Risk**: Low
+
+**When to use**: For massive asteroids when you have years to prepare
+
+### Laser Ablation
+**How it works**: Focused laser to vaporize surface material
+- **Best for**: Small asteroids (<50m)
+- **Time required**: Months to years
+- **Success rate**: High for small asteroids
+- **Cost**: Very high
+- **Risk**: Medium
+
+**When to use**: For small, fast-approaching asteroids
+
+---
+
+## 🎯 Difficulty Levels
+
+### Level 1: Easy
+- **Asteroid Size**: 10 meters
+- **Time Limit**: 5 minutes
+- **Defense Options**: All strategies available
+- **Learning Focus**: Basic concepts and interface
+
+### Level 2: Medium
+- **Asteroid Size**: 50 meters
+- **Time Limit**: 4 minutes
+- **Defense Options**: All strategies available
+- **Learning Focus**: Strategy selection and timing
+
+### Level 3: Hard
+- **Asteroid Size**: 100 meters
+- **Time Limit**: 3 minutes
+- **Defense Options**: All strategies available
+- **Learning Focus**: Advanced physics and optimization
+
+### Level 4: Expert
+- **Asteroid Size**: 500 meters
+- **Time Limit**: 2 minutes
+- **Defense Options**: All strategies available
+- **Learning Focus**: Crisis management and quick decisions
+
+### Level 5: Nightmare
+- **Asteroid Size**: 1000 meters
+- **Time Limit**: 1 minute
+- **Defense Options**: All strategies available
+- **Learning Focus**: Extreme pressure and perfect execution
+
+---
+
+## 🎮 Controls and Interface
+
+### Mission Control Panel (Left)
+- **Asteroid Selection**: Choose threat level
+- **Parameter Adjustment**: Modify size, velocity, angle
+- **Action Buttons**: Simulate, deflect, defend, reset
+- **Strategy Selection**: Choose defense method
 
 ### 3D Visualization (Center)
-- **Earth Model**: Rotating Earth with realistic textures
-- **Asteroid Trajectory**: Orbital path visualization
-- **Impact Zones**: Blast, thermal, and seismic effects
-- **Timeline**: Simulation progress and controls
+- **Earth Model**: Realistic with day/night cycle
+- **Asteroid**: Physics-based movement and rotation
+- **Trajectory**: Orbital path visualization
+- **Impact Effects**: Crater formation and environmental damage
 
-### Information Panel (Right Sidebar)
-- **Asteroid Details**: Physical properties and orbital data
-- **Impact Predictions**: Energy, crater size, environmental effects
-- **Mitigation Results**: Deflection success and mission requirements
+### Mission Data Panel (Right)
+- **Asteroid Details**: Size, velocity, mass, composition
+- **Impact Analysis**: Energy, crater size, devastation zones
+- **Environmental Effects**: Tsunami risk, seismic magnitude
+- **Defense Results**: Success rate, new trajectory
 
-## Using the Simulator
+---
 
-### Selecting an Asteroid
-
-1. **Real NASA Data**
-   - Choose from the dropdown menu
-   - View actual orbital parameters
-   - See close approach dates
-
-2. **Preset Scenarios**
-   - "Impactor-2025" for testing
-   - Realistic threat scenarios
-   - Educational examples
-
-### Setting Impact Parameters
-
-#### Asteroid Size
-- **Range**: 0.1 - 1,000 km
-- **Default**: 100 km
-- **Effect**: Larger asteroids create bigger impacts
-
-#### Impact Velocity
-- **Range**: 5 - 50 km/s
-- **Default**: 15 km/s
-- **Effect**: Higher velocity = more energy
-
-#### Impact Angle
-- **Range**: 0 - 90 degrees
-- **Default**: 45 degrees
-- **Effect**: Vertical impacts are more destructive
-
-#### Impact Location
-- **Ocean Impact**: Generates tsunamis
-- **Land Impact**: Creates craters and seismic effects
-- **Custom Location**: Specify coordinates
-
-### Running Simulations
-
-#### Basic Impact Simulation
-1. Select asteroid and parameters
-2. Click "Simulate Impact"
-3. Watch 3D visualization
-4. View results in information panel
-
-#### Deflection Testing
-1. Set up impact scenario
-2. Choose mitigation strategy
-3. Click "Test Deflection"
-4. Compare original vs. deflected trajectory
-
-#### Game Mode
-1. Click "Defend Earth"
-2. Complete levels with increasing difficulty
-3. Use limited resources strategically
-4. Achieve high scores
-
-## Understanding Results
+## 🔬 Understanding the Physics
 
 ### Impact Energy
-- **Units**: Joules, megatons TNT
-- **Scale**: 1 MT = 4.184 × 10¹⁵ J
-- **Context**: Compare to nuclear weapons
+**Formula**: E = 0.5 × m × v²
+- **E**: Kinetic energy in Joules
+- **m**: Asteroid mass in kilograms
+- **v**: Impact velocity in meters/second
 
-### Crater Size
-- **Diameter**: Kilometers
-- **Depth**: Proportional to diameter
-- **Type**: Simple, complex, or peak-ring
+### Crater Formation
+**Scaling Law**: D = k × (E)^(1/3) × (sin(θ))^n
+- **D**: Crater diameter
+- **E**: Impact energy
+- **θ**: Impact angle
+- **k, n**: Material constants
 
 ### Environmental Effects
+- **Blast Radius**: Total destruction zone
+- **Thermal Radius**: Heat effects zone
+- **Seismic Radius**: Earthquake effects zone
+- **Tsunami Risk**: Ocean impact consequences
 
-#### Blast Radius
-- **Total Destruction**: Everything destroyed
-- **Severe Damage**: Buildings collapsed
-- **Moderate Damage**: Windows broken
+---
 
-#### Thermal Radiation
-- **Burns**: Third-degree burns
-- **Fires**: Ignition of flammable materials
-- **Range**: Much larger than blast radius
+## 🎯 Tips for Success
 
-#### Seismic Effects
-- **Magnitude**: Richter scale equivalent
-- **Shaking**: Ground motion intensity
-- **Range**: Global effects for large impacts
+### Strategy Selection
+1. **Assess the Threat**: Consider asteroid size and time available
+2. **Choose Appropriate Method**: Match strategy to asteroid characteristics
+3. **Plan Ahead**: Consider mission timeline and resources
+4. **Monitor Results**: Track deflection effectiveness
 
-#### Tsunami Risk
-- **Wave Height**: Meters above normal
-- **Travel Time**: Hours to reach coastlines
-- **Affected Areas**: Coastal regions worldwide
+### Game Mode Tips
+1. **Start with Easy**: Learn the interface and controls
+2. **Practice Strategies**: Understand each defense method
+3. **Time Management**: Balance speed with accuracy
+4. **Learn from Failures**: Analyze why defenses fail
 
-### Mitigation Results
+### Physics Understanding
+1. **Size Matters**: Larger asteroids are harder to deflect
+2. **Velocity is Key**: Faster asteroids require more energy
+3. **Angle Effects**: Impact angle affects crater formation
+4. **Time is Critical**: Earlier intervention is more effective
 
-#### Success Metrics
-- **Miss Distance**: Kilometers from Earth
-- **Deflection Angle**: Degrees of trajectory change
-- **Mission Requirements**: Mass, time, resources
+---
 
-#### Strategy Comparison
-- **Kinetic Impactor**: Fast, simple, effective
-- **Gravity Tractor**: Gradual, precise, complex
-- **Laser Ablation**: Future technology, theoretical
+## 🎓 Educational Content
 
-## Game Mode
+### Learn About Orbital Mechanics
+- **Kepler's Laws**: Understand asteroid orbits
+- **Gravitational Forces**: How planets affect asteroid paths
+- **Trajectory Changes**: How small changes create big effects
 
-### Objective
-Prevent asteroid impacts using limited resources and time.
+### Understand Impact Physics
+- **Energy Transfer**: How kinetic energy becomes destruction
+- **Scaling Laws**: Why size matters exponentially
+- **Environmental Effects**: Real consequences of impacts
 
-### Levels
-1. **Easy**: Small asteroid, plenty of time
-2. **Medium**: Medium asteroid, moderate time
-3. **Hard**: Large asteroid, limited time
-4. **Expert**: Very large asteroid, critical time
-5. **Nightmare**: Massive asteroid, minimal time
+### Explore Defense Strategies
+- **Current Research**: What NASA is actually developing
+- **Mission Planning**: Real-world constraints and challenges
+- **Risk Assessment**: Balancing cost, time, and effectiveness
 
-### Scoring
-- **Base Score**: 1,000 points per level
-- **Time Bonus**: 10 points per second remaining
-- **Efficiency Bonus**: 5 points per resource saved
-- **Survival Bonus**: 5,000 points for success
+---
 
-### Strategy Tips
-- **Early Action**: Deflect as soon as possible
-- **Resource Management**: Don't waste materials
-- **Multiple Strategies**: Combine approaches
-- **Risk Assessment**: Consider failure consequences
-
-## Educational Features
-
-### Tooltips
-- Hover over parameters for explanations
-- Learn about orbital mechanics
-- Understand impact physics
-- Explore mitigation strategies
-
-### Scientific Accuracy
-- Real NASA data
-- Accurate physics calculations
-- Peer-reviewed scaling laws
-- Educational value
-
-### Interactive Learning
-- Visualize complex concepts
-- Experiment with parameters
-- See cause and effect
-- Build intuition
-
-## Troubleshooting
+## 🚨 Troubleshooting
 
 ### Common Issues
 
-#### 3D Scene Not Loading
-- Check WebGL support
-- Update graphics drivers
-- Try different browser
-- Disable browser extensions
+**3D Models Not Loading**
+- Check browser compatibility (Chrome, Firefox, Safari)
+- Ensure JavaScript is enabled
+- Try refreshing the page
 
-#### Slow Performance
-- Close other applications
-- Reduce asteroid count
-- Lower visualization quality
+**Game Not Responding**
 - Check internet connection
+- Verify API endpoints are accessible
+- Try restarting the application
 
-#### Data Loading Errors
-- Check internet connection
-- Verify NASA API access
-- Try refreshing page
-- Check browser console
+**Physics Calculations Wrong**
+- Verify input parameters are reasonable
+- Check for JavaScript errors in console
+- Ensure all dependencies are loaded
 
-### Browser Compatibility
-- **Chrome**: Full support
-- **Firefox**: Full support
-- **Safari**: Full support
-- **Edge**: Full support
-- **Internet Explorer**: Not supported
+### Performance Tips
+- **Close Other Tabs**: Free up browser memory
+- **Use Modern Browser**: Chrome, Firefox, or Safari
+- **Stable Internet**: Ensure good connection for API calls
 
-### Mobile Devices
-- **iOS**: Limited 3D performance
-- **Android**: Varies by device
-- **Tablets**: Good performance
-- **Phones**: Basic functionality
+---
 
-## Advanced Features
+## 🎯 Advanced Features
 
-### Custom Scenarios
-- Create your own asteroids
-- Set specific parameters
-- Save scenarios
-- Share with others
+### Real-time Simulation
+- **60 FPS Physics**: Smooth asteroid movement
+- **Dynamic Lighting**: Realistic Earth illumination
+- **Particle Effects**: Dust, debris, and atmospheric effects
+- **Sound Effects**: Impact sounds and mission audio
 
-### Data Export
-- Export simulation results
-- Save impact predictions
-- Download trajectory data
-- Generate reports
+### Data Integration
+- **NASA NEO Database**: Real asteroid data
+- **Orbital Mechanics**: Accurate trajectory calculations
+- **Environmental Modeling**: Realistic impact effects
+- **Historical Data**: Learn from past impacts
 
-### API Access
-- Programmatic access
-- Custom integrations
-- Research applications
-- Educational tools
+### Educational Tools
+- **Interactive Tutorials**: Step-by-step learning
+- **Physics Explanations**: Understand the science
+- **Mission Briefings**: Context for each scenario
+- **Achievement System**: Track your progress
 
-## Safety and Ethics
+---
 
-### Educational Purpose
-- This is a simulation tool
-- Not for real threat assessment
-- Educational and research use
-- Scientific accuracy prioritized
+## 🌟 Achievements
 
-### Data Sources
-- NASA Near-Earth Object Program
-- USGS Geological Survey
-- Peer-reviewed scientific literature
-- Open source algorithms
+### Defense Master
+- Successfully defend Earth 10 times
+- Use all three defense strategies
+- Complete all difficulty levels
 
-### Responsible Use
-- Educational purposes only
-- Not for panic or fear
-- Scientific understanding
-- Public awareness
+### Physics Expert
+- Understand impact energy calculations
+- Predict crater formation accurately
+- Optimize defense strategies
 
-## Support
+### Mission Commander
+- Lead successful defense missions
+- Make quick decisions under pressure
+- Balance multiple threats simultaneously
 
-### Documentation
-- API documentation
-- Physics calculations
-- User guide
-- FAQ section
+---
+
+## 📚 Additional Resources
+
+### NASA Resources
+- [NASA NEO Program](https://cneos.jpl.nasa.gov/)
+- [Planetary Defense](https://www.nasa.gov/planetarydefense)
+- [Asteroid Data](https://cneos.jpl.nasa.gov/ca/)
+
+### Educational Materials
+- [Orbital Mechanics](https://www.nasa.gov/audience/foreducators/k-4/features/F_What_Is_Orbital_Mechanics.html)
+- [Impact Physics](https://www.nasa.gov/audience/foreducators/k-4/features/F_What_Is_An_Asteroid.html)
+- [Planetary Defense](https://www.nasa.gov/planetarydefense/overview)
 
 ### Community
-- GitHub repository
-- Issue tracking
-- Feature requests
-- Contributions welcome
+- [NASA Space Apps](https://www.spaceappschallenge.org/)
+- [GitHub Repository](https://github.com/SPALRB/EarthsFirewall)
+- [Project Documentation](docs/)
 
-### Contact
-- NASA Space Apps Challenge
-- Project repository
-- Developer contact
-- Community forums
+---
 
-## Frequently Asked Questions
+## 🤝 Support
 
-### Q: How accurate are the simulations?
-A: The simulations use real NASA data and scientifically accurate physics calculations based on peer-reviewed research.
+### Getting Help
+- **GitHub Issues**: Report bugs and request features
+- **Documentation**: Check API and setup guides
+- **Community**: Connect with other users
 
-### Q: Can I use this for real threat assessment?
-A: No, this is an educational tool. Real threat assessment requires professional analysis and specialized software.
+### Contributing
+- **Code Contributions**: Improve the simulation
+- **Educational Content**: Add learning materials
+- **Testing**: Help find and fix bugs
 
-### Q: Why is the 3D scene slow?
-A: 3D rendering is computationally intensive. Try closing other applications or reducing the number of asteroids displayed.
+---
 
-### Q: How often is the data updated?
-A: NASA data is updated in real-time. The application fetches fresh data each time you load it.
+## 🎉 Have Fun!
 
-### Q: Can I save my simulations?
-A: Currently, simulations are not saved between sessions. This feature may be added in future versions.
+Remember, **Earth's Firewall** is both educational and entertaining. Take your time to explore the physics, experiment with different strategies, and most importantly, have fun learning about planetary defense!
 
-### Q: Is this open source?
-A: Yes, the project is open source and available on GitHub for the NASA Space Apps Challenge.
-
-### Q: How can I contribute?
-A: Check the GitHub repository for contribution guidelines, issue tracking, and feature requests.
-
-### Q: What browsers are supported?
-A: Modern browsers with WebGL support are required. Chrome, Firefox, Safari, and Edge are fully supported.
-
-### Q: Can I run this offline?
-A: The application requires internet access for NASA data. Offline mode with sample data may be added in future versions.
-
-### Q: Is there a mobile app?
-A: The application is web-based and works on mobile devices, but performance may be limited on older devices.
+**Good luck, Mission Commander!** 🚀🌍
