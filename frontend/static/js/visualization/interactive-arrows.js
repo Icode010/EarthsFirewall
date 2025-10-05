@@ -20,9 +20,10 @@ class InteractiveArrows {
     init() {
         if (this.isInitialized) return;
         
-        // Create arrow group
+        // Create arrow group with high priority
         this.arrowGroup = new THREE.Group();
         this.arrowGroup.name = 'InteractiveArrows';
+        this.arrowGroup.renderOrder = 1000; // High render order for entire group
         this.scene.add(this.arrowGroup);
         
         // Create arrows
@@ -46,12 +47,17 @@ class InteractiveArrows {
         const arrowMaterial = new THREE.MeshBasicMaterial({ 
             color: 0xff6b35,
             transparent: true,
-            opacity: 0.9
+            opacity: 1.0, // Full opacity for better visibility
+            depthTest: false, // Always render on top
+            depthWrite: false, // Don't write to depth buffer
+            emissive: 0xff6b35, // Add emissive glow
+            emissiveIntensity: 0.3 // Subtle glow effect
         });
         
         this.asteroidArrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
         this.asteroidArrow.name = 'AsteroidArrow';
         this.asteroidArrow.userData = { type: 'asteroid', target: this.simulation.asteroid };
+        this.asteroidArrow.renderOrder = 1000; // High render order to ensure it's on top
         
         // Create label
         const label = this.createLabel('ASTEROID', 0xff6b35);
@@ -72,12 +78,17 @@ class InteractiveArrows {
         const arrowMaterial = new THREE.MeshBasicMaterial({ 
             color: 0x4a9eff,
             transparent: true,
-            opacity: 0.9
+            opacity: 1.0, // Full opacity for better visibility
+            depthTest: false, // Always render on top
+            depthWrite: false, // Don't write to depth buffer
+            emissive: 0x4a9eff, // Add emissive glow
+            emissiveIntensity: 0.3 // Subtle glow effect
         });
         
         this.earthArrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
         this.earthArrow.name = 'EarthArrow';
         this.earthArrow.userData = { type: 'earth', target: this.simulation.earth };
+        this.earthArrow.renderOrder = 1000; // High render order to ensure it's on top
         
         // Create label
         const label = this.createLabel('EARTH', 0x4a9eff);
@@ -91,30 +102,53 @@ class InteractiveArrows {
     }
     
     createLabel(text, color) {
-        // Create text geometry (simplified approach)
+        // Create glowing text without background
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
-        canvas.width = 256;
-        canvas.height = 64;
+        canvas.width = 1024; // Higher resolution for glow effect
+        canvas.height = 256;
         
-        context.fillStyle = 'rgba(0, 0, 0, 0.8)';
-        context.fillRect(0, 0, canvas.width, canvas.height);
+        // Clear canvas (no background)
+        context.clearRect(0, 0, canvas.width, canvas.height);
         
-        context.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
-        context.font = 'bold 24px Arial';
+        // Create glow effect
+        const glowColor = `#${color.toString(16).padStart(6, '0')}`;
+        
+        // Outer glow (larger, more transparent)
+        context.shadowColor = glowColor;
+        context.shadowBlur = 20;
+        context.fillStyle = glowColor;
+        context.font = 'bold 48px Arial';
         context.textAlign = 'center';
         context.textBaseline = 'middle';
+        context.fillText(text, canvas.width / 2, canvas.height / 2);
+        
+        // Inner glow (smaller, more opaque)
+        context.shadowBlur = 10;
+        context.fillStyle = glowColor;
+        context.font = 'bold 48px Arial';
+        context.fillText(text, canvas.width / 2, canvas.height / 2);
+        
+        // Core text (no glow, solid)
+        context.shadowBlur = 0;
+        context.fillStyle = '#ffffff'; // White core for maximum visibility
+        context.font = 'bold 48px Arial';
         context.fillText(text, canvas.width / 2, canvas.height / 2);
         
         const texture = new THREE.CanvasTexture(canvas);
         const material = new THREE.SpriteMaterial({ 
             map: texture,
             transparent: true,
-            opacity: 0.9
+            opacity: 1.0,
+            depthTest: false, // Always render on top
+            depthWrite: false, // Don't write to depth buffer
+            blending: THREE.AdditiveBlending // Additive blending for glow effect
         });
         
         const sprite = new THREE.Sprite(material);
-        sprite.scale.set(1, 0.25, 1);
+        sprite.scale.set(3, 0.75, 1); // Base scale
+        sprite.renderOrder = 1000; // High render order to ensure it's on top
+        sprite.userData = { baseScale: 3 }; // Store base scale for distance scaling
         
         return sprite;
     }
@@ -347,16 +381,47 @@ class InteractiveArrows {
             this.updateAsteroidArrowPosition();
             this.updateEarthArrowPosition();
             
-            // Make arrows face camera
+            // Calculate distance-based scaling
+            const distanceScale = Math.max(1, cameraDistance / this.showDistance);
+            
+            // Make arrows face camera and ensure they're always on top
             if (this.asteroidArrow) {
                 this.asteroidArrow.lookAt(this.camera.position);
                 // Add subtle animation
                 this.asteroidArrow.rotation.z = Math.sin(Date.now() * 0.002) * 0.1;
+                
+                // Scale label based on distance
+                const label = this.asteroidArrow.children[0];
+                if (label && label.userData.baseScale) {
+                    const newScale = label.userData.baseScale * distanceScale;
+                    label.scale.set(newScale, newScale * 0.25, 1);
+                }
+                
+                // Ensure arrow is always on top
+                this.asteroidArrow.renderOrder = 1000;
+                if (this.asteroidArrow.material) {
+                    this.asteroidArrow.material.depthTest = false;
+                    this.asteroidArrow.material.depthWrite = false;
+                }
             }
             if (this.earthArrow) {
                 this.earthArrow.lookAt(this.camera.position);
                 // Add subtle animation
                 this.earthArrow.rotation.z = Math.sin(Date.now() * 0.002) * 0.1;
+                
+                // Scale label based on distance
+                const label = this.earthArrow.children[0];
+                if (label && label.userData.baseScale) {
+                    const newScale = label.userData.baseScale * distanceScale;
+                    label.scale.set(newScale, newScale * 0.25, 1);
+                }
+                
+                // Ensure arrow is always on top
+                this.earthArrow.renderOrder = 1000;
+                if (this.earthArrow.material) {
+                    this.earthArrow.material.depthTest = false;
+                    this.earthArrow.material.depthWrite = false;
+                }
             }
         }
         

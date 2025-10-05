@@ -332,6 +332,8 @@ class ImpactAnimationSystem {
             size: 0.02,
             vertexColors: true,
             transparent: true,
+            sizeAttenuation: true,
+            alphaTest: 0.1,
             opacity: 0.8
         });
         

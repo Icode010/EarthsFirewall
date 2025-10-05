@@ -515,7 +515,7 @@ class AsteroidSelector {
         // Clear existing options
         select.innerHTML = '<option value="">Select an asteroid...</option>';
         
-        // Add asteroid options with enhanced display
+        // Add asteroid options with enhanced display including dates
         this.asteroids.forEach((asteroid, index) => {
             const option = document.createElement('option');
             option.value = index;
@@ -527,6 +527,17 @@ class AsteroidSelector {
             // Add composition info if available
             if (asteroid.composition) {
                 displayInfo += ` - ${asteroid.composition}`;
+            }
+            
+            // Add close approach date if available
+            if (asteroid.close_approach_date) {
+                const date = new Date(asteroid.close_approach_date);
+                const formattedDate = date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                displayInfo += ` | ${formattedDate}`;
             }
             
             // Add hazard warning

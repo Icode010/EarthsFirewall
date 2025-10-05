@@ -127,7 +127,11 @@ function createBasicStarfield(numStars = 5000) {
     const starMaterial = new THREE.PointsMaterial({
         color: 0xffffff,
         size: 0.2,
-        vertexColors: true
+        vertexColors: true,
+        sizeAttenuation: true,
+        transparent: true,
+        opacity: 0.8,
+        alphaTest: 0.1
     });
 
     const starVertices = [];

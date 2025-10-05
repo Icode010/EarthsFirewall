@@ -218,6 +218,8 @@ class SlowApproachAnimation {
             color: 0xffaa00,
             size: 0.1,
             transparent: true,
+            sizeAttenuation: true,
+            alphaTest: 0.1,
             opacity: 0.8
         });
         
@@ -610,7 +612,7 @@ class SlowApproachAnimation {
             positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
             positions[i3 + 2] = radius * Math.cos(phi);
             
-            // Dust colors (brownish-gray)
+            // Dust colors (brownish-gray) - ensure circular particles
             colors[i3] = 0.6 + Math.random() * 0.2;     // Red
             colors[i3 + 1] = 0.4 + Math.random() * 0.2; // Green
             colors[i3 + 2] = 0.2 + Math.random() * 0.2; // Blue
@@ -626,6 +628,8 @@ class SlowApproachAnimation {
             size: 0.02,
             vertexColors: true,
             transparent: true,
+            sizeAttenuation: true,
+            alphaTest: 0.1,
             opacity: 0.6,
             blending: THREE.AdditiveBlending
         });

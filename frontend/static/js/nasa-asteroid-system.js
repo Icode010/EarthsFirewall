@@ -143,7 +143,8 @@ class NASAAsteroidSystem {
             vertexColors: true,
             transparent: true,
             opacity: 0.9,
-            sizeAttenuation: true
+            sizeAttenuation: true,
+            alphaTest: 0.1
         });
 
         const stars = new THREE.Points(starGeometry, starMaterial);

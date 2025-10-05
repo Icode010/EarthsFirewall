@@ -254,6 +254,8 @@ class RealisticEarthDamage {
             color: 0x8b7355,
             size: 0.02,
             transparent: true,
+            sizeAttenuation: true,
+            alphaTest: 0.1,
             opacity: 0.6
         });
         
@@ -337,6 +339,8 @@ class RealisticEarthDamage {
             size: 0.05,
             vertexColors: true,
             transparent: true,
+            sizeAttenuation: true,
+            alphaTest: 0.1,
             opacity: 0.8
         });
         
@@ -785,65 +789,103 @@ class RealisticEarthDamage {
         }
     }
     
-    // Create damage texture overlay
+    // Create damage texture overlay - improved 3D approach
     createDamageTexture(damageData) {
-        const size = 512;
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        const context = canvas.getContext('2d');
+        // Create proper 3D crater geometry instead of flat texture
+        const craterGeometry = new THREE.CylinderGeometry(
+            damageData.craterDiameter / 3, // Top radius
+            damageData.craterDiameter / 5, // Bottom radius (smaller for cone shape)
+            damageData.craterDepth, // Height/depth
+            16 // Segments
+        );
         
-        // Create damage pattern
-        const centerX = size / 2;
-        const centerY = size / 2;
-        const craterRadius = (damageData.craterDiameter / 20) * size;
-        
-        // Create damage gradient
-        const gradient = context.createRadialGradient(centerX, centerY, 0, centerX, centerY, craterRadius);
-        gradient.addColorStop(0, 'rgba(139, 0, 0, 0.8)'); // Dark red center
-        gradient.addColorStop(0.5, 'rgba(139, 0, 0, 0.4)'); // Medium red
-        gradient.addColorStop(1, 'rgba(139, 0, 0, 0.1)'); // Light red edge
-        
-        context.fillStyle = gradient;
-        context.fillRect(0, 0, size, size);
-        
-        const texture = new THREE.CanvasTexture(canvas);
-        const material = new THREE.MeshBasicMaterial({
-            map: texture,
+        const craterMaterial = new THREE.MeshPhongMaterial({
+            color: 0x1a1a1a, // Very dark crater color
+            shininess: 3,
             transparent: true,
-            opacity: 0.6
+            opacity: 0.95
         });
         
-        const overlay = new THREE.Mesh(
-            new THREE.SphereGeometry(1.01, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
-            material
-        );
-        overlay.position.set(0, 0, 0);
-        overlay.name = 'DamageOverlay';
+        const crater = new THREE.Mesh(craterGeometry, craterMaterial);
+        crater.position.set(0, 0, 1.01); // Slightly above Earth surface
+        crater.rotation.x = Math.PI / 2; // Lay flat on Earth
+        crater.name = '3DDamageTexture';
         
-        return overlay;
+        // Create crater rim for more realistic look
+        const rimGeometry = new THREE.CylinderGeometry(
+            damageData.craterDiameter / 2 + 0.03, // Outer rim
+            damageData.craterDiameter / 2, // Inner rim
+            0.015, // Rim height
+            16
+        );
+        
+        const rimMaterial = new THREE.MeshPhongMaterial({
+            color: 0x3a3a3a, // Slightly lighter than crater
+            shininess: 8
+        });
+        
+        const rim = new THREE.Mesh(rimGeometry, rimMaterial);
+        rim.position.set(0, 0, 1.015);
+        rim.rotation.x = Math.PI / 2;
+        rim.name = 'CraterRimTexture';
+        
+        // Create a group to hold both crater and rim
+        const craterGroup = new THREE.Group();
+        craterGroup.add(crater);
+        craterGroup.add(rim);
+        craterGroup.name = '3DDamageOverlay';
+        
+        return craterGroup;
     }
     
-    // Create damage overlay if Earth not found
+    // Create damage overlay if Earth not found - use proper 3D crater instead
     createDamageOverlay(asteroidData, impactParams, impactCalculations) {
         
         const damageData = this.calculateDamageData(asteroidData, impactParams, impactCalculations);
         
-        // Create visible damage overlay
-        const overlayGeometry = new THREE.CircleGeometry(damageData.craterDiameter / 10, 32);
-        const overlayMaterial = new THREE.MeshBasicMaterial({
-            color: 0x8b0000,
+        // Create proper 3D crater instead of flat overlay
+        const craterGeometry = new THREE.CylinderGeometry(
+            damageData.craterDiameter / 4, // Top radius
+            damageData.craterDiameter / 6, // Bottom radius (smaller for cone shape)
+            damageData.craterDepth, // Height/depth
+            16 // Segments
+        );
+        
+        const craterMaterial = new THREE.MeshPhongMaterial({
+            color: 0x2a2a2a, // Dark crater color
+            shininess: 5,
             transparent: true,
-            opacity: 0.7
+            opacity: 0.9
         });
         
-        const overlay = new THREE.Mesh(overlayGeometry, overlayMaterial);
-        overlay.position.set(0, 0, 1.01);
-        overlay.rotation.x = Math.PI / 2;
-        overlay.name = 'DamageOverlay';
+        const crater = new THREE.Mesh(craterGeometry, craterMaterial);
+        crater.position.set(0, 0, 1.01); // Slightly above Earth surface
+        crater.rotation.x = Math.PI / 2; // Lay flat on Earth
+        crater.name = '3DCrater';
         
-        this.scene.add(overlay);
-        this.damageEffects.push(overlay);
+        this.scene.add(crater);
+        this.damageEffects.push(crater);
+        
+        // Create crater rim for more realistic look
+        const rimGeometry = new THREE.CylinderGeometry(
+            damageData.craterDiameter / 2 + 0.05, // Outer rim
+            damageData.craterDiameter / 2, // Inner rim
+            0.02, // Rim height
+            16
+        );
+        
+        const rimMaterial = new THREE.MeshPhongMaterial({
+            color: 0x4a4a4a, // Slightly lighter than crater
+            shininess: 10
+        });
+        
+        const rim = new THREE.Mesh(rimGeometry, rimMaterial);
+        rim.position.set(0, 0, 1.02);
+        rim.rotation.x = Math.PI / 2;
+        rim.name = 'CraterRim';
+        
+        this.scene.add(rim);
+        this.damageEffects.push(rim);
         
     }
     

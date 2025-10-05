@@ -1491,6 +1491,9 @@ class AsteroidImpactSimulator {
             return;
         }
         
+        // Hide overlays during simulation
+        this.hideOverlays();
+        
         if (!this.simulationResults) {
             this.showMessage('Please run simulation first!', 'error');
             return;
@@ -1576,11 +1579,24 @@ class AsteroidImpactSimulator {
                 // Clean up any red effects that might remain
                 this.cleanupRedEffects();
                 
+                // Show overlays after simulation
+                this.showOverlays();
+                
+                // Clean up grey squares
+                this.cleanupGreySquares();
+                
                 this.showReplayButton();
             } else if (this.impactAnimationSystem) {
                 console.log('Using standard impact animation system');
                 await this.impactAnimationSystem.startImpactAnimation(this.currentAsteroid, impactParams);
                 this.showMessage('Animation completed!', 'success');
+                
+                // Show overlays after simulation
+                this.showOverlays();
+                
+                // Clean up grey squares
+                this.cleanupGreySquares();
+                
                 this.showReplayButton();
             } else {
                 console.log('Using fallback animation');
@@ -1934,6 +1950,58 @@ class AsteroidImpactSimulator {
         effectsToRemove.forEach(effect => {
             if (effect.parent) {
                 effect.parent.remove(effect);
+            }
+        });
+    }
+    
+    // Hide overlays during simulation
+    hideOverlays() {
+        this.scene.traverse((child) => {
+            if (child.name && (
+                child.name.includes('DamageZone') ||
+                child.name.includes('ImpactZone') ||
+                child.name.includes('DamageOverlay') ||
+                child.name.includes('Overlay') ||
+                child.name.includes('3DCrater') ||
+                child.name.includes('CraterRim')
+            )) {
+                child.visible = false;
+            }
+        });
+    }
+    
+    // Show overlays after simulation
+    showOverlays() {
+        this.scene.traverse((child) => {
+            if (child.name && (
+                child.name.includes('DamageZone') ||
+                child.name.includes('ImpactZone') ||
+                child.name.includes('DamageOverlay') ||
+                child.name.includes('Overlay') ||
+                child.name.includes('3DCrater') ||
+                child.name.includes('CraterRim')
+            )) {
+                child.visible = true;
+            }
+        });
+    }
+    
+    // Clean up grey squares and particles after explosion
+    cleanupGreySquares() {
+        this.scene.traverse((child) => {
+            if (child.isPoints && child.material) {
+                // Check for grey particles that might appear as squares
+                const material = child.material;
+                if (material.color && (
+                    material.color.getHex() === 0x666666 ||
+                    material.color.getHex() === 0x888888 ||
+                    material.color.getHex() === 0x999999
+                )) {
+                    // Ensure these particles are circular
+                    material.sizeAttenuation = true;
+                    material.alphaTest = 0.1;
+                    material.transparent = true;
+                }
             }
         });
     }
