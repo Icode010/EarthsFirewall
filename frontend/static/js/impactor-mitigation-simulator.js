@@ -284,53 +284,197 @@ class ImpactorMitigationSimulator {
     }
     
     async createEarth() {
-        // Create ultra-high quality Earth geometry (4K quality)
-        const earthGeometry = new THREE.SphereGeometry(1, 256, 128);
+        console.log('🌍 Creating realistic Earth model from Assets...');
         
-        // Create realistic Earth material with PBR properties
-        const earthMaterial = new THREE.MeshStandardMaterial({
-            color: 0x4a9eff, // Ocean blue
-            metalness: 0.0,
-            roughness: 0.8,
-            transparent: false,
-            emissive: 0x0a1a2a, // Subtle blue glow
-            emissiveIntensity: 0.1,
-            envMapIntensity: 1.0,
-            normalScale: new THREE.Vector2(1, 1),
-            bumpScale: 0.1
+        // Create Earth group with proper tilt (23.4 degrees)
+        this.earthGroup = new THREE.Group();
+        this.earthGroup.rotation.z = (-23.4 * Math.PI) / 180;
+        this.earthGroup.name = 'EarthModel';
+        
+        // Create Earth geometry using IcosahedronGeometry for high quality
+        const earthGeometry = new THREE.IcosahedronGeometry(1.0, 14);
+        
+        // Load textures and create Earth components
+        const textureLoader = new THREE.TextureLoader();
+        const texturesLoaded = {
+            earthMap: false,
+            earthLights: false,
+            cloudMap: false
+        };
+        
+        let loadedCount = 0;
+        const totalTextures = 3;
+        
+        const checkComplete = () => {
+            loadedCount++;
+            console.log(`📸 Texture loaded: ${loadedCount}/${totalTextures}`);
+            if (loadedCount === totalTextures) {
+                console.log('✅ All Earth textures loaded successfully');
+                this.scene.add(this.earthGroup);
+                
+                // Start Earth animation
+                this.startEarthAnimation();
+            }
+        };
+        
+        const onTextureError = (error, textureName) => {
+            console.error(`❌ Failed to load ${textureName} texture:`, error);
+            checkComplete(); // Still count as loaded to avoid hanging
+        };
+        
+        // Load Earth surface texture
+        textureLoader.load(
+            '../../Assets/images/earthmap.jpg',
+            (texture) => {
+                console.log('📸 Earth texture loaded successfully');
+                const earthMaterial = new THREE.MeshPhongMaterial({
+                    map: texture
+                });
+                
+                const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+                earthMesh.name = 'Earth';
+                earthMesh.castShadow = true;
+                earthMesh.receiveShadow = true;
+                this.earthGroup.add(earthMesh);
+                
+                // Store reference to main Earth mesh
+                this.earth = earthMesh;
+                
+                texturesLoaded.earthMap = true;
+                checkComplete();
+            },
+            undefined,
+            (error) => onTextureError(error, 'Earth')
+        );
+        
+        // Load Earth lights texture
+        textureLoader.load(
+            '../../Assets/images/earth_lights.png',
+            (texture) => {
+                console.log('📸 Earth lights texture loaded successfully');
+                const lightsMaterial = new THREE.MeshBasicMaterial({
+                    map: texture,
+                    blending: THREE.AdditiveBlending
+                });
+                
+                const lightsMesh = new THREE.Mesh(earthGeometry, lightsMaterial);
+                lightsMesh.name = 'EarthLights';
+                this.earthGroup.add(lightsMesh);
+                
+                texturesLoaded.earthLights = true;
+                checkComplete();
+            },
+            undefined,
+            (error) => onTextureError(error, 'Earth lights')
+        );
+        
+        // Load cloud texture
+        textureLoader.load(
+            '../../Assets/images/cloud_combined.jpg',
+            (texture) => {
+                console.log('📸 Cloud texture loaded successfully');
+                const cloudsMaterial = new THREE.MeshStandardMaterial({
+                    map: texture,
+                    transparent: true,
+                    opacity: 0.9,
+                    blending: THREE.AdditiveBlending
+                });
+                
+                const cloudsMesh = new THREE.Mesh(earthGeometry, cloudsMaterial);
+                cloudsMesh.scale.setScalar(1.003);
+                cloudsMesh.name = 'EarthClouds';
+                this.earthGroup.add(cloudsMesh);
+                
+                texturesLoaded.cloudMap = true;
+                checkComplete();
+            },
+            undefined,
+            (error) => onTextureError(error, 'Cloud')
+        );
+        
+        // Create atmospheric glow effect
+        this.createEarthGlow(earthGeometry);
+        
+        console.log('🌍 Realistic Earth model creation initiated with high-quality textures');
+    }
+    
+    createEarthGlow(earthGeometry) {
+        // Create atmospheric glow effect using Fresnel shader
+        const fresnelMaterial = this.getFresnelMaterial();
+        const glowMesh = new THREE.Mesh(earthGeometry, fresnelMaterial);
+        glowMesh.scale.setScalar(1.01);
+        glowMesh.name = 'EarthGlow';
+        this.earthGroup.add(glowMesh);
+    }
+    
+    getFresnelMaterial(rimHex = 0x3ABEF9, facingHex = 0x000000) {
+        const uniforms = {
+            color1: { value: new THREE.Color(rimHex) },
+            color2: { value: new THREE.Color(facingHex) },
+            fresnelBias: { value: 0.2 },
+            fresnelScale: { value: 1.0 },
+            fresnelPower: { value: 8.0 }
+        };
+        
+        const vertexShader = `
+            uniform float fresnelBias;
+            uniform float fresnelScale;
+            uniform float fresnelPower;
+            
+            varying float vReflectionFactor;
+            
+            void main() {
+                vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+                vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+            
+                vec3 worldNormal = normalize( mat3( modelMatrix[0].xyz, modelMatrix[1].xyz, modelMatrix[2].xyz ) * normal );
+            
+                vec3 I = worldPosition.xyz - cameraPosition;
+            
+                vReflectionFactor = fresnelBias + fresnelScale * pow( 1.0 + dot( normalize( I ), worldNormal ), fresnelPower );
+            
+                gl_Position = projectionMatrix * mvPosition;
+            }
+        `;
+        
+        const fragmentShader = `
+            uniform vec3 color1;
+            uniform vec3 color2;
+            
+            varying float vReflectionFactor;
+            
+            void main() {
+                float f = clamp( vReflectionFactor, 0.0, 1.0 );
+                gl_FragColor = vec4(mix(color2, color1, vec3(f)), f);
+            }
+        `;
+        
+        return new THREE.ShaderMaterial({
+            uniforms: uniforms,
+            vertexShader: vertexShader,
+            fragmentShader: fragmentShader,
+            transparent: true,
+            blending: THREE.AdditiveBlending
         });
+    }
+    
+    startEarthAnimation() {
+        if (!this.earthGroup) return;
         
-        // Ensure material is always visible
-        earthMaterial.needsUpdate = true;
+        // Animation configuration
+        const rotationSpeed = 0.0019;
+        const cloudRotationSpeed = 0.0026;
+        const glowRotationSpeed = 0.002;
         
-        // Create Earth mesh with enhanced properties
-        this.earth = new THREE.Mesh(earthGeometry, earthMaterial);
-        this.earth.name = 'Earth';
-        this.earth.userData = { type: 'earth' };
-        this.earth.castShadow = true;
-        this.earth.receiveShadow = true;
-        this.earth.renderOrder = 0;
-        this.earth.visible = true;
-        this.scene.add(this.earth);
+        // Store animation reference
+        this.earthAnimation = {
+            isAnimating: true,
+            rotationSpeed,
+            cloudRotationSpeed,
+            glowRotationSpeed
+        };
         
-        // Ensure Earth is always visible
-        console.log('🌍 Earth created and added to scene at position:', this.earth.position);
-        console.log('🌍 Earth material:', this.earth.material);
-        console.log('🌍 Earth geometry:', this.earth.geometry);
-        
-        // Add subtle rotation
-        this.earth.rotation.y = Math.PI;
-        
-        // Create ultra-realistic atmosphere
-        this.createUltraRealisticAtmosphere();
-        
-        // Create high-quality cloud layer
-        this.createHighQualityCloudLayer();
-        
-        // Create city lights with realistic distribution
-        this.createRealisticCityLights();
-        
-        console.log('🌍 Ultra-high quality Earth created with 4K materials');
+        console.log('🌍 Earth animation started');
     }
     
     createUltraRealisticAtmosphere() {
@@ -742,60 +886,56 @@ class ImpactorMitigationSimulator {
     }
     
     createStarfield() {
-        // Create ultra-realistic 4K starfield
+        // Use the high-quality starfield from Assets
+        const starCount = 5000;
         const starGeometry = new THREE.BufferGeometry();
-        const starCount = 5000; // Increased for 4K quality
-        const starPositions = new Float32Array(starCount * 3);
-        const starColors = new Float32Array(starCount * 3);
-        const starSizes = new Float32Array(starCount);
+        const verts = [];
+        const colors = [];
+        const positions = [];
         
-        for (let i = 0; i < starCount; i++) {
-            // Distribute stars on sphere surface for realistic distribution
-            const radius = 1000 + Math.random() * 1000;
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.random() * Math.PI;
-            
-            starPositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-            starPositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-            starPositions[i * 3 + 2] = radius * Math.cos(phi);
-            
-            // Vary star colors (white, blue, yellow, red)
-            const starType = Math.random();
-            if (starType < 0.7) {
-                starColors[i * 3] = 1.0; starColors[i * 3 + 1] = 1.0; starColors[i * 3 + 2] = 1.0; // White
-            } else if (starType < 0.85) {
-                starColors[i * 3] = 0.8; starColors[i * 3 + 1] = 0.9; starColors[i * 3 + 2] = 1.0; // Blue
-            } else if (starType < 0.95) {
-                starColors[i * 3] = 1.0; starColors[i * 3 + 1] = 1.0; starColors[i * 3 + 2] = 0.8; // Yellow
-            } else {
-                starColors[i * 3] = 1.0; starColors[i * 3 + 1] = 0.8; starColors[i * 3 + 2] = 0.6; // Red
-            }
-            
-            starSizes[i] = Math.random() * 2 + 0.5;
+        function randomSpherePoint() {
+            const radius = Math.random() * 25 + 25;
+            const u = Math.random();
+            const v = Math.random();
+            const theta = 2 * Math.PI * u;
+            const phi = Math.acos(2 * v - 1);
+            let x = radius * Math.sin(phi) * Math.cos(theta);
+            let y = radius * Math.sin(phi) * Math.sin(theta);
+            let z = radius * Math.cos(phi);
+
+            return {
+                pos: new THREE.Vector3(x, y, z),
+                hue: 0.6,
+                minDist: radius
+            };
         }
         
-        starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-        starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
-        starGeometry.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
+        for (let i = 0; i < starCount; i += 1) {
+            let p = randomSpherePoint();
+            const { pos, hue } = p;
+            positions.push(p);
+            const col = new THREE.Color().setHSL(hue, 0.4, Math.random());
+            verts.push(pos.x, pos.y, pos.z);
+            colors.push(col.r, col.g, col.b);
+        }
+        
+        starGeometry.setAttribute("position", new THREE.Float32BufferAttribute(verts, 3));
+        starGeometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
         
         const starMaterial = new THREE.PointsMaterial({
-            size: 1.0,
+            size: 0.2,
             vertexColors: true,
             sizeAttenuation: true,
             transparent: true,
-            opacity: 0.9,
-            alphaTest: 0.1,
-            blending: THREE.AdditiveBlending
+            opacity: 0.8,
+            alphaTest: 0.1
         });
         
         const stars = new THREE.Points(starGeometry, starMaterial);
         stars.name = 'Starfield';
         this.scene.add(stars);
         
-        // Create nebula background
-        this.createNebulaBackground();
-        
-        console.log('⭐ Ultra-realistic 4K starfield created');
+        console.log('⭐ High-quality starfield created from Assets');
     }
     
     createNebulaBackground() {
@@ -1961,7 +2101,20 @@ class ImpactorMitigationSimulator {
         // Update performance monitor
         this.updatePerformanceMonitor();
         
-        // Rotate Earth smoothly
+        // Animate Earth components if available (new realistic Earth)
+        if (this.earthGroup && this.earthAnimation && this.earthAnimation.isAnimating) {
+            const earth = this.earthGroup.getObjectByName('Earth');
+            const lights = this.earthGroup.getObjectByName('EarthLights');
+            const clouds = this.earthGroup.getObjectByName('EarthClouds');
+            const glow = this.earthGroup.getObjectByName('EarthGlow');
+            
+            if (earth) earth.rotation.y += this.earthAnimation.rotationSpeed;
+            if (lights) lights.rotation.y += this.earthAnimation.rotationSpeed;
+            if (clouds) clouds.rotation.y += this.earthAnimation.cloudRotationSpeed;
+            if (glow) glow.rotation.y += this.earthAnimation.glowRotationSpeed;
+        }
+        
+        // Rotate Earth smoothly (fallback for old system)
         if (this.earth && this.earthRotationSpeed > 0) {
             this.earth.rotation.y += this.earthRotationSpeed;
         }
