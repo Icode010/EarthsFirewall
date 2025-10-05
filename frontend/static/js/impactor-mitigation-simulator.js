@@ -99,6 +99,11 @@ class ImpactorMitigationSimulator {
         // System ready for user interaction
         // Visual effects will be added when user interacts
         
+        // Create a test crater to verify crater system works
+        setTimeout(() => {
+            this.createTestCrater();
+        }, 2000);
+        
         // Scene initialized successfully
         
         // Test if objects are visible
@@ -2839,56 +2844,125 @@ class ImpactorMitigationSimulator {
     }
     
     createImpactCrater() {
-        // Calculate scientifically accurate crater size
-        const craterData = this.calculateScientificCraterSize();
+        console.log('🌍 CREATING IMPACT CRATER - IMPACT DETECTED!');
         
         // Get impact point on Earth surface
         const impactPoint = this.calculateImpactPoint();
         
-        console.log('🌍 Creating crater at impact point:', impactPoint);
-        console.log('📏 Crater diameter:', craterData.diameter, 'm, depth:', craterData.depth, 'm');
+        console.log('🌍 Impact point calculated:', impactPoint);
         
-        // Create scientifically accurate crater geometry (scaled up for visibility)
-        const scaleFactor = 100; // Make crater much more visible
+        // Create a HUGE, BRIGHT crater that's impossible to miss
         const craterGeometry = new THREE.CylinderGeometry(
-            (craterData.diameter / 2) * scaleFactor, // Top radius
-            (craterData.diameter / 2.5) * scaleFactor, // Bottom radius (tapered)
-            craterData.depth * scaleFactor, // Depth
-            32 // Higher resolution for realism
+            0.3, // Large radius - very visible
+            0.2, // Tapered bottom
+            0.1, // Depth
+            16
         );
         
-        const craterMaterial = new THREE.MeshStandardMaterial({
-            color: 0x8B4513, // Brown crater material - more visible
-            metalness: 0.1,
-            roughness: 0.9,
-            transparent: false, // Make it fully opaque
+        const craterMaterial = new THREE.MeshBasicMaterial({
+            color: 0xFF0000, // BRIGHT RED - impossible to miss
+            transparent: false,
             opacity: 1.0
         });
         
         const crater = new THREE.Mesh(craterGeometry, craterMaterial);
         
-        // Position crater at exact impact point on Earth surface
+        // Position crater at impact point
         crater.position.copy(impactPoint);
-        crater.rotation.x = Math.PI / 2; // Lay flat on Earth surface
+        crater.rotation.x = Math.PI / 2; // Lay flat
         crater.name = 'ImpactCrater';
-        crater.castShadow = true;
-        crater.receiveShadow = true;
-        crater.visible = true; // Ensure crater is visible
+        crater.visible = true;
         
         this.scene.add(crater);
         
-        console.log('🌍 Crater added to scene at position:', crater.position);
-        console.log('🌍 Crater visible:', crater.visible);
-        console.log('🌍 Crater scale:', crater.scale);
+        console.log('🔴 HUGE RED CRATER CREATED at:', crater.position);
+        console.log('🔴 Crater visible:', crater.visible);
+        console.log('🔴 Crater in scene:', this.scene.getObjectByName('ImpactCrater'));
         
-        // Create crater rim for realism
-        this.createCraterRim(impactPoint, craterData.diameter);
+        // Create multiple visible craters for testing
+        this.createMultipleVisibleCraters(impactPoint);
         
-        // Create ejecta blanket
-        this.createEjectaBlanket(impactPoint, craterData.diameter);
+        // Show impact message
+        this.showMessage('💥 IMPACT! Crater created at impact site!', 'error');
+    }
+    
+    createMultipleVisibleCraters(impactPoint) {
+        console.log('🔴 Creating multiple visible craters for testing...');
         
-        // Add a simple fallback crater that's guaranteed to be visible
-        this.createFallbackCrater(impactPoint);
+        // Create a bright yellow crater
+        const yellowGeometry = new THREE.CylinderGeometry(0.2, 0.15, 0.08, 16);
+        const yellowMaterial = new THREE.MeshBasicMaterial({
+            color: 0xFFFF00, // Bright yellow
+            transparent: false
+        });
+        const yellowCrater = new THREE.Mesh(yellowGeometry, yellowMaterial);
+        yellowCrater.position.copy(impactPoint);
+        yellowCrater.position.x += 0.2; // Offset slightly
+        yellowCrater.rotation.x = Math.PI / 2;
+        yellowCrater.name = 'YellowCrater';
+        yellowCrater.visible = true;
+        this.scene.add(yellowCrater);
+        
+        // Create a bright green crater
+        const greenGeometry = new THREE.CylinderGeometry(0.15, 0.1, 0.06, 16);
+        const greenMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00FF00, // Bright green
+            transparent: false
+        });
+        const greenCrater = new THREE.Mesh(greenGeometry, greenMaterial);
+        greenCrater.position.copy(impactPoint);
+        greenCrater.position.y += 0.2; // Offset slightly
+        greenCrater.rotation.x = Math.PI / 2;
+        greenCrater.name = 'GreenCrater';
+        greenCrater.visible = true;
+        this.scene.add(greenCrater);
+        
+        // Create a bright blue crater
+        const blueGeometry = new THREE.CylinderGeometry(0.1, 0.08, 0.04, 16);
+        const blueMaterial = new THREE.MeshBasicMaterial({
+            color: 0x0000FF, // Bright blue
+            transparent: false
+        });
+        const blueCrater = new THREE.Mesh(blueGeometry, blueMaterial);
+        blueCrater.position.copy(impactPoint);
+        blueCrater.position.z += 0.2; // Offset slightly
+        blueCrater.rotation.x = Math.PI / 2;
+        blueCrater.name = 'BlueCrater';
+        blueCrater.visible = true;
+        this.scene.add(blueCrater);
+        
+        console.log('🔴 Multiple craters created - RED, YELLOW, GREEN, BLUE');
+        console.log('🔴 All craters should be visible on Earth surface');
+    }
+    
+    createTestCrater() {
+        console.log('🧪 Creating test crater to verify crater system...');
+        
+        // Create a test crater at a fixed position
+        const testGeometry = new THREE.CylinderGeometry(0.2, 0.15, 0.1, 16);
+        const testMaterial = new THREE.MeshBasicMaterial({
+            color: 0xFF00FF, // Bright magenta - very visible
+            transparent: false
+        });
+        
+        const testCrater = new THREE.Mesh(testGeometry, testMaterial);
+        testCrater.position.set(0.5, 0, 1.1); // Fixed position on Earth surface
+        testCrater.rotation.x = Math.PI / 2;
+        testCrater.name = 'TestCrater';
+        testCrater.visible = true;
+        
+        this.scene.add(testCrater);
+        
+        console.log('🧪 Test crater created at:', testCrater.position);
+        console.log('🧪 Test crater visible:', testCrater.visible);
+        
+        // Remove test crater after 5 seconds
+        setTimeout(() => {
+            if (testCrater.parent) {
+                this.scene.remove(testCrater);
+                console.log('🧪 Test crater removed');
+            }
+        }, 5000);
     }
     
     createFallbackCrater(impactPoint) {
