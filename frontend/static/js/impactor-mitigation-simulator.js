@@ -97,10 +97,7 @@ class ImpactorMitigationSimulator {
         }, 1000);
         
         // System ready for user interaction
-        this.testUserWorkflow();
-        
-        // Add enhanced visual effects
-        this.enhanceVisualEffects();
+        // Visual effects will be added when user interacts
         
         // Scene initialized successfully
         
@@ -2445,55 +2442,17 @@ class ImpactorMitigationSimulator {
         });
     }
     
-    // Test complete user workflow
+    // User workflow testing (disabled - only for manual testing)
     testUserWorkflow() {
-        // Simulate user selecting different techniques
-        const techniques = ['kinetic', 'gravity', 'nuclear', 'laser', 'albedo'];
-        
-        techniques.forEach((technique, index) => {
-            setTimeout(() => {
-                // Simulate technique selection
-                this.currentTechnique = technique;
-                this.onTechniqueChange();
-                
-                // Simulate parameter adjustment
-                this.createTechniqueParameters(technique);
-                
-                // Simulate applying mitigation
-                setTimeout(() => {
-                    this.applyMitigation();
-                }, 1000);
-                
-                // Simulate running simulation
-                setTimeout(() => {
-                    this.runSimulation();
-                }, 2000);
-                
-                // Clean up after test
-                setTimeout(() => {
-                    this.cleanupMitigationEffects();
-                }, 3000);
-                
-            }, index * 5000); // 5 seconds between each technique test
-        });
+        // This function is disabled to prevent automatic animations
+        // Animations should only run when user clicks "Run Simulation"
+        console.log('User workflow testing disabled - animations only run on user interaction');
     }
     
     enhanceVisualEffects() {
-        console.log('✨ Enhancing visual effects with advanced Three.js features...');
-        
-        // Add post-processing effects
-        this.addPostProcessingEffects();
-        
-        // Enhance particle systems
-        this.enhanceParticleSystems();
-        
-        // Add dynamic lighting
-        this.addDynamicLighting();
-        
-        // Add atmospheric effects
-        this.addAtmosphericEffects();
-        
-        console.log('✨ Visual effects enhanced successfully!');
+        // Visual effects are now only added when user interacts
+        // This prevents automatic animations on page load
+        console.log('✨ Visual effects ready - will be added on user interaction');
     }
     
     addPostProcessingEffects() {
@@ -2742,8 +2701,6 @@ class ImpactorMitigationSimulator {
     
     runSimulation() {
         console.log('🎬 Run Simulation button clicked!');
-        console.log('Mitigation applied:', this.mitigationApplied);
-        console.log('Current technique:', this.currentTechnique);
         
         if (!this.mitigationApplied) {
             this.showMessage('Please apply a mitigation technique first', 'info');
@@ -2754,27 +2711,50 @@ class ImpactorMitigationSimulator {
         this.isAnimating = true;
         
         try {
-            // Animate asteroid approach
+            // Clean up any existing animations first
+            this.cleanupMitigationEffects();
+            
+            // Create visual effects for current technique
+            this.createMitigationVisualEffects(this.currentTechnique);
+            
+            // Animate asteroid approach with new trajectory
             this.animateAsteroidApproach();
+            
             console.log('✅ Simulation animation started');
         } catch (error) {
             console.error('❌ Error running simulation:', error);
             this.showMessage('Error running simulation', 'error');
+            this.isAnimating = false;
         }
     }
     
     animateAsteroidApproach() {
+        if (!this.impactor2025) {
+            console.error('❌ Asteroid not found for animation');
+            this.isAnimating = false;
+            return;
+        }
+        
         const startPosition = this.impactor2025.position.clone();
         const endPosition = new THREE.Vector3(0, 0, 0); // Earth center
         const duration = 5000; // 5 seconds
         const startTime = Date.now();
         
+        console.log('🚀 Starting asteroid approach animation from:', startPosition, 'to:', endPosition);
+        
         const animate = () => {
+            if (!this.isAnimating) {
+                console.log('⏹️ Animation stopped by user');
+                return;
+            }
+            
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / duration, 1);
             
-            // Ease out animation
-            const easedProgress = 1 - Math.pow(1 - progress, 3);
+            // Smooth cubic easing
+            const easedProgress = progress < 0.5 
+                ? 4 * progress * progress * progress 
+                : 1 - Math.pow(-2 * progress + 2, 3) / 2;
             
             // Interpolate position
             this.impactor2025.position.lerpVectors(startPosition, endPosition, easedProgress);
@@ -2782,7 +2762,7 @@ class ImpactorMitigationSimulator {
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
-                // Check for impact
+                console.log('✅ Asteroid approach animation completed');
                 this.checkImpact();
             }
         };
@@ -2791,20 +2771,31 @@ class ImpactorMitigationSimulator {
     }
     
     checkImpact() {
+        if (!this.impactor2025) {
+            console.error('❌ Cannot check impact - asteroid not found');
+            this.isAnimating = false;
+            return;
+        }
+        
         const distance = this.impactor2025.position.length();
         const earthRadius = 1.1; // Slightly larger than Earth for impact detection
         
+        console.log('🔍 Checking impact - Distance:', distance, 'Earth radius:', earthRadius);
+        
         if (distance < earthRadius) {
             // Impact occurred
+            console.log('💥 Impact detected!');
             this.handleImpact();
         } else {
             // Miss - show deflection success
+            console.log('✅ Deflection successful!');
             this.handleDeflection();
         }
     }
     
     handleImpact() {
         console.log('💥 Impact detected!');
+        this.isAnimating = false;
         this.showMessage('IMPACT! Mitigation failed to prevent collision.', 'error');
         
         // Stop Earth rotation
@@ -2815,10 +2806,13 @@ class ImpactorMitigationSimulator {
         
         // Update results
         this.updateResults();
+        
+        console.log('💥 Impact handling completed');
     }
     
     handleDeflection() {
         console.log('✅ Deflection successful!');
+        this.isAnimating = false;
         this.showMessage('SUCCESS! Asteroid deflected away from Earth.', 'success');
         
         // Update results to show deflection
@@ -2856,11 +2850,16 @@ class ImpactorMitigationSimulator {
     resetSimulation() {
         console.log('🔄 Resetting simulation...');
         
+        // Stop any running animations
+        this.isAnimating = false;
+        
         // Clean up all mitigation effects
         this.cleanupMitigationEffects();
         
         // Reset asteroid position to original
-        this.impactor2025.position.set(4, -0.5, 0); // Positioned to match the image - right side, slightly below Earth
+        if (this.impactor2025) {
+            this.impactor2025.position.set(4, -0.5, 0); // Positioned to match the image - right side, slightly below Earth
+        }
         
         // Reset trajectory to original
         if (this.trajectory) {
