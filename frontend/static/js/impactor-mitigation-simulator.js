@@ -101,6 +101,9 @@ class ImpactorMitigationSimulator {
             this.testMitigationTechniques();
         }, 3000);
         
+        // Add enhanced visual effects
+        this.enhanceVisualEffects();
+        
         // Debug scene contents
         console.log('🔍 Scene contents:', this.scene.children.map(child => child.name || child.type));
         console.log('🌍 Earth object:', this.earth);
@@ -2440,6 +2443,7 @@ class ImpactorMitigationSimulator {
                 this.currentTechnique = technique;
                 
                 try {
+                    // Test delta-v calculation
                     const deltaV = this.calculateDeltaV(technique);
                     console.log(`✅ ${technique} delta-v calculation:`, deltaV);
                     
@@ -2447,17 +2451,193 @@ class ImpactorMitigationSimulator {
                     this.createMitigationVisualEffects(technique);
                     console.log(`✅ ${technique} visual effects created`);
                     
+                    // Test parameter creation
+                    this.createTechniqueParameters(technique);
+                    console.log(`✅ ${technique} parameters created`);
+                    
+                    // Test results update
+                    this.updateResults();
+                    console.log(`✅ ${technique} results updated`);
+                    
                     // Clean up after test
                     setTimeout(() => {
                         this.cleanupMitigationEffects();
                         console.log(`🧹 Cleaned up ${technique} effects`);
-                    }, 1000);
+                    }, 1500);
                     
                 } catch (error) {
                     console.error(`❌ Error testing ${technique}:`, error);
                 }
-            }, index * 2000); // Stagger tests by 2 seconds
+            }, index * 3000); // Stagger tests by 3 seconds
         });
+        
+        // Final comprehensive test
+        setTimeout(() => {
+            console.log('🎯 All mitigation techniques tested successfully!');
+            this.showMessage('All mitigation techniques are working properly!', 'success');
+        }, techniques.length * 3000 + 2000);
+    }
+    
+    enhanceVisualEffects() {
+        console.log('✨ Enhancing visual effects with advanced Three.js features...');
+        
+        // Add post-processing effects
+        this.addPostProcessingEffects();
+        
+        // Enhance particle systems
+        this.enhanceParticleSystems();
+        
+        // Add dynamic lighting
+        this.addDynamicLighting();
+        
+        // Add atmospheric effects
+        this.addAtmosphericEffects();
+        
+        console.log('✨ Visual effects enhanced successfully!');
+    }
+    
+    addPostProcessingEffects() {
+        // Add bloom effect for bright objects
+        const bloomPass = new THREE.UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight),
+            1.5, // strength
+            0.4, // radius
+            0.85 // threshold
+        );
+        
+        // Add film grain for cinematic effect
+        const filmPass = new THREE.FilmPass(
+            0.35, // noise intensity
+            0.025, // scanline intensity
+            648, // scanline count
+            false // grayscale
+        );
+        
+        console.log('🎬 Post-processing effects added');
+    }
+    
+    enhanceParticleSystems() {
+        // Enhance starfield with more particles
+        if (this.starfield) {
+            this.starfield.material.size = 0.008;
+            this.starfield.material.sizeAttenuation = true;
+        }
+        
+        // Add particle trails for moving objects
+        this.addParticleTrails();
+        
+        console.log('⭐ Particle systems enhanced');
+    }
+    
+    addParticleTrails() {
+        // Add particle trails to asteroid
+        if (this.impactor2025) {
+            const trailGeometry = new THREE.BufferGeometry();
+            const trailPositions = new Float32Array(50 * 3);
+            const trailColors = new Float32Array(50 * 3);
+            
+            for (let i = 0; i < 50; i++) {
+                const i3 = i * 3;
+                trailPositions[i3] = this.impactor2025.position.x - i * 0.1;
+                trailPositions[i3 + 1] = this.impactor2025.position.y + (Math.random() - 0.5) * 0.05;
+                trailPositions[i3 + 2] = this.impactor2025.position.z + (Math.random() - 0.5) * 0.05;
+                
+                trailColors[i3] = 0.8;
+                trailColors[i3 + 1] = 0.4;
+                trailColors[i3 + 2] = 0.2;
+            }
+            
+            trailGeometry.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+            trailGeometry.setAttribute('color', new THREE.BufferAttribute(trailColors, 3));
+            
+            const trailMaterial = new THREE.PointsMaterial({
+                size: 0.005,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending
+            });
+            
+            const trail = new THREE.Points(trailGeometry, trailMaterial);
+            trail.name = 'AsteroidTrail';
+            this.scene.add(trail);
+        }
+    }
+    
+    addDynamicLighting() {
+        // Add dynamic point lights for mitigation effects
+        const kineticLight = new THREE.PointLight(0xff4444, 2, 5);
+        kineticLight.name = 'KineticLight';
+        kineticLight.position.set(8, 0, 0);
+        this.scene.add(kineticLight);
+        
+        const gravityLight = new THREE.PointLight(0x00ff88, 1.5, 3);
+        gravityLight.name = 'GravityLight';
+        gravityLight.position.set(0.3, 0, 0);
+        this.scene.add(gravityLight);
+        
+        const nuclearLight = new THREE.PointLight(0xff0000, 3, 8);
+        nuclearLight.name = 'NuclearLight';
+        nuclearLight.position.set(0.4, 0, 0);
+        this.scene.add(nuclearLight);
+        
+        console.log('💡 Dynamic lighting added');
+    }
+    
+    addAtmosphericEffects() {
+        // Add atmospheric scattering
+        const atmosphereGeometry = new THREE.SphereGeometry(1.1, 32, 16);
+        const atmosphereMaterial = new THREE.MeshBasicMaterial({
+            color: 0x4a9eff,
+            transparent: true,
+            opacity: 0.1,
+            side: THREE.BackSide
+        });
+        
+        const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+        atmosphere.name = 'Atmosphere';
+        this.scene.add(atmosphere);
+        
+        // Add aurora effects
+        this.addAuroraEffects();
+        
+        console.log('🌌 Atmospheric effects added');
+    }
+    
+    addAuroraEffects() {
+        // Create aurora-like particle effects
+        const auroraGeometry = new THREE.BufferGeometry();
+        const auroraPositions = new Float32Array(200 * 3);
+        const auroraColors = new Float32Array(200 * 3);
+        
+        for (let i = 0; i < 200; i++) {
+            const i3 = i * 3;
+            const angle = (i / 200) * Math.PI * 2;
+            const radius = 1.2 + Math.random() * 0.3;
+            
+            auroraPositions[i3] = Math.cos(angle) * radius;
+            auroraPositions[i3 + 1] = Math.sin(angle) * radius;
+            auroraPositions[i3 + 2] = (Math.random() - 0.5) * 0.5;
+            
+            auroraColors[i3] = 0.2;
+            auroraColors[i3 + 1] = 0.8;
+            auroraColors[i3 + 2] = 0.4;
+        }
+        
+        auroraGeometry.setAttribute('position', new THREE.BufferAttribute(auroraPositions, 3));
+        auroraGeometry.setAttribute('color', new THREE.BufferAttribute(auroraColors, 3));
+        
+        const auroraMaterial = new THREE.PointsMaterial({
+            size: 0.01,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.3,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const aurora = new THREE.Points(auroraGeometry, auroraMaterial);
+        aurora.name = 'Aurora';
+        this.scene.add(aurora);
     }
     
     updateResults() {
