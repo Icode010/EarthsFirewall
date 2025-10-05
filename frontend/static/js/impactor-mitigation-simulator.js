@@ -70,15 +70,10 @@ class ImpactorMitigationSimulator {
             
             await this.setupThreeJS();
             await this.setupUI();
-        await this.createEarth();
-        await this.createImpactor2025();
-        await this.createTrajectory();
-        await this.setupLighting();
-        
-        // Debug: Log scene contents
-        console.log('🔍 Scene contents:', this.scene.children.map(child => child.name || child.type));
-        console.log('🌍 Earth object:', this.earth);
-        console.log('🪨 Asteroid object:', this.impactor2025);
+            await this.createEarth();
+            await this.createImpactor2025();
+            await this.createTrajectory();
+            await this.setupLighting();
             
             this.animate();
             this.showMessage('Impactor-2025 Mitigation Simulator ready!', 'success');
@@ -99,11 +94,15 @@ class ImpactorMitigationSimulator {
         
         // Create camera
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(0, 0, 5); // Closer to Earth for better visibility
+        this.camera.position.set(0, 0, 5);
         
         // Create renderer
         const canvas = document.createElement('canvas');
         const container = document.getElementById('impactor-simulator');
+        if (!container) {
+            console.error('❌ Container not found!');
+            return;
+        }
         container.appendChild(canvas);
         
         this.renderer = new THREE.WebGLRenderer({ 
@@ -135,6 +134,8 @@ class ImpactorMitigationSimulator {
         
         // Handle window resize
         window.addEventListener('resize', () => this.onWindowResize());
+        
+        console.log('✅ Three.js setup complete');
     }
     
     async setupUI() {
@@ -144,90 +145,41 @@ class ImpactorMitigationSimulator {
         this.techniqueParameters = document.getElementById('techniqueParameters');
         this.resultsPanel = document.getElementById('mitigationResults');
         
+        if (!this.techniqueSelect) {
+            console.error('❌ UI elements not found!');
+            return;
+        }
+        
         // Setup technique selection handler
         this.techniqueSelect.addEventListener('change', (e) => {
             this.onTechniqueChange(e.target.value);
         });
         
         // Setup action buttons
-        document.getElementById('applyMitigation').addEventListener('click', () => {
-            this.applyMitigation();
-        });
+        const applyBtn = document.getElementById('applyMitigation');
+        const resetBtn = document.getElementById('resetSimulation');
+        const runBtn = document.getElementById('runSimulation');
         
-        document.getElementById('resetSimulation').addEventListener('click', () => {
-            this.resetSimulation();
-        });
-        
-        document.getElementById('runSimulation').addEventListener('click', () => {
-            this.runSimulation();
-        });
+        if (applyBtn) applyBtn.addEventListener('click', () => this.applyMitigation());
+        if (resetBtn) resetBtn.addEventListener('click', () => this.resetSimulation());
+        if (runBtn) runBtn.addEventListener('click', () => this.runSimulation());
         
         // Initialize with default technique
         this.onTechniqueChange('none');
+        
+        console.log('✅ UI setup complete');
     }
     
     async createEarth() {
         // Create Earth geometry
         const earthGeometry = new THREE.SphereGeometry(1, 64, 32);
         
-        // Create Earth material with fallback colors
+        // Create Earth material with bright color for visibility
         const earthMaterial = new THREE.MeshPhongMaterial({
-            color: 0x4a9eff, // Blue Earth color as fallback
+            color: 0x4a9eff, // Bright blue for visibility
+            shininess: 100,
+            transparent: false
         });
-        
-        // Try to load Earth textures, but don't fail if they don't exist
-        try {
-            const textureLoader = new THREE.TextureLoader();
-            
-            // Load Earth texture with error handling
-            textureLoader.load(
-                '/static/assets/images/earthmap.jpg',
-                (texture) => {
-                    earthMaterial.map = texture;
-                    earthMaterial.needsUpdate = true;
-                    console.log('✅ Earth texture loaded');
-                },
-                undefined,
-                (error) => {
-                    console.warn('⚠️ Earth texture not found, using fallback color');
-                }
-            );
-            
-            // Load normal texture
-            textureLoader.load(
-                '/static/assets/images/earth_normal.jpg',
-                (texture) => {
-                    earthMaterial.normalMap = texture;
-                    earthMaterial.needsUpdate = true;
-                    console.log('✅ Earth normal map loaded');
-                },
-                undefined,
-                (error) => {
-                    console.warn('⚠️ Earth normal map not found');
-                }
-            );
-            
-            // Load specular texture
-            textureLoader.load(
-                '/static/assets/images/earth_specular.jpg',
-                (texture) => {
-                    earthMaterial.specularMap = texture;
-                    earthMaterial.needsUpdate = true;
-                    console.log('✅ Earth specular map loaded');
-                },
-                undefined,
-                (error) => {
-                    console.warn('⚠️ Earth specular map not found');
-                }
-            );
-            
-        } catch (error) {
-            console.warn('⚠️ Texture loading failed, using fallback materials');
-        }
-        
-        // Set material properties
-        earthMaterial.shininess = 100;
-        earthMaterial.transparent = false;
         
         // Create Earth mesh
         this.earth = new THREE.Mesh(earthGeometry, earthMaterial);
@@ -238,7 +190,7 @@ class ImpactorMitigationSimulator {
         // Add subtle rotation
         this.earth.rotation.y = Math.PI;
         
-        console.log('🌍 Earth model created and added to scene');
+        console.log('🌍 Earth created and added to scene');
     }
     
     async createImpactor2025() {
@@ -274,6 +226,8 @@ class ImpactorMitigationSimulator {
         // Position asteroid far from Earth
         this.impactor2025.position.set(6, 0, 0);
         this.scene.add(this.impactor2025);
+        
+        console.log('🪨 Impactor-2025 created and added to scene');
     }
     
     async createTrajectory() {
@@ -300,6 +254,8 @@ class ImpactorMitigationSimulator {
         
         // Create trajectory arrows
         this.createTrajectoryArrows();
+        
+        console.log('🚀 Trajectory created and added to scene');
     }
     
     createTrajectoryArrows() {
@@ -330,11 +286,11 @@ class ImpactorMitigationSimulator {
     
     async setupLighting() {
         // Ambient light - brighter to ensure visibility
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
         this.scene.add(ambientLight);
         
         // Directional light (sun) - stronger lighting
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
         directionalLight.position.set(5, 5, 5);
         directionalLight.castShadow = true;
         directionalLight.shadow.mapSize.width = 2048;
@@ -342,7 +298,7 @@ class ImpactorMitigationSimulator {
         this.scene.add(directionalLight);
         
         // Additional fill light
-        const fillLight = new THREE.DirectionalLight(0x4a9eff, 0.3);
+        const fillLight = new THREE.DirectionalLight(0x4a9eff, 0.5);
         fillLight.position.set(-3, 2, -3);
         this.scene.add(fillLight);
         
@@ -396,14 +352,20 @@ class ImpactorMitigationSimulator {
             'albedo': '<strong>Albedo / Yarkovsky Boost:</strong> Tiny long-term drift via surface reflectivity change.'
         };
         
-        this.techniqueDescription.innerHTML = `<p>${descriptions[technique]}</p>`;
+        if (this.techniqueDescription) {
+            this.techniqueDescription.innerHTML = `<p>${descriptions[technique]}</p>`;
+        }
         
         // Show/hide parameters
         if (technique === 'none') {
-            this.techniqueParameters.style.display = 'none';
+            if (this.techniqueParameters) {
+                this.techniqueParameters.style.display = 'none';
+            }
         } else {
-            this.techniqueParameters.style.display = 'block';
-            this.createTechniqueParameters(technique);
+            if (this.techniqueParameters) {
+                this.techniqueParameters.style.display = 'block';
+                this.createTechniqueParameters(technique);
+            }
         }
     }
     
@@ -525,7 +487,9 @@ class ImpactorMitigationSimulator {
                 break;
         }
         
-        this.techniqueParameters.innerHTML = parametersHTML;
+        if (this.techniqueParameters) {
+            this.techniqueParameters.innerHTML = parametersHTML;
+        }
     }
     
     applyMitigation() {
@@ -557,46 +521,35 @@ class ImpactorMitigationSimulator {
         
         switch (technique) {
             case 'kinetic':
-                const interceptorMass = parseFloat(document.getElementById('interceptorMass').value);
-                const relativeSpeed = parseFloat(document.getElementById('relativeSpeed').value);
-                const leadTime = parseFloat(document.getElementById('leadTime').value);
+                const interceptorMass = parseFloat(document.getElementById('interceptorMass')?.value || 500);
+                const relativeSpeed = parseFloat(document.getElementById('relativeSpeed')?.value || 6);
+                const leadTime = parseFloat(document.getElementById('leadTime')?.value || 12);
                 
                 // Kinetic impactor delta-v calculation (momentum transfer)
-                // Based on NASA DART mission principles
                 const momentumTransfer = interceptorMass * relativeSpeed * 1000; // kg⋅m/s
                 deltaV.magnitude = momentumTransfer / this.impactorData.mass; // m/s
-                
-                // Lead time effectiveness (earlier = more effective)
                 const leadTimeEffectiveness = Math.max(0.1, 12 / leadTime);
                 deltaV.magnitude *= leadTimeEffectiveness;
-                
-                // Add some randomness for realism
                 deltaV.magnitude *= (0.8 + Math.random() * 0.4);
                 break;
                 
             case 'gravity':
-                const tractorMass = parseFloat(document.getElementById('tractorMass').value);
-                const hoverDistance = parseFloat(document.getElementById('hoverDistance').value);
-                const duration = parseFloat(document.getElementById('duration').value);
+                const tractorMass = parseFloat(document.getElementById('tractorMass')?.value || 1000);
+                const hoverDistance = parseFloat(document.getElementById('hoverDistance')?.value || 50);
+                const duration = parseFloat(document.getElementById('duration')?.value || 24);
                 
-                // Gravity tractor delta-v calculation
                 const G = 6.674e-11; // Gravitational constant
                 const force = (G * tractorMass * this.impactorData.mass) / Math.pow(hoverDistance, 2);
                 const acceleration = force / this.impactorData.mass;
                 const totalTime = duration * 30 * 24 * 3600; // Convert months to seconds
-                
-                deltaV.magnitude = acceleration * totalTime;
-                
-                // Gravity tractor is very gentle
-                deltaV.magnitude *= 0.1; // Scale down for realism
+                deltaV.magnitude = acceleration * totalTime * 0.1; // Scale down for realism
                 break;
                 
             case 'nuclear':
-                const yieldLevel = document.getElementById('yieldLevel').value;
-                const standoffDistance = parseFloat(document.getElementById('standoffDistance').value);
-                const nuclearLeadTime = parseFloat(document.getElementById('nuclearLeadTime').value);
+                const yieldLevel = document.getElementById('yieldLevel')?.value || 'medium';
+                const standoffDistance = parseFloat(document.getElementById('standoffDistance')?.value || 100);
+                const nuclearLeadTime = parseFloat(document.getElementById('nuclearLeadTime')?.value || 6);
                 
-                // Nuclear standoff delta-v calculation
                 let yieldValue = 0;
                 switch (yieldLevel) {
                     case 'low': yieldValue = 4.184e12; break; // 1 kt in Joules
@@ -604,54 +557,39 @@ class ImpactorMitigationSimulator {
                     case 'high': yieldValue = 4.184e14; break; // 100 kt
                 }
                 
-                // Energy transfer efficiency (decreases with distance)
                 const efficiency = Math.exp(-standoffDistance / 100); // Exponential decay
                 const energyTransfer = yieldValue * efficiency;
-                
-                // Convert to velocity change
                 deltaV.magnitude = Math.sqrt(2 * energyTransfer / this.impactorData.mass);
-                
-                // Lead time scaling
                 deltaV.magnitude *= Math.max(0.1, 6 / nuclearLeadTime);
                 break;
                 
             case 'laser':
-                const powerLevel = parseFloat(document.getElementById('powerLevel').value);
-                const activeDays = parseFloat(document.getElementById('activeDays').value);
-                const laserDistance = parseFloat(document.getElementById('laserDistance').value);
+                const powerLevel = parseFloat(document.getElementById('powerLevel')?.value || 10);
+                const activeDays = parseFloat(document.getElementById('activeDays')?.value || 365);
+                const laserDistance = parseFloat(document.getElementById('laserDistance')?.value || 1000);
                 
-                // Laser ablation delta-v calculation
                 const totalEnergy = powerLevel * 1e6 * activeDays * 24 * 3600; // Joules
                 const energyDensity = totalEnergy / (4 * Math.PI * Math.pow(laserDistance * 1000, 2)); // J/m²
                 const ablationRate = energyDensity / (2.5e6); // kg/m² (vaporization energy)
                 const surfaceArea = 4 * Math.PI * Math.pow(this.impactorData.diameter / 2, 2); // m²
                 const totalAblation = ablationRate * surfaceArea; // kg
-                
-                // Momentum from ablated material
                 const exhaustVelocity = 1000; // m/s (typical for laser ablation)
                 deltaV.magnitude = (totalAblation * exhaustVelocity) / this.impactorData.mass;
                 break;
                 
             case 'albedo':
-                const coverage = parseFloat(document.getElementById('coverage').value);
-                const effectDuration = parseFloat(document.getElementById('effectDuration').value);
-                const albedoLeadTime = parseFloat(document.getElementById('albedoLeadTime').value);
+                const coverage = parseFloat(document.getElementById('coverage')?.value || 50);
+                const effectDuration = parseFloat(document.getElementById('effectDuration')?.value || 2);
+                const albedoLeadTime = parseFloat(document.getElementById('albedoLeadTime')?.value || 2);
                 
-                // Albedo modification delta-v calculation (Yarkovsky effect)
                 const solarConstant = 1361; // W/m²
                 const asteroidRadius = this.impactorData.diameter / 2;
                 const surfaceArea = 4 * Math.PI * Math.pow(asteroidRadius, 2);
                 const albedoChange = (coverage / 100) * 0.1; // 10% max albedo change
-                
-                // Thermal radiation force
                 const thermalForce = solarConstant * surfaceArea * albedoChange / (3e8); // N
                 const acceleration = thermalForce / this.impactorData.mass;
                 const totalTime = effectDuration * 365 * 24 * 3600; // years to seconds
-                
-                deltaV.magnitude = acceleration * totalTime;
-                
-                // Very small effect
-                deltaV.magnitude *= 0.01; // Scale down for realism
+                deltaV.magnitude = acceleration * totalTime * 0.01; // Very small effect
                 break;
         }
         
@@ -683,13 +621,11 @@ class ImpactorMitigationSimulator {
         this.impactor2025.position.add(gravityEffect);
         
         console.log(`🚀 Applied delta-v: ${deltaV.magnitude.toFixed(6)} m/s`);
-        console.log(`📍 New position: (${this.impactor2025.position.x.toFixed(3)}, ${this.impactor2025.position.y.toFixed(3)}, ${this.impactor2025.position.z.toFixed(3)})`);
     }
     
     updateTrajectory() {
         // Create new trajectory with mitigation applied
         const currentPos = this.impactor2025.position.clone();
-        const earthPos = new THREE.Vector3(0, 0, 0);
         
         // Calculate deflection angle based on delta-v magnitude
         const deflectionAngle = Math.atan2(currentPos.y, currentPos.x);
@@ -806,7 +742,9 @@ class ImpactorMitigationSimulator {
             </div>
         `;
         
-        this.resultsPanel.innerHTML = resultsHTML;
+        if (this.resultsPanel) {
+            this.resultsPanel.innerHTML = resultsHTML;
+        }
     }
     
     getTechniqueDisplayName(technique) {
@@ -954,7 +892,9 @@ class ImpactorMitigationSimulator {
             </div>
         `;
         
-        this.resultsPanel.innerHTML = resultsHTML;
+        if (this.resultsPanel) {
+            this.resultsPanel.innerHTML = resultsHTML;
+        }
     }
     
     createImpactCrater() {
@@ -995,12 +935,16 @@ class ImpactorMitigationSimulator {
         }
         
         // Clear results
-        this.resultsPanel.innerHTML = '<div class="loading-message"><p>Select a mitigation technique to see results</p></div>';
+        if (this.resultsPanel) {
+            this.resultsPanel.innerHTML = '<div class="loading-message"><p>Select a mitigation technique to see results</p></div>';
+        }
         
         // Reset mitigation state
         this.mitigationApplied = false;
         this.currentTechnique = 'none';
-        this.techniqueSelect.value = 'none';
+        if (this.techniqueSelect) {
+            this.techniqueSelect.value = 'none';
+        }
         this.onTechniqueChange('none');
         
         // Reset delta-v tracking
@@ -1045,6 +989,8 @@ class ImpactorMitigationSimulator {
     
     onWindowResize() {
         const container = document.getElementById('impactor-simulator');
+        if (!container) return;
+        
         const width = container.clientWidth;
         const height = container.clientHeight;
         
@@ -1055,12 +1001,14 @@ class ImpactorMitigationSimulator {
     
     showMessage(message, type = 'info') {
         const statusMessage = document.getElementById('statusMessage');
-        statusMessage.textContent = message;
-        statusMessage.className = `status-message ${type} show`;
-        
-        setTimeout(() => {
-            statusMessage.classList.remove('show');
-        }, 3000);
+        if (statusMessage) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type} show`;
+            
+            setTimeout(() => {
+                statusMessage.classList.remove('show');
+            }, 3000);
+        }
     }
 }
 
