@@ -307,7 +307,11 @@ class ImpactorMitigationSimulator {
         this.earth.castShadow = true;
         this.earth.receiveShadow = true;
         this.earth.renderOrder = 0;
+        this.earth.visible = true;
         this.scene.add(this.earth);
+        
+        // Ensure Earth is always visible
+        console.log('🌍 Earth created and added to scene at position:', this.earth.position);
         
         // Add subtle rotation
         this.earth.rotation.y = Math.PI;
@@ -562,10 +566,14 @@ class ImpactorMitigationSimulator {
         this.impactor2025.castShadow = true;
         this.impactor2025.receiveShadow = true;
         this.impactor2025.renderOrder = 1;
+        this.impactor2025.visible = true;
         
         // Position asteroid far from Earth
         this.impactor2025.position.set(6, 0, 0);
         this.scene.add(this.impactor2025);
+        
+        // Ensure asteroid is always visible
+        console.log('🪨 Asteroid created and added to scene at position:', this.impactor2025.position);
         
         // Create asteroid dust trail
         this.createAsteroidDustTrail();
