@@ -417,9 +417,9 @@ class ImpactorMitigationSimulator {
     createCloudParticles() {
         const particleCount = 200;
         const particles = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
-        const sizes = new Float32Array(particleCount);
+        const cloudPositions = new Float32Array(particleCount * 3);
+        const cloudColors = new Float32Array(particleCount * 3);
+        const cloudSizes = new Float32Array(particleCount);
         
         for (let i = 0; i < particleCount; i++) {
             // Distribute particles on sphere surface
@@ -427,20 +427,20 @@ class ImpactorMitigationSimulator {
             const theta = Math.random() * Math.PI * 2;
             const phi = Math.random() * Math.PI;
             
-            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-            positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-            positions[i * 3 + 2] = radius * Math.cos(phi);
+            cloudPositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+            cloudPositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+            cloudPositions[i * 3 + 2] = radius * Math.cos(phi);
             
-            colors[i * 3] = 1.0; // White
-            colors[i * 3 + 1] = 1.0;
-            colors[i * 3 + 2] = 1.0;
+            cloudColors[i * 3] = 1.0; // White
+            cloudColors[i * 3 + 1] = 1.0;
+            cloudColors[i * 3 + 2] = 1.0;
             
-            sizes[i] = Math.random() * 0.05 + 0.02;
+            cloudSizes[i] = Math.random() * 0.05 + 0.02;
         }
         
-        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        particles.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+        particles.setAttribute('position', new THREE.BufferAttribute(cloudPositions, 3));
+        particles.setAttribute('color', new THREE.BufferAttribute(cloudColors, 3));
+        particles.setAttribute('size', new THREE.BufferAttribute(cloudSizes, 1));
         
         const particleMaterial = new THREE.PointsMaterial({
             size: 0.05,
@@ -484,8 +484,8 @@ class ImpactorMitigationSimulator {
     createCityLightPoints() {
         const lightCount = 100;
         const lights = new THREE.BufferGeometry();
-        const positions = new Float32Array(lightCount * 3);
-        const colors = new Float32Array(lightCount * 3);
+        const lightPositions = new Float32Array(lightCount * 3);
+        const lightColors = new Float32Array(lightCount * 3);
         
         for (let i = 0; i < lightCount; i++) {
             // Distribute lights on night side of Earth
@@ -493,23 +493,23 @@ class ImpactorMitigationSimulator {
             const theta = Math.random() * Math.PI * 2;
             const phi = Math.random() * Math.PI;
             
-            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-            positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-            positions[i * 3 + 2] = radius * Math.cos(phi);
+            lightPositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+            lightPositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+            lightPositions[i * 3 + 2] = radius * Math.cos(phi);
             
             // Vary light colors (white, yellow, orange)
             const lightType = Math.random();
             if (lightType < 0.6) {
-                colors[i * 3] = 1.0; colors[i * 3 + 1] = 1.0; colors[i * 3 + 2] = 0.8; // White
+                lightColors[i * 3] = 1.0; lightColors[i * 3 + 1] = 1.0; lightColors[i * 3 + 2] = 0.8; // White
             } else if (lightType < 0.8) {
-                colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.8; colors[i * 3 + 2] = 0.4; // Yellow
+                lightColors[i * 3] = 1.0; lightColors[i * 3 + 1] = 0.8; lightColors[i * 3 + 2] = 0.4; // Yellow
             } else {
-                colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.6; colors[i * 3 + 2] = 0.2; // Orange
+                lightColors[i * 3] = 1.0; lightColors[i * 3 + 1] = 0.6; lightColors[i * 3 + 2] = 0.2; // Orange
             }
         }
         
-        lights.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        lights.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        lights.setAttribute('position', new THREE.BufferAttribute(lightPositions, 3));
+        lights.setAttribute('color', new THREE.BufferAttribute(lightColors, 3));
         
         const lightMaterial = new THREE.PointsMaterial({
             size: 0.02,
@@ -589,25 +589,25 @@ class ImpactorMitigationSimulator {
     createAsteroidDustTrail() {
         const dustCount = 50;
         const dustGeometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(dustCount * 3);
-        const colors = new Float32Array(dustCount * 3);
+        const dustPositions = new Float32Array(dustCount * 3);
+        const dustColors = new Float32Array(dustCount * 3);
         
         for (let i = 0; i < dustCount; i++) {
             // Create dust trail behind asteroid
             const distance = -0.2 - Math.random() * 0.5;
             const spread = (Math.random() - 0.5) * 0.1;
             
-            positions[i * 3] = this.impactor2025.position.x + distance;
-            positions[i * 3 + 1] = this.impactor2025.position.y + spread;
-            positions[i * 3 + 2] = this.impactor2025.position.z + spread;
+            dustPositions[i * 3] = this.impactor2025.position.x + distance;
+            dustPositions[i * 3 + 1] = this.impactor2025.position.y + spread;
+            dustPositions[i * 3 + 2] = this.impactor2025.position.z + spread;
             
-            colors[i * 3] = 0.8; // Dust color
-            colors[i * 3 + 1] = 0.7;
-            colors[i * 3 + 2] = 0.6;
+            dustColors[i * 3] = 0.8; // Dust color
+            dustColors[i * 3 + 1] = 0.7;
+            dustColors[i * 3 + 2] = 0.6;
         }
         
-        dustGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        dustGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        dustGeometry.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+        dustGeometry.setAttribute('color', new THREE.BufferAttribute(dustColors, 3));
         
         const dustMaterial = new THREE.PointsMaterial({
             size: 0.01,
@@ -745,9 +745,9 @@ class ImpactorMitigationSimulator {
         // Create ultra-realistic 4K starfield
         const starGeometry = new THREE.BufferGeometry();
         const starCount = 5000; // Increased for 4K quality
-        const positions = new Float32Array(starCount * 3);
-        const colors = new Float32Array(starCount * 3);
-        const sizes = new Float32Array(starCount);
+        const starPositions = new Float32Array(starCount * 3);
+        const starColors = new Float32Array(starCount * 3);
+        const starSizes = new Float32Array(starCount);
         
         for (let i = 0; i < starCount; i++) {
             // Distribute stars on sphere surface for realistic distribution
@@ -755,28 +755,28 @@ class ImpactorMitigationSimulator {
             const theta = Math.random() * Math.PI * 2;
             const phi = Math.random() * Math.PI;
             
-            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-            positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-            positions[i * 3 + 2] = radius * Math.cos(phi);
+            starPositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+            starPositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+            starPositions[i * 3 + 2] = radius * Math.cos(phi);
             
             // Vary star colors (white, blue, yellow, red)
             const starType = Math.random();
             if (starType < 0.7) {
-                colors[i * 3] = 1.0; colors[i * 3 + 1] = 1.0; colors[i * 3 + 2] = 1.0; // White
+                starColors[i * 3] = 1.0; starColors[i * 3 + 1] = 1.0; starColors[i * 3 + 2] = 1.0; // White
             } else if (starType < 0.85) {
-                colors[i * 3] = 0.8; colors[i * 3 + 1] = 0.9; colors[i * 3 + 2] = 1.0; // Blue
+                starColors[i * 3] = 0.8; starColors[i * 3 + 1] = 0.9; starColors[i * 3 + 2] = 1.0; // Blue
             } else if (starType < 0.95) {
-                colors[i * 3] = 1.0; colors[i * 3 + 1] = 1.0; colors[i * 3 + 2] = 0.8; // Yellow
+                starColors[i * 3] = 1.0; starColors[i * 3 + 1] = 1.0; starColors[i * 3 + 2] = 0.8; // Yellow
             } else {
-                colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.8; colors[i * 3 + 2] = 0.6; // Red
+                starColors[i * 3] = 1.0; starColors[i * 3 + 1] = 0.8; starColors[i * 3 + 2] = 0.6; // Red
             }
             
-            sizes[i] = Math.random() * 2 + 0.5;
+            starSizes[i] = Math.random() * 2 + 0.5;
         }
         
-        starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        starGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+        starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+        starGeometry.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
         
         const starMaterial = new THREE.PointsMaterial({
             size: 1.0,
@@ -1162,21 +1162,21 @@ class ImpactorMitigationSimulator {
     createThrusterParticles(interceptor) {
         const particleCount = 50;
         const particles = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
+        const thrusterPositions = new Float32Array(particleCount * 3);
+        const thrusterColors = new Float32Array(particleCount * 3);
         
         for (let i = 0; i < particleCount; i++) {
-            positions[i * 3] = interceptor.position.x - 0.1;
-            positions[i * 3 + 1] = interceptor.position.y + (Math.random() - 0.5) * 0.1;
-            positions[i * 3 + 2] = interceptor.position.z + (Math.random() - 0.5) * 0.1;
+            thrusterPositions[i * 3] = interceptor.position.x - 0.1;
+            thrusterPositions[i * 3 + 1] = interceptor.position.y + (Math.random() - 0.5) * 0.1;
+            thrusterPositions[i * 3 + 2] = interceptor.position.z + (Math.random() - 0.5) * 0.1;
             
-            colors[i * 3] = 1.0; // Red
-            colors[i * 3 + 1] = 0.5; // Green
-            colors[i * 3 + 2] = 0.0; // Blue
+            thrusterColors[i * 3] = 1.0; // Red
+            thrusterColors[i * 3 + 1] = 0.5; // Green
+            thrusterColors[i * 3 + 2] = 0.0; // Blue
         }
         
-        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        particles.setAttribute('position', new THREE.BufferAttribute(thrusterPositions, 3));
+        particles.setAttribute('color', new THREE.BufferAttribute(thrusterColors, 3));
         
         const particleMaterial = new THREE.PointsMaterial({
             size: 0.02,
@@ -1538,21 +1538,21 @@ class ImpactorMitigationSimulator {
     createPaintParticles(sprayer) {
         const particleCount = 100;
         const particles = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
+        const paintPositions = new Float32Array(particleCount * 3);
+        const paintColors = new Float32Array(particleCount * 3);
         
         for (let i = 0; i < particleCount; i++) {
-            positions[i * 3] = sprayer.position.x + (Math.random() - 0.5) * 0.1;
-            positions[i * 3 + 1] = sprayer.position.y + (Math.random() - 0.5) * 0.1;
-            positions[i * 3 + 2] = sprayer.position.z + (Math.random() - 0.5) * 0.1;
+            paintPositions[i * 3] = sprayer.position.x + (Math.random() - 0.5) * 0.1;
+            paintPositions[i * 3 + 1] = sprayer.position.y + (Math.random() - 0.5) * 0.1;
+            paintPositions[i * 3 + 2] = sprayer.position.z + (Math.random() - 0.5) * 0.1;
             
-            colors[i * 3] = 1.0; // White paint
-            colors[i * 3 + 1] = 1.0;
-            colors[i * 3 + 2] = 1.0;
+            paintColors[i * 3] = 1.0; // White paint
+            paintColors[i * 3 + 1] = 1.0;
+            paintColors[i * 3 + 2] = 1.0;
         }
         
-        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        particles.setAttribute('position', new THREE.BufferAttribute(paintPositions, 3));
+        particles.setAttribute('color', new THREE.BufferAttribute(paintColors, 3));
         
         const particleMaterial = new THREE.PointsMaterial({
             size: 0.01,
@@ -1610,8 +1610,8 @@ class ImpactorMitigationSimulator {
         this.impactor2025.position.add(velocityChange);
         
         // Add some orbital mechanics - the asteroid should curve toward Earth
-        const earthPos = new THREE.Vector3(0, 0, 0);
-        const directionToEarth = earthPos.clone().sub(this.impactor2025.position).normalize();
+        const earthPositionition = new THREE.Vector3(0, 0, 0);
+        const directionToEarth = earthPosition.clone().sub(this.impactor2025.position).normalize();
         const gravityEffect = directionToEarth.multiplyScalar(0.05);
         this.impactor2025.position.add(gravityEffect);
         
@@ -1676,8 +1676,8 @@ class ImpactorMitigationSimulator {
     calculateDeflectionSuccess() {
         // Calculate how successful the deflection is
         const currentPos = this.impactor2025.position;
-        const earthPos = new THREE.Vector3(0, 0, 0);
-        const distance = currentPos.distanceTo(earthPos);
+        const earthPositionition = new THREE.Vector3(0, 0, 0);
+        const distance = currentPos.distanceTo(earthPosition);
         const earthRadius = 1.1; // Slightly larger than Earth for impact detection
         
         if (distance < earthRadius) {
@@ -1756,8 +1756,8 @@ class ImpactorMitigationSimulator {
     
     calculateMissDistance() {
         const currentPos = this.impactor2025.position;
-        const earthPos = new THREE.Vector3(0, 0, 0);
-        const distance = currentPos.distanceTo(earthPos);
+        const earthPositionition = new THREE.Vector3(0, 0, 0);
+        const distance = currentPos.distanceTo(earthPosition);
         return distance; // In Earth radii
     }
     
