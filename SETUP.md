@@ -10,7 +10,7 @@
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/SPALRB/EarthsFirewall.git
+git clone https://github.com/EarthsFirewall/EarthsFirewall.git
 cd EarthsFirewall
 ```
 
@@ -148,7 +148,7 @@ FLASK_ENV=production
 - Verify Three.js is loading properly
 
 ### Getting Help
-- Check the [GitHub Issues](https://github.com/SPALRB/EarthsFirewall/issues)
+- Check the [GitHub Issues](https://github.com/EarthsFirewall/EarthsFirewall/issues)
 - Review the [API Documentation](docs/API.md)
 - Read the [User Guide](docs/USER_GUIDE.md)
 

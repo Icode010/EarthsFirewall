@@ -203,9 +203,11 @@ function createStarfield() {
     const starGeometry = new THREE.BufferGeometry();
     const starMaterial = new THREE.PointsMaterial({
         color: 0xffffff,
-        size: 0.02,
+        size: 0.1,
+        sizeAttenuation: true,
         transparent: true,
-        opacity: 0.8
+        opacity: 0.8,
+        alphaTest: 0.1
     });
 
     const starVertices = [];
@@ -240,13 +242,13 @@ function setupLighting() {
     sunLight.shadow.mapSize.height = 1024;
     asteroidScene.add(sunLight);
 
-    // Rim light for depth
-    const rimLight = new THREE.DirectionalLight(0x4080ff, 0.3);
+    // Rim light for depth (cooler blue tone)
+    const rimLight = new THREE.DirectionalLight(0x6080ff, 0.2);
     rimLight.position.set(-3, -2, -3);
     asteroidScene.add(rimLight);
 
-    // Back light for atmosphere
-    const backLight = new THREE.DirectionalLight(0xff8040, 0.2);
+    // Back light for atmosphere (removed red/orange tint)
+    const backLight = new THREE.DirectionalLight(0x4080ff, 0.1);
     backLight.position.set(0, 3, -2);
     asteroidScene.add(backLight);
 

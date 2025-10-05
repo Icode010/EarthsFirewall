@@ -436,6 +436,6 @@ const updateResponse = await fetch('/api/simulation/update', {
 ## 📞 Support
 
 For API support or questions:
-- **GitHub Issues**: [SPALRB/EarthsFirewall](https://github.com/SPALRB/EarthsFirewall/issues)
+- **GitHub Issues**: [EarthsFirewall/EarthsFirewall](https://github.com/EarthsFirewall/EarthsFirewall/issues)
 - **Documentation**: [docs/](docs/)
 - **NASA Space Apps**: [spaceappschallenge.org](https://www.spaceappschallenge.org/)

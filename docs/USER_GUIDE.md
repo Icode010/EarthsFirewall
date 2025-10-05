@@ -281,7 +281,7 @@
 
 ### Community
 - [NASA Space Apps](https://www.spaceappschallenge.org/)
-- [GitHub Repository](https://github.com/SPALRB/EarthsFirewall)
+- [GitHub Repository](https://github.com/EarthsFirewall/EarthsFirewall)
 - [Project Documentation](docs/)
 
 ---

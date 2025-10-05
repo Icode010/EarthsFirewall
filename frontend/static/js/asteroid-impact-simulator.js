@@ -25,6 +25,15 @@ class AsteroidImpactSimulator {
         this.isAnimating = false;
         this.animationSpeed = 1.0;
         
+        // Performance monitoring
+        this.performanceMonitor = {
+            frameCount: 0,
+            lastTime: 0,
+            fps: 60,
+            isLowPerformance: false,
+            maxObjects: 50 // Limit objects for performance
+        };
+        
         // Data
         this.asteroids = [];
         this.currentAsteroid = null;
@@ -33,6 +42,8 @@ class AsteroidImpactSimulator {
         this.impactAnimationSystem = null;
         this.slowApproachAnimation = null;
         this.earthImpactEffects = null;
+        this.realisticEarthDamage = null;
+        this.interactiveArrows = null;
         this.simulationResults = null;
         
         // API
@@ -43,8 +54,6 @@ class AsteroidImpactSimulator {
     
     async init() {
         try {
-            console.log('🚀 Initializing Asteroid Impact Simulator...');
-            
             await this.setupThreeJS();
             await this.loadEarthModel();
             await this.setupUI();
@@ -53,14 +62,14 @@ class AsteroidImpactSimulator {
             await this.initImpactAnimationSystem();
             await this.initSlowApproachAnimation();
             await this.initEarthImpactEffects();
+            await this.initRealisticEarthDamage();
             await this.initCinematicCamera();
+            await this.initInteractiveArrows();
             
             this.animate();
             this.showMessage('Simulator ready! Select an asteroid to begin.', 'success');
-            
-            console.log('✅ Asteroid Impact Simulator initialized successfully');
         } catch (error) {
-            console.error('❌ Failed to initialize simulator:', error);
+            console.error('Failed to initialize simulator:', error);
             this.showMessage('Failed to initialize simulator: ' + error.message, 'error');
         }
     }
@@ -94,19 +103,12 @@ class AsteroidImpactSimulator {
             throw new Error('Three.js initialization failed: ' + error.message);
         }
         
-        // Controls - Enhanced for Earth interaction
-        console.log('OrbitControls available:', typeof OrbitControls !== 'undefined');
-        console.log('THREE.OrbitControls available:', typeof THREE.OrbitControls !== 'undefined');
-        
-        // Try to use enhanced Earth camera controls first (after renderer is ready)
+        // Initialize camera controls
         if (typeof createEarthCameraControls === 'function') {
             try {
-                // Ensure renderer.domElement is available
                 if (this.renderer && this.renderer.domElement) {
                     this.controls = createEarthCameraControls(this.camera, this.renderer, this.earth);
-                    console.log('Enhanced Earth camera controls initialized successfully');
                 } else {
-                    console.warn('Renderer DOM element not ready for enhanced controls');
                     this.controls = null;
                 }
             } catch (error) {
@@ -145,8 +147,6 @@ class AsteroidImpactSimulator {
                     this.controls.addEventListener('change', () => {
                         // Camera controls are working
                     });
-                    
-                    console.log('Standard camera controls initialized - drag to rotate, scroll to zoom, right-click to pan');
                 } catch (error) {
                     console.error('Failed to initialize OrbitControls:', error);
                     this.controls = null;
@@ -185,7 +185,7 @@ class AsteroidImpactSimulator {
         fillLight.position.set(-5, -5, -5);
         this.scene.add(fillLight);
         
-        // Enhanced starfield
+        // Create starfield
         this.createEnhancedStarField();
         
         // Handle resize
@@ -202,7 +202,6 @@ class AsteroidImpactSimulator {
         if (typeof createEarthCameraControls === 'function') {
             try {
                 this.controls = createEarthCameraControls(this.camera, this.renderer.domElement, this.earth);
-                console.log('Enhanced Earth camera controls initialized successfully');
                 return;
             } catch (error) {
                 console.error('Failed to initialize enhanced Earth camera controls:', error);
@@ -234,7 +233,6 @@ class AsteroidImpactSimulator {
                 this.controls.zoomSpeed = 1.0;
                 this.controls.panSpeed = 1.0;
                 
-                console.log('Standard camera controls initialized successfully');
             } catch (error) {
                 console.error('Failed to initialize standard OrbitControls:', error);
                 this.controls = null;
@@ -437,21 +435,62 @@ class AsteroidImpactSimulator {
         glow.name = 'EarthGlow';
         this.scene.add(glow);
         
-        console.log('✅ Enhanced basic Earth model created with atmospheric glow');
     }
     
     createEnhancedStarField() {
-        console.log('⭐ Creating enhanced starfield...');
-        
         if (typeof createStarfield === 'function') {
             const stars = createStarfield(5000);
             stars.name = 'EnhancedStarfield';
             this.scene.add(stars);
-            console.log('✅ Enhanced starfield created');
         } else {
-            // Fallback basic starfield
-            this.createBasicStarField();
+            this.createImprovedStarField();
         }
+    }
+    
+    createImprovedStarField() {
+        
+        const starCount = 5000;
+        const starGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(starCount * 3);
+        const colors = new Float32Array(starCount * 3);
+        
+        for (let i = 0; i < starCount; i++) {
+            // Random position in sphere
+            const radius = Math.random() * 100 + 50;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            
+            const x = radius * Math.sin(phi) * Math.cos(theta);
+            const y = radius * Math.sin(phi) * Math.sin(theta);
+            const z = radius * Math.cos(phi);
+            
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = z;
+            
+            // Random star color (white to blue)
+            const intensity = Math.random() * 0.5 + 0.5;
+            colors[i * 3] = intensity;
+            colors[i * 3 + 1] = intensity;
+            colors[i * 3 + 2] = intensity + Math.random() * 0.3;
+        }
+        
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        
+        const starMaterial = new THREE.PointsMaterial({
+            size: 0.3,
+            sizeAttenuation: true,
+            transparent: true,
+            opacity: 0.9,
+            vertexColors: true,
+            alphaTest: 0.1,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        stars.name = 'ImprovedStarfield';
+        this.scene.add(stars);
     }
     
     createBasicStarField() {
@@ -467,14 +506,16 @@ class AsteroidImpactSimulator {
         
         const starMaterial = new THREE.PointsMaterial({
             color: 0xffffff,
-            size: 2,
-            sizeAttenuation: false
+            size: 0.5,
+            sizeAttenuation: true,
+            transparent: true,
+            opacity: 0.8,
+            alphaTest: 0.1
         });
         
         const stars = new THREE.Points(starGeometry, starMaterial);
         stars.name = 'BasicStarfield';
         this.scene.add(stars);
-        console.log('✅ Basic starfield created');
     }
     
     async setupUI() {
@@ -534,6 +575,48 @@ class AsteroidImpactSimulator {
             });
         }
         
+        // Custom asteroid parameter listeners
+        if (this.customDiameter) {
+            this.customDiameter.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                console.log('Custom diameter changed:', value);
+                
+                // Validate diameter (0.01 to 10 km)
+                if (value >= 0.01 && value <= 10) {
+                    if (this.currentAsteroid) {
+                        this.currentAsteroid.diameter_km = value;
+                        this.updateAsteroidVisualization();
+                    }
+                } else {
+                    console.warn('Diameter must be between 0.01 and 10 km');
+                }
+            });
+        }
+        
+        if (this.customVelocity) {
+            this.customVelocity.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                console.log('Custom velocity changed:', value);
+                
+                // Validate velocity (5 to 50 km/s)
+                if (value >= 5 && value <= 50) {
+                    // Update impact velocity slider
+                    this.impactVelocity.value = value;
+                    document.querySelector('.velocity-value').textContent = value + ' km/s';
+                } else {
+                    console.warn('Velocity must be between 5 and 50 km/s');
+                }
+            });
+        }
+        
+        // Impact location listener
+        if (this.impactLocation) {
+            this.impactLocation.addEventListener('change', (e) => {
+                console.log('Impact location changed:', e.target.value);
+                this.showParameterUpdate('Impact location set to: ' + e.target.value);
+            });
+        }
+        
         // Button events
         if (this.runSimulationBtn) {
             this.runSimulationBtn.addEventListener('click', () => this.runSimulationHandler());
@@ -541,6 +624,13 @@ class AsteroidImpactSimulator {
         if (this.resetSimulation) {
             this.resetSimulation.addEventListener('click', () => this.resetSimulationHandler());
         }
+        
+        // Add keyboard shortcut for camera reset (R key)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' || e.key === 'R') {
+                this.resetCameraView();
+            }
+        });
         if (this.startAnimation) {
             this.startAnimation.addEventListener('click', () => this.startAnimationHandler());
         }
@@ -563,6 +653,52 @@ class AsteroidImpactSimulator {
         }
     }
     
+    // Update asteroid visualization when parameters change
+    updateAsteroidVisualization() {
+        if (this.currentAsteroid && this.asteroid) {
+            // Update asteroid scale based on diameter
+            const asteroidSize = Math.max(0.5, Math.min(2.0, Math.log(this.currentAsteroid.diameter_km + 1) * 0.4));
+            this.asteroid.scale.setScalar(asteroidSize);
+            console.log('Asteroid visualization updated with new diameter:', this.currentAsteroid.diameter_km);
+        }
+    }
+    
+    // Get impact location based on user selection
+    getImpactLocation() {
+        const location = this.impactLocation.value;
+        switch (location) {
+            case 'land':
+                return [0, 0]; // Continental impact
+            case 'ocean':
+                return [0, 0]; // Ocean impact (same coordinates, different material)
+            case 'coast':
+                return [0, 0]; // Coastal impact
+            default:
+                return [0, 0]; // Default to equator
+        }
+    }
+    
+    // Get target material for calculations
+    getTargetMaterial() {
+        const location = this.impactLocation.value;
+        switch (location) {
+            case 'land':
+                return 'earth'; // Continental material
+            case 'ocean':
+                return 'earth'; // Ocean floor (still Earth material)
+            case 'coast':
+                return 'earth'; // Mixed coastal material
+            default:
+                return 'earth'; // Default to Earth
+        }
+    }
+    
+    // Show parameter update feedback
+    showParameterUpdate(message) {
+        console.log('Parameter update:', message);
+        // You can add visual feedback here if needed
+    }
+    
     async initAsteroidSelector() {
         try {
             console.log('Initializing asteroid selector...');
@@ -575,7 +711,6 @@ class AsteroidImpactSimulator {
             
             this.asteroidSelector = new AsteroidSelector(this);
             await this.asteroidSelector.init();
-            console.log('Asteroid selector initialized');
         } catch (error) {
             console.error('Failed to initialize asteroid selector:', error);
             await this.loadAsteroidData(); // Fallback to basic method
@@ -592,7 +727,6 @@ class AsteroidImpactSimulator {
             }
             
             this.trajectorySystem = new TrajectorySystem(this);
-            console.log('Trajectory system initialized');
         } catch (error) {
             console.error('Failed to initialize trajectory system:', error);
         }
@@ -608,7 +742,6 @@ class AsteroidImpactSimulator {
             }
             
             this.impactAnimationSystem = new ImpactAnimationSystem(this);
-            console.log('Impact animation system initialized');
         } catch (error) {
             console.error('Failed to initialize impact animation system:', error);
         }
@@ -624,7 +757,6 @@ class AsteroidImpactSimulator {
             }
             
             this.slowApproachAnimation = new SlowApproachAnimation(this);
-            console.log('Slow approach animation system initialized');
         } catch (error) {
             console.error('Failed to initialize slow approach animation system:', error);
         }
@@ -640,7 +772,6 @@ class AsteroidImpactSimulator {
             }
             
             this.earthImpactEffects = new EarthImpactEffects(this);
-            console.log('Earth impact effects system initialized');
         } catch (error) {
             console.error('Failed to initialize Earth impact effects system:', error);
         }
@@ -656,7 +787,6 @@ class AsteroidImpactSimulator {
             }
             
             this.cinematicCamera = new CinematicCamera(this);
-            console.log('🎬 Cinematic camera system initialized');
         } catch (error) {
             console.error('Failed to initialize cinematic camera system:', error);
         }
@@ -933,8 +1063,8 @@ class AsteroidImpactSimulator {
             const impactParams = {
                 impact_velocity: parseFloat(this.impactVelocity.value),
                 impact_angle: parseFloat(this.impactAngle.value),
-                impact_location: [0, 0], // Default to equator
-                target_material: this.impactLocation.value
+                impact_location: this.getImpactLocation(), // Default to equator
+                target_material: this.getTargetMaterial()
             };
             
             // Use custom values if provided
@@ -1394,8 +1524,8 @@ class AsteroidImpactSimulator {
             const impactParams = {
                 impact_velocity: parseFloat(this.impactVelocity.value),
                 impact_angle: parseFloat(this.impactAngle.value),
-                impact_location: [0, 0],
-                target_material: this.impactLocation.value
+                impact_location: this.getImpactLocation(),
+                target_material: this.getTargetMaterial()
             };
             
             // Start comprehensive slow approach animation with Earth damage
@@ -1422,12 +1552,23 @@ class AsteroidImpactSimulator {
                 await Promise.all([animationPromise, cameraPromise]);
                 
                 // Create Earth damage effects after impact
-                await this.earthImpactEffects.createImpactDamage(this.currentAsteroid, impactParams, impactCalculations);
+                if (this.realisticEarthDamage) {
+                    await this.realisticEarthDamage.createEarthDamage(this.currentAsteroid, impactParams, impactCalculations);
+                } else if (this.earthImpactEffects) {
+                    await this.earthImpactEffects.createImpactDamage(this.currentAsteroid, impactParams, impactCalculations);
+                }
                 
                 // Show impact information
                 if (impactCalculations) {
-                    const damageData = this.earthImpactEffects.calculateImpactDamage(this.currentAsteroid, impactParams, impactCalculations);
-                    this.showImpactInfo(damageData);
+                    let damageData;
+                    if (this.realisticEarthDamage) {
+                        damageData = this.realisticEarthDamage.calculateDamageData(this.currentAsteroid, impactParams, impactCalculations);
+                    } else if (this.earthImpactEffects) {
+                        damageData = this.earthImpactEffects.calculateImpactDamage(this.currentAsteroid, impactParams, impactCalculations);
+                    }
+                    if (damageData) {
+                        this.showImpactInfo(damageData);
+                    }
                 }
                 
                 this.showMessage('Slow approach animation with Earth damage completed!', 'success');
@@ -1480,6 +1621,9 @@ class AsteroidImpactSimulator {
         }
         
         // Clean up Earth impact effects
+        if (this.realisticEarthDamage) {
+            this.realisticEarthDamage.clearDamageEffects();
+        }
         if (this.earthImpactEffects) {
             this.earthImpactEffects.clearImpactEffects();
         }
@@ -1639,8 +1783,8 @@ class AsteroidImpactSimulator {
             const impactParams = {
                 impact_velocity: parseFloat(this.impactVelocity.value),
                 impact_angle: parseFloat(this.impactAngle.value),
-                impact_location: [0, 0],
-                target_material: this.impactLocation.value
+                impact_location: this.getImpactLocation(),
+                target_material: this.getTargetMaterial()
             };
             
             // Replay comprehensive slow approach animation with Earth damage
@@ -1648,7 +1792,12 @@ class AsteroidImpactSimulator {
                 console.log('Replaying advanced slow approach animation with Earth damage effects');
                 
                 // Clear previous Earth damage effects
-                this.earthImpactEffects.clearImpactEffects();
+                if (this.realisticEarthDamage) {
+                    this.realisticEarthDamage.clearDamageEffects();
+                }
+                if (this.earthImpactEffects) {
+                    this.earthImpactEffects.clearImpactEffects();
+                }
                 
                 // Calculate impact parameters for damage visualization
                 let impactCalculations = null;
@@ -1664,7 +1813,11 @@ class AsteroidImpactSimulator {
                 await this.slowApproachAnimation.startSlowApproach(this.currentAsteroid, impactParams);
                 
                 // Create Earth damage effects after impact
-                await this.earthImpactEffects.createImpactDamage(this.currentAsteroid, impactParams, impactCalculations);
+                if (this.realisticEarthDamage) {
+                    await this.realisticEarthDamage.createEarthDamage(this.currentAsteroid, impactParams, impactCalculations);
+                } else if (this.earthImpactEffects) {
+                    await this.earthImpactEffects.createImpactDamage(this.currentAsteroid, impactParams, impactCalculations);
+                }
                 
                 this.showMessage('Slow approach animation with Earth damage replayed!', 'success');
                 
@@ -1691,6 +1844,9 @@ class AsteroidImpactSimulator {
     
     animate() {
         this.animationId = requestAnimationFrame(() => this.animate());
+        
+        // Performance monitoring
+        this.updatePerformanceMonitor();
         
         // Earth animation is handled by EarthAnimationController if available
         // Otherwise, use basic rotation
@@ -1727,6 +1883,61 @@ class AsteroidImpactSimulator {
         this.renderer.render(this.scene, this.camera);
     }
     
+    // Update performance monitoring
+    updatePerformanceMonitor() {
+        const currentTime = performance.now();
+        this.performanceMonitor.frameCount++;
+        
+        if (currentTime - this.performanceMonitor.lastTime >= 1000) {
+            this.performanceMonitor.fps = this.performanceMonitor.frameCount;
+            this.performanceMonitor.frameCount = 0;
+            this.performanceMonitor.lastTime = currentTime;
+            
+            // Check for low performance
+            this.performanceMonitor.isLowPerformance = this.performanceMonitor.fps < 30;
+            
+            // Auto-cleanup if performance is low
+            if (this.performanceMonitor.isLowPerformance) {
+                this.autoCleanupForPerformance();
+            }
+        }
+    }
+    
+    // Auto-cleanup for performance
+    autoCleanupForPerformance() {
+        // Count objects in scene
+        let objectCount = 0;
+        this.scene.traverse((child) => {
+            if (child.isMesh || child.isPoints) {
+                objectCount++;
+            }
+        });
+        
+        // If too many objects, clean up old effects
+        if (objectCount > this.performanceMonitor.maxObjects) {
+            this.cleanupOldEffects();
+        }
+    }
+    
+    // Clean up old effects to maintain performance
+    cleanupOldEffects() {
+        const effectsToRemove = [];
+        let removedCount = 0;
+        
+        this.scene.traverse((child) => {
+            if (child.name && child.name.includes('Effect') && removedCount < 10) {
+                effectsToRemove.push(child);
+                removedCount++;
+            }
+        });
+        
+        effectsToRemove.forEach(effect => {
+            if (effect.parent) {
+                effect.parent.remove(effect);
+            }
+        });
+    }
+    
     onWindowResize() {
         const width = this.container.clientWidth;
         const height = this.container.clientHeight;
@@ -1748,6 +1959,49 @@ class AsteroidImpactSimulator {
         setTimeout(() => {
             messageDiv.classList.remove('show');
         }, 3000);
+    }
+    
+    async initRealisticEarthDamage() {
+        try {
+            
+            if (typeof RealisticEarthDamage !== 'undefined') {
+                this.realisticEarthDamage = new RealisticEarthDamage(this);
+            } else {
+                console.warn('RealisticEarthDamage not available');
+            }
+        } catch (error) {
+            console.error('❌ Failed to initialize Realistic Earth Damage:', error);
+        }
+    }
+    
+    // Reset camera view to default
+    resetCameraView() {
+        console.log('🔄 Resetting camera view to default');
+        
+        if (this.interactiveArrows) {
+            this.interactiveArrows.resetCamera();
+        } else {
+            // Fallback: reset controls manually
+            this.controls.target.set(0, 0, 0);
+            this.camera.position.set(0, 0, 5);
+            this.controls.update();
+        }
+        
+        this.showMessage('Camera reset to default view (Press R to reset anytime)', 'info');
+    }
+    
+    async initInteractiveArrows() {
+        try {
+            
+            if (typeof InteractiveArrows !== 'undefined') {
+                this.interactiveArrows = new InteractiveArrows(this);
+                this.interactiveArrows.init();
+            } else {
+                console.warn('InteractiveArrows not available');
+            }
+        } catch (error) {
+            console.error('❌ Failed to initialize Interactive Arrows:', error);
+        }
     }
 }
 

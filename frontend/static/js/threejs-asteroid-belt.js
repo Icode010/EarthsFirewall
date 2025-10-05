@@ -124,10 +124,13 @@ class NASAEyesAsteroidSystem {
         starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
         const starMaterial = new THREE.PointsMaterial({
-            size: 2,
+            size: 0.3,
+            sizeAttenuation: true,
             vertexColors: true,
             transparent: true,
-            opacity: 0.8
+            opacity: 0.8,
+            alphaTest: 0.1,
+            blending: THREE.AdditiveBlending
         });
 
         const stars = new THREE.Points(starGeometry, starMaterial);

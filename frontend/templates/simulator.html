@@ -23,6 +23,7 @@
       <!-- 3D scene will be rendered here -->
       <div class="camera-instructions">
         <p>Drag to rotate view • Scroll to zoom • Right-click to pan</p>
+        <p id="cameraMode" class="camera-mode">Default View</p>
     </div>
   </div>
 
@@ -133,7 +134,9 @@
 <script src="{{ url_for('static', filename='js/visualization/impact-animation-system.js') }}"></script>
 <script src="{{ url_for('static', filename='js/visualization/slow-approach-animation.js') }}"></script>
 <script src="{{ url_for('static', filename='js/visualization/earth-impact-effects.js') }}"></script>
+<script src="{{ url_for('static', filename='js/visualization/realistic-earth-damage.js') }}"></script>
 <script src="{{ url_for('static', filename='js/visualization/cinematic-camera.js') }}"></script>
+<script src="{{ url_for('static', filename='js/visualization/interactive-arrows.js') }}"></script>
 <script src="{{ url_for('static', filename='js/asteroid-impact-simulator.js') }}"></script>
 
 <style>

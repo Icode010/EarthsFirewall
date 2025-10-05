@@ -372,7 +372,7 @@ intersection = distance < (r1 + r2)
 ## 📞 Support
 
 ### Technical Questions
-- **GitHub Issues**: [SPALRB/EarthsFirewall](https://github.com/SPALRB/EarthsFirewall/issues)
+- **GitHub Issues**: [EarthsFirewall/EarthsFirewall](https://github.com/EarthsFirewall/EarthsFirewall/issues)
 - **Documentation**: [docs/](docs/)
 - **API Reference**: [docs/API.md](docs/API.md)
 

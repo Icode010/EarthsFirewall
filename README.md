@@ -3,7 +3,7 @@
 ## 🚀 Project Overview
 A comprehensive web application that simulates asteroid impact scenarios using real NASA data. Features interactive 3D visualizations, orbital mechanics calculations, and a "Defend Earth" game mode for the NASA Space Apps Challenge.
 
-**Built for the 2025 NASA Space Apps Challenge by team SPALRB based in Charlotte, NC**
+**Built for the 2025 NASA Space Apps Challenge by team Earths Firewall based in Charlotte, NC**
 
 ## 🛠️ Technology Stack
 - **Backend**: Python Flask for API endpoints and data processing
@@ -96,7 +96,7 @@ EarthsFirewall/
 - NASA data integration for authentic asteroid properties
 
 ## 🌟 NASA Space Apps Challenge
-Built for the 2025 NASA Space Apps Challenge - Asteroid Impact Simulation challenge by team SPALRB.
+Built for the 2025 NASA Space Apps Challenge - Asteroid Impact Simulation challenge by team Earths Firewall.
 
 ## 🚀 API Endpoints
 - `POST /api/simulation/start-game` - Start new game

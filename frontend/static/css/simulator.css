@@ -77,6 +77,28 @@
   width: 100% !important;
   height: 100% !important;
   pointer-events: auto;
+  cursor: pointer;
+}
+
+.camera-instructions {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.camera-mode {
+  margin: 5px 0 0 0;
+  font-weight: bold;
+  color: #4a9eff;
+  font-size: 12px;
 }
 
 /* Simulator Controls Styles */
@@ -165,7 +187,8 @@
   background: #2a2a3e;
 }
 
-.asteroid-select {
+.asteroid-select,
+.impact-location {
   min-width: 300px;
   max-width: 100%;
   -webkit-appearance: none;

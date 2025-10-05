@@ -659,7 +659,7 @@ class ImpactAnimationSystem {
         console.log('⏹️ Animation stopped');
     }
 
-    // Clear all impact effects
+    // Clear all impact effects with performance optimization
     clearImpactEffects() {
         // Check if scene exists
         if (!this.simulation || !this.simulation.scene) {
@@ -667,25 +667,51 @@ class ImpactAnimationSystem {
             return;
         }
         
-        this.impactEffects.forEach(effect => {
-            if (effect && effect.parent) {
-                this.simulation.scene.remove(effect);
-            }
-        });
-        this.impactEffects = [];
+        // Clear effects in batches to prevent frame drops
+        const batchSize = 3;
+        let currentIndex = 0;
         
-        // Remove named objects
-        const objectNames = [
-            'ExplosionLayer', 'ImpactCrater', 'EjectaBlanket', 'ThermalRing',
-            'Shockwave', 'SeismicWave', 'Tsunami', 'DustCloud'
-        ];
-        
-        objectNames.forEach(name => {
-            const object = this.simulation.scene.getObjectByName(name);
-            if (object) {
-                this.simulation.scene.remove(object);
+        const clearBatch = () => {
+            const endIndex = Math.min(currentIndex + batchSize, this.impactEffects.length);
+            
+            for (let i = currentIndex; i < endIndex; i++) {
+                const effect = this.impactEffects[i];
+                if (effect && effect.parent) {
+                    this.simulation.scene.remove(effect);
+                }
+                if (effect && effect.geometry) {
+                    effect.geometry.dispose();
+                }
+                if (effect && effect.material) {
+                    effect.material.dispose();
+                }
             }
-        });
+            
+            currentIndex = endIndex;
+            
+            if (currentIndex < this.impactEffects.length) {
+                requestAnimationFrame(clearBatch);
+            } else {
+                this.impactEffects = [];
+                
+                // Remove named objects
+                const objectNames = [
+                    'ExplosionLayer', 'ImpactCrater', 'EjectaBlanket', 'ThermalRing',
+                    'Shockwave', 'SeismicWave', 'Tsunami', 'DustCloud'
+                ];
+                
+                objectNames.forEach(name => {
+                    const object = this.simulation.scene.getObjectByName(name);
+                    if (object) {
+                        this.simulation.scene.remove(object);
+                    }
+                });
+            }
+        };
+        
+        if (this.impactEffects.length > 0) {
+            clearBatch();
+        }
     }
 
     // Set animation speed
