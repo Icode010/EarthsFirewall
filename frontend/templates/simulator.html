@@ -102,15 +102,7 @@
   <div id="statusMessage" class="status-message"></div>
 </div>
 
-<!-- Three.js Scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script>
-  // Fix OrbitControls import for Three.js r128
-  if (typeof THREE !== 'undefined' && !THREE.OrbitControls) {
-    THREE.OrbitControls = OrbitControls;
-  }
-</script>
+<!-- Simulator Script -->
 <script src="{{ url_for('static', filename='js/impactor-mitigation-simulator.js') }}"></script>
 
 <style>

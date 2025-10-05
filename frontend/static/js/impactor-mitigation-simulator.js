@@ -75,8 +75,16 @@ class ImpactorMitigationSimulator {
             await this.createTrajectory();
             await this.setupLighting();
             
-            this.animate();
-            this.showMessage('Impactor-2025 Mitigation Simulator ready!', 'success');
+        this.animate();
+        
+        // Debug scene contents
+        console.log('🔍 Scene contents:', this.scene.children.map(child => child.name || child.type));
+        console.log('🌍 Earth object:', this.earth);
+        console.log('🪨 Asteroid object:', this.impactor2025);
+        console.log('📷 Camera position:', this.camera.position);
+        console.log('💡 Lights in scene:', this.scene.children.filter(child => child.isLight).length);
+        
+        this.showMessage('Impactor-2025 Mitigation Simulator ready!', 'success');
             
         } catch (error) {
             console.error('Failed to initialize simulator:', error);
@@ -108,14 +116,34 @@ class ImpactorMitigationSimulator {
         this.renderer = new THREE.WebGLRenderer({ 
             canvas: canvas,
             antialias: true,
-            powerPreference: 'high-performance'
+            powerPreference: 'high-performance',
+            alpha: false,
+            preserveDrawingBuffer: false,
+            logarithmicDepthBuffer: true,
+            precision: 'highp'
         });
         
         this.renderer.setSize(container.clientWidth, container.clientHeight);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3)); // Higher pixel ratio for 4K quality
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1.0;
+        
+        // Ultra-high quality rendering settings
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        this.renderer.shadowMap.autoUpdate = true;
+        this.renderer.physicallyCorrectLights = true;
+        this.renderer.gammaFactor = 2.2;
+        this.renderer.useLegacyLights = false;
+        
+        // 4K quality settings
+        this.renderer.capabilities.logarithmicDepthBuffer = true;
+        this.renderer.sortObjects = true;
+        this.renderer.autoClear = true;
+        this.renderer.autoClearColor = true;
+        this.renderer.autoClearDepth = true;
+        this.renderer.autoClearStencil = true;
         
         // Create controls
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
@@ -145,13 +173,24 @@ class ImpactorMitigationSimulator {
         this.techniqueParameters = document.getElementById('techniqueParameters');
         this.resultsPanel = document.getElementById('mitigationResults');
         
+        console.log('🔍 UI Elements found:');
+        console.log('  - techniqueSelect:', this.techniqueSelect);
+        console.log('  - techniqueDescription:', this.techniqueDescription);
+        console.log('  - techniqueParameters:', this.techniqueParameters);
+        console.log('  - resultsPanel:', this.resultsPanel);
+        
         if (!this.techniqueSelect) {
-            console.error('❌ UI elements not found!');
+            console.error('❌ techniqueSelect not found!');
+            return;
+        }
+        if (!this.techniqueDescription) {
+            console.error('❌ techniqueDescription not found!');
             return;
         }
         
         // Setup technique selection handler
         this.techniqueSelect.addEventListener('change', (e) => {
+            console.log('🔄 Technique changed to:', e.target.value);
             this.onTechniqueChange(e.target.value);
         });
         
@@ -167,67 +206,344 @@ class ImpactorMitigationSimulator {
         // Initialize with default technique
         this.onTechniqueChange('none');
         
+        // Force update description on load
+        setTimeout(() => {
+            if (this.techniqueSelect && this.techniqueDescription) {
+                const currentValue = this.techniqueSelect.value;
+                console.log('🔄 Force updating description for:', currentValue);
+                this.onTechniqueChange(currentValue);
+            }
+        }, 100);
+        
         console.log('✅ UI setup complete');
     }
     
     async createEarth() {
-        // Create Earth geometry
-        const earthGeometry = new THREE.SphereGeometry(1, 64, 32);
+        // Create ultra-high quality Earth geometry (4K quality)
+        const earthGeometry = new THREE.SphereGeometry(1, 256, 128);
         
-        // Create Earth material with bright color for visibility
-        const earthMaterial = new THREE.MeshPhongMaterial({
-            color: 0x4a9eff, // Bright blue for visibility
-            shininess: 100,
-            transparent: false
+        // Create realistic Earth material with PBR properties
+        const earthMaterial = new THREE.MeshStandardMaterial({
+            color: 0x4a9eff, // Ocean blue
+            metalness: 0.0,
+            roughness: 0.8,
+            transparent: false,
+            emissive: 0x0a1a2a, // Subtle blue glow
+            emissiveIntensity: 0.1,
+            envMapIntensity: 1.0,
+            normalScale: new THREE.Vector2(1, 1),
+            bumpScale: 0.1
         });
         
-        // Create Earth mesh
+        // Create Earth mesh with enhanced properties
         this.earth = new THREE.Mesh(earthGeometry, earthMaterial);
         this.earth.name = 'Earth';
         this.earth.userData = { type: 'earth' };
+        this.earth.castShadow = true;
+        this.earth.receiveShadow = true;
+        this.earth.renderOrder = 0;
         this.scene.add(this.earth);
         
         // Add subtle rotation
         this.earth.rotation.y = Math.PI;
         
-        console.log('🌍 Earth created and added to scene');
+        // Create ultra-realistic atmosphere
+        this.createUltraRealisticAtmosphere();
+        
+        // Create high-quality cloud layer
+        this.createHighQualityCloudLayer();
+        
+        // Create city lights with realistic distribution
+        this.createRealisticCityLights();
+        
+        console.log('🌍 Ultra-high quality Earth created with 4K materials');
+    }
+    
+    createUltraRealisticAtmosphere() {
+        // Create multi-layer atmosphere with 4K quality
+        const atmosphereLayers = [
+            { radius: 1.02, opacity: 0.3, color: 0x4a9eff, segments: 128 },
+            { radius: 1.05, opacity: 0.2, color: 0x6bb6ff, segments: 96 },
+            { radius: 1.08, opacity: 0.15, color: 0x8cc8ff, segments: 64 },
+            { radius: 1.12, opacity: 0.1, color: 0xa8d8ff, segments: 48 },
+            { radius: 1.16, opacity: 0.05, color: 0xc4e8ff, segments: 32 }
+        ];
+        
+        atmosphereLayers.forEach((layer, index) => {
+            const atmosphereGeometry = new THREE.SphereGeometry(layer.radius, layer.segments, layer.segments / 2);
+            const atmosphereMaterial = new THREE.MeshStandardMaterial({
+                color: layer.color,
+                transparent: true,
+                opacity: layer.opacity,
+                side: THREE.BackSide,
+                metalness: 0.0,
+                roughness: 0.1,
+                emissive: layer.color,
+                emissiveIntensity: 0.1
+            });
+            
+            const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+            atmosphere.name = `AtmosphereLayer${index}`;
+            atmosphere.castShadow = false;
+            atmosphere.receiveShadow = false;
+            this.scene.add(atmosphere);
+        });
+        
+        // Create atmospheric scattering effect
+        this.createAtmosphericScattering();
+    }
+    
+    createAtmosphericScattering() {
+        // Create volumetric atmospheric scattering
+        const scatteringGeometry = new THREE.SphereGeometry(1.2, 64, 32);
+        const scatteringMaterial = new THREE.MeshBasicMaterial({
+            color: 0x87ceeb,
+            transparent: true,
+            opacity: 0.02,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const scattering = new THREE.Mesh(scatteringGeometry, scatteringMaterial);
+        scattering.name = 'AtmosphericScattering';
+        this.scene.add(scattering);
+    }
+    
+    createHighQualityCloudLayer() {
+        // Create multiple cloud layers for realism
+        const cloudLayers = [
+            { radius: 1.015, opacity: 0.4, color: 0xffffff, segments: 128 },
+            { radius: 1.02, opacity: 0.3, color: 0xf8f8f8, segments: 96 },
+            { radius: 1.025, opacity: 0.2, color: 0xf0f0f0, segments: 64 }
+        ];
+        
+        cloudLayers.forEach((layer, index) => {
+            const cloudGeometry = new THREE.SphereGeometry(layer.radius, layer.segments, layer.segments / 2);
+            const cloudMaterial = new THREE.MeshStandardMaterial({
+                color: layer.color,
+                transparent: true,
+                opacity: layer.opacity,
+                metalness: 0.0,
+                roughness: 0.9,
+                emissive: layer.color,
+                emissiveIntensity: 0.1
+            });
+            
+            const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
+            clouds.name = `CloudLayer${index}`;
+            clouds.castShadow = true;
+            clouds.receiveShadow = true;
+            this.scene.add(clouds);
+        });
+        
+        // Create cloud particles for extra realism
+        this.createCloudParticles();
+    }
+    
+    createCloudParticles() {
+        const particleCount = 200;
+        const particles = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+        
+        for (let i = 0; i < particleCount; i++) {
+            // Distribute particles on sphere surface
+            const radius = 1.02 + Math.random() * 0.03;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI;
+            
+            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = radius * Math.cos(phi);
+            
+            colors[i * 3] = 1.0; // White
+            colors[i * 3 + 1] = 1.0;
+            colors[i * 3 + 2] = 1.0;
+            
+            sizes[i] = Math.random() * 0.05 + 0.02;
+        }
+        
+        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        particles.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+        
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 0.05,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.6,
+            sizeAttenuation: true,
+            alphaTest: 0.1,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const cloudParticles = new THREE.Points(particles, particleMaterial);
+        cloudParticles.name = 'CloudParticles';
+        this.scene.add(cloudParticles);
+    }
+    
+    createRealisticCityLights() {
+        // Create city lights with realistic distribution
+        const cityLightsGeometry = new THREE.SphereGeometry(1.01, 128, 64);
+        const cityLightsMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffaa,
+            transparent: true,
+            opacity: 0.3,
+            side: THREE.BackSide,
+            metalness: 0.0,
+            roughness: 0.1,
+            emissive: 0xffffaa,
+            emissiveIntensity: 0.5
+        });
+        
+        const cityLights = new THREE.Mesh(cityLightsGeometry, cityLightsMaterial);
+        cityLights.name = 'CityLights';
+        cityLights.castShadow = false;
+        cityLights.receiveShadow = false;
+        this.scene.add(cityLights);
+        
+        // Create individual city light points
+        this.createCityLightPoints();
+    }
+    
+    createCityLightPoints() {
+        const lightCount = 100;
+        const lights = new THREE.BufferGeometry();
+        const positions = new Float32Array(lightCount * 3);
+        const colors = new Float32Array(lightCount * 3);
+        
+        for (let i = 0; i < lightCount; i++) {
+            // Distribute lights on night side of Earth
+            const radius = 1.01;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI;
+            
+            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = radius * Math.cos(phi);
+            
+            // Vary light colors (white, yellow, orange)
+            const lightType = Math.random();
+            if (lightType < 0.6) {
+                colors[i * 3] = 1.0; colors[i * 3 + 1] = 1.0; colors[i * 3 + 2] = 0.8; // White
+            } else if (lightType < 0.8) {
+                colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.8; colors[i * 3 + 2] = 0.4; // Yellow
+            } else {
+                colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.6; colors[i * 3 + 2] = 0.2; // Orange
+            }
+        }
+        
+        lights.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        lights.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        
+        const lightMaterial = new THREE.PointsMaterial({
+            size: 0.02,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            sizeAttenuation: true,
+            alphaTest: 0.1,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const cityLightPoints = new THREE.Points(lights, lightMaterial);
+        cityLightPoints.name = 'CityLightPoints';
+        this.scene.add(cityLightPoints);
     }
     
     async createImpactor2025() {
-        // Create irregular asteroid geometry
-        const asteroidGeometry = new THREE.IcosahedronGeometry(0.1, 2);
+        // Create ultra-high quality irregular asteroid geometry
+        const asteroidGeometry = new THREE.IcosahedronGeometry(0.1, 4);
         
-        // Add noise to vertices for irregular shape
+        // Add detailed noise to vertices for ultra-realistic irregular shape
         const vertices = asteroidGeometry.attributes.position.array;
         for (let i = 0; i < vertices.length; i += 3) {
-            const noise = (Math.random() - 0.5) * 0.1;
-            vertices[i] += noise;
-            vertices[i + 1] += noise;
-            vertices[i + 2] += noise;
+            const x = vertices[i];
+            const y = vertices[i + 1];
+            const z = vertices[i + 2];
+            
+            // Multi-octave noise for realistic surface
+            const noise1 = (Math.random() - 0.5) * 0.05;
+            const noise2 = (Math.random() - 0.5) * 0.03;
+            const noise3 = (Math.random() - 0.5) * 0.02;
+            
+            vertices[i] += noise1 + noise2 + noise3;
+            vertices[i + 1] += noise1 + noise2 + noise3;
+            vertices[i + 2] += noise1 + noise2 + noise3;
         }
         asteroidGeometry.attributes.position.needsUpdate = true;
         asteroidGeometry.computeVertexNormals();
         
-        // Create asteroid material
-        const asteroidMaterial = new THREE.MeshPhongMaterial({
+        // Create ultra-realistic asteroid material with PBR properties
+        const asteroidMaterial = new THREE.MeshStandardMaterial({
             color: 0x8b7355,
-            shininess: 30,
-            transparent: false
+            metalness: 0.1,
+            roughness: 0.9,
+            transparent: false,
+            emissive: 0x2a2a2a,
+            emissiveIntensity: 0.05,
+            normalScale: new THREE.Vector2(1, 1),
+            bumpScale: 0.2
         });
         
-        // Create asteroid mesh
+        // Create asteroid mesh with enhanced properties
         this.impactor2025 = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
         this.impactor2025.name = 'Impactor-2025';
         this.impactor2025.userData = { 
             type: 'asteroid',
             data: this.impactorData
         };
+        this.impactor2025.castShadow = true;
+        this.impactor2025.receiveShadow = true;
+        this.impactor2025.renderOrder = 1;
         
         // Position asteroid far from Earth
         this.impactor2025.position.set(6, 0, 0);
         this.scene.add(this.impactor2025);
         
-        console.log('🪨 Impactor-2025 created and added to scene');
+        // Create asteroid dust trail
+        this.createAsteroidDustTrail();
+        
+        console.log('🪨 Ultra-high quality Impactor-2025 created with dust trail');
+    }
+    
+    createAsteroidDustTrail() {
+        const dustCount = 50;
+        const dustGeometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(dustCount * 3);
+        const colors = new Float32Array(dustCount * 3);
+        
+        for (let i = 0; i < dustCount; i++) {
+            // Create dust trail behind asteroid
+            const distance = -0.2 - Math.random() * 0.5;
+            const spread = (Math.random() - 0.5) * 0.1;
+            
+            positions[i * 3] = this.impactor2025.position.x + distance;
+            positions[i * 3 + 1] = this.impactor2025.position.y + spread;
+            positions[i * 3 + 2] = this.impactor2025.position.z + spread;
+            
+            colors[i * 3] = 0.8; // Dust color
+            colors[i * 3 + 1] = 0.7;
+            colors[i * 3 + 2] = 0.6;
+        }
+        
+        dustGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        dustGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        
+        const dustMaterial = new THREE.PointsMaterial({
+            size: 0.01,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.6,
+            sizeAttenuation: true,
+            alphaTest: 0.1,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const dustTrail = new THREE.Points(dustGeometry, dustMaterial);
+        dustTrail.name = 'AsteroidDustTrail';
+        this.scene.add(dustTrail);
     }
     
     async createTrajectory() {
@@ -285,58 +601,139 @@ class ImpactorMitigationSimulator {
     }
     
     async setupLighting() {
-        // Ambient light - brighter to ensure visibility
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
+        // Ultra-realistic lighting system for 4K quality
+        
+        // Ambient light - subtle global illumination
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
         this.scene.add(ambientLight);
         
-        // Directional light (sun) - stronger lighting
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 2.0);
-        directionalLight.position.set(5, 5, 5);
-        directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.width = 2048;
-        directionalLight.shadow.mapSize.height = 2048;
-        this.scene.add(directionalLight);
+        // Main sun light - ultra-high quality directional lighting
+        const sunLight = new THREE.DirectionalLight(0xffffff, 3.0);
+        sunLight.position.set(15, 10, 8);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 8192; // 8K shadow maps
+        sunLight.shadow.mapSize.height = 8192;
+        sunLight.shadow.camera.near = 0.1;
+        sunLight.shadow.camera.far = 100;
+        sunLight.shadow.camera.left = -20;
+        sunLight.shadow.camera.right = 20;
+        sunLight.shadow.camera.top = 20;
+        sunLight.shadow.camera.bottom = -20;
+        sunLight.shadow.bias = -0.0001;
+        sunLight.shadow.normalBias = 0.02;
+        sunLight.shadow.radius = 4;
+        this.scene.add(sunLight);
         
-        // Additional fill light
-        const fillLight = new THREE.DirectionalLight(0x4a9eff, 0.5);
-        fillLight.position.set(-3, 2, -3);
-        this.scene.add(fillLight);
+        // Secondary sun light for realistic lighting
+        const sunLight2 = new THREE.DirectionalLight(0xfff8dc, 1.5);
+        sunLight2.position.set(-8, 5, -3);
+        sunLight2.castShadow = true;
+        sunLight2.shadow.mapSize.width = 4096;
+        sunLight2.shadow.mapSize.height = 4096;
+        this.scene.add(sunLight2);
         
-        // Point light for asteroid
-        const pointLight = new THREE.PointLight(0x4a9eff, 0.5, 10);
-        pointLight.position.copy(this.impactor2025.position);
-        this.scene.add(pointLight);
+        // Earth fill light - blue atmospheric lighting
+        const earthFillLight = new THREE.DirectionalLight(0x4a9eff, 1.2);
+        earthFillLight.position.set(-10, 5, -8);
+        earthFillLight.castShadow = true;
+        this.scene.add(earthFillLight);
         
-        console.log('💡 Lighting setup complete');
+        // Rim light for Earth edge definition
+        const rimLight = new THREE.DirectionalLight(0x00d4ff, 0.8);
+        rimLight.position.set(0, 0, -12);
+        this.scene.add(rimLight);
+        
+        // Asteroid lighting - warm point light
+        const asteroidLight = new THREE.PointLight(0xffaa00, 1.5, 20);
+        asteroidLight.position.copy(this.impactor2025.position);
+        asteroidLight.castShadow = true;
+        asteroidLight.shadow.mapSize.width = 2048;
+        asteroidLight.shadow.mapSize.height = 2048;
+        this.scene.add(asteroidLight);
+        
+        // Space environment lighting
+        const spaceLight = new THREE.HemisphereLight(0x87ceeb, 0x000011, 0.3);
+        this.scene.add(spaceLight);
+        
+        // Enhanced shadow settings
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        this.renderer.shadowMap.autoUpdate = true;
+        
+        console.log('💡 Ultra-realistic 4K lighting setup complete');
     }
     
     createStarfield() {
-        // Create starfield background
+        // Create ultra-realistic 4K starfield
         const starGeometry = new THREE.BufferGeometry();
-        const starCount = 1000;
+        const starCount = 5000; // Increased for 4K quality
         const positions = new Float32Array(starCount * 3);
+        const colors = new Float32Array(starCount * 3);
+        const sizes = new Float32Array(starCount);
         
-        for (let i = 0; i < starCount * 3; i += 3) {
-            positions[i] = (Math.random() - 0.5) * 2000;
-            positions[i + 1] = (Math.random() - 0.5) * 2000;
-            positions[i + 2] = (Math.random() - 0.5) * 2000;
+        for (let i = 0; i < starCount; i++) {
+            // Distribute stars on sphere surface for realistic distribution
+            const radius = 1000 + Math.random() * 1000;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI;
+            
+            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = radius * Math.cos(phi);
+            
+            // Vary star colors (white, blue, yellow, red)
+            const starType = Math.random();
+            if (starType < 0.7) {
+                colors[i * 3] = 1.0; colors[i * 3 + 1] = 1.0; colors[i * 3 + 2] = 1.0; // White
+            } else if (starType < 0.85) {
+                colors[i * 3] = 0.8; colors[i * 3 + 1] = 0.9; colors[i * 3 + 2] = 1.0; // Blue
+            } else if (starType < 0.95) {
+                colors[i * 3] = 1.0; colors[i * 3 + 1] = 1.0; colors[i * 3 + 2] = 0.8; // Yellow
+            } else {
+                colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.8; colors[i * 3 + 2] = 0.6; // Red
+            }
+            
+            sizes[i] = Math.random() * 2 + 0.5;
         }
         
         starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        starGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
         
         const starMaterial = new THREE.PointsMaterial({
-            color: 0xffffff,
-            size: 0.5,
+            size: 1.0,
+            vertexColors: true,
             sizeAttenuation: true,
             transparent: true,
-            opacity: 0.8,
-            alphaTest: 0.1
+            opacity: 0.9,
+            alphaTest: 0.1,
+            blending: THREE.AdditiveBlending
         });
         
         const stars = new THREE.Points(starGeometry, starMaterial);
+        stars.name = 'Starfield';
         this.scene.add(stars);
         
-        console.log('⭐ Starfield created');
+        // Create nebula background
+        this.createNebulaBackground();
+        
+        console.log('⭐ Ultra-realistic 4K starfield created');
+    }
+    
+    createNebulaBackground() {
+        // Create distant nebula for depth
+        const nebulaGeometry = new THREE.SphereGeometry(2000, 32, 16);
+        const nebulaMaterial = new THREE.MeshBasicMaterial({
+            color: 0x1a1a3a,
+            transparent: true,
+            opacity: 0.1,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const nebula = new THREE.Mesh(nebulaGeometry, nebulaMaterial);
+        nebula.name = 'Nebula';
+        this.scene.add(nebula);
     }
     
     onTechniqueChange(technique) {
@@ -353,7 +750,9 @@ class ImpactorMitigationSimulator {
         };
         
         if (this.techniqueDescription) {
-            this.techniqueDescription.innerHTML = `<p>${descriptions[technique]}</p>`;
+            const description = descriptions[technique] || descriptions['none'];
+            this.techniqueDescription.innerHTML = `<p>${description}</p>`;
+            console.log(`🔄 Updated description for technique: ${technique}`);
         }
         
         // Show/hide parameters
@@ -506,6 +905,9 @@ class ImpactorMitigationSimulator {
         // Apply delta-v to asteroid velocity
         this.applyDeltaV(deltaV);
         
+        // Create 3D visual effects for each technique
+        this.createMitigationVisualEffects(this.currentTechnique);
+        
         // Update trajectory
         this.updateTrajectory();
         
@@ -571,8 +973,8 @@ class ImpactorMitigationSimulator {
                 const totalEnergy = powerLevel * 1e6 * activeDays * 24 * 3600; // Joules
                 const energyDensity = totalEnergy / (4 * Math.PI * Math.pow(laserDistance * 1000, 2)); // J/m²
                 const ablationRate = energyDensity / (2.5e6); // kg/m² (vaporization energy)
-                const surfaceArea = 4 * Math.PI * Math.pow(this.impactorData.diameter / 2, 2); // m²
-                const totalAblation = ablationRate * surfaceArea; // kg
+                const laserSurfaceArea = 4 * Math.PI * Math.pow(this.impactorData.diameter / 2, 2); // m²
+                const totalAblation = ablationRate * laserSurfaceArea; // kg
                 const exhaustVelocity = 1000; // m/s (typical for laser ablation)
                 deltaV.magnitude = (totalAblation * exhaustVelocity) / this.impactorData.mass;
                 break;
@@ -584,9 +986,9 @@ class ImpactorMitigationSimulator {
                 
                 const solarConstant = 1361; // W/m²
                 const asteroidRadius = this.impactorData.diameter / 2;
-                const surfaceArea = 4 * Math.PI * Math.pow(asteroidRadius, 2);
+                const albedoSurfaceArea = 4 * Math.PI * Math.pow(asteroidRadius, 2);
                 const albedoChange = (coverage / 100) * 0.1; // 10% max albedo change
-                const thermalForce = solarConstant * surfaceArea * albedoChange / (3e8); // N
+                const thermalForce = solarConstant * albedoSurfaceArea * albedoChange / (3e8); // N
                 const acceleration = thermalForce / this.impactorData.mass;
                 const totalTime = effectDuration * 365 * 24 * 3600; // years to seconds
                 deltaV.magnitude = acceleration * totalTime * 0.01; // Very small effect
@@ -597,6 +999,521 @@ class ImpactorMitigationSimulator {
         deltaV.magnitude = Math.max(deltaV.magnitude, 0.001);
         
         return deltaV;
+    }
+    
+    createMitigationVisualEffects(technique) {
+        console.log(`🎬 Creating 3D visual effects for ${technique}...`);
+        
+        // Clean up any existing effects first
+        this.cleanupMitigationEffects();
+        
+        switch (technique) {
+            case 'kinetic':
+                this.createKineticImpactorEffects();
+                break;
+            case 'gravity':
+                this.createGravityTractorEffects();
+                break;
+            case 'nuclear':
+                this.createNuclearStandoffEffects();
+                break;
+            case 'laser':
+                this.createLaserAblationEffects();
+                break;
+            case 'albedo':
+                this.createAlbedoModificationEffects();
+                break;
+        }
+    }
+    
+    cleanupMitigationEffects() {
+        console.log('🧹 Cleaning up previous mitigation effects...');
+        
+        const effectNames = [
+            'Interceptor', 'ThrusterParticles', 'ImpactExplosion',
+            'GravityTractor', 'GravitationalField',
+            'NuclearDevice', 'CountdownTimer', 'NuclearExplosion',
+            'LaserBeam', 'LaserBeamLine', 'AsteroidHeating',
+            'PaintSprayer', 'PaintParticles'
+        ];
+        
+        effectNames.forEach(name => {
+            const obj = this.scene.getObjectByName(name);
+            if (obj) {
+                this.scene.remove(obj);
+                if (obj.geometry) obj.geometry.dispose();
+                if (obj.material) {
+                    if (Array.isArray(obj.material)) {
+                        obj.material.forEach(mat => mat.dispose());
+                    } else {
+                        obj.material.dispose();
+                    }
+                }
+            }
+        });
+    }
+    
+    createKineticImpactorEffects() {
+        console.log('🚀 Creating Kinetic Impactor 3D effects...');
+        
+        // Create interceptor spacecraft
+        const interceptorGeometry = new THREE.BoxGeometry(0.05, 0.02, 0.1);
+        const interceptorMaterial = new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            emissive: 0x444444,
+            shininess: 100
+        });
+        
+        const interceptor = new THREE.Mesh(interceptorGeometry, interceptorMaterial);
+        interceptor.name = 'Interceptor';
+        interceptor.position.set(8, 0, 0);
+        this.scene.add(interceptor);
+        
+        // Create thruster particles
+        this.createThrusterParticles(interceptor);
+        
+        // Animate interceptor approach
+        this.animateInterceptorApproach(interceptor);
+        
+        // Create impact explosion
+        setTimeout(() => {
+            this.createImpactExplosion();
+        }, 2000);
+    }
+    
+    createThrusterParticles(interceptor) {
+        const particleCount = 50;
+        const particles = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = interceptor.position.x - 0.1;
+            positions[i * 3 + 1] = interceptor.position.y + (Math.random() - 0.5) * 0.1;
+            positions[i * 3 + 2] = interceptor.position.z + (Math.random() - 0.5) * 0.1;
+            
+            colors[i * 3] = 1.0; // Red
+            colors[i * 3 + 1] = 0.5; // Green
+            colors[i * 3 + 2] = 0.0; // Blue
+        }
+        
+        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 0.02,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            sizeAttenuation: true,
+            alphaTest: 0.1
+        });
+        
+        const particleSystem = new THREE.Points(particles, particleMaterial);
+        particleSystem.name = 'ThrusterParticles';
+        this.scene.add(particleSystem);
+    }
+    
+    animateInterceptorApproach(interceptor) {
+        const startPos = interceptor.position.clone();
+        const targetPos = this.impactor2025.position.clone();
+        const duration = 2000;
+        const startTime = Date.now();
+        
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            interceptor.position.lerpVectors(startPos, targetPos, progress);
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                // Remove interceptor after impact
+                this.scene.remove(interceptor);
+            }
+        };
+        
+        animate();
+    }
+    
+    createImpactExplosion() {
+        const explosionGeometry = new THREE.SphereGeometry(0.2, 16, 8);
+        const explosionMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff4400,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const explosion = new THREE.Mesh(explosionGeometry, explosionMaterial);
+        explosion.position.copy(this.impactor2025.position);
+        explosion.name = 'ImpactExplosion';
+        this.scene.add(explosion);
+        
+        // Animate explosion
+        this.animateExplosion(explosion);
+    }
+    
+    animateExplosion(explosion) {
+        const startScale = 0.1;
+        const endScale = 2.0;
+        const duration = 1000;
+        const startTime = Date.now();
+        
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const scale = startScale + (endScale - startScale) * progress;
+            const opacity = 1.0 - progress;
+            
+            explosion.scale.setScalar(scale);
+            explosion.material.opacity = opacity;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                this.scene.remove(explosion);
+            }
+        };
+        
+        animate();
+    }
+    
+    createGravityTractorEffects() {
+        console.log('🛸 Creating Gravity Tractor 3D effects...');
+        
+        // Create tractor spacecraft
+        const tractorGeometry = new THREE.ConeGeometry(0.03, 0.1, 8);
+        const tractorMaterial = new THREE.MeshPhongMaterial({
+            color: 0x00ff88,
+            emissive: 0x004422,
+            shininess: 50
+        });
+        
+        const tractor = new THREE.Mesh(tractorGeometry, tractorMaterial);
+        tractor.name = 'GravityTractor';
+        tractor.position.set(0.2, 0, 0); // Near asteroid
+        this.scene.add(tractor);
+        
+        // Create gravitational field visualization
+        this.createGravitationalField(tractor);
+        
+        // Animate tractor hovering
+        this.animateTractorHovering(tractor);
+    }
+    
+    createGravitationalField(tractor) {
+        const fieldGeometry = new THREE.SphereGeometry(0.5, 16, 8);
+        const fieldMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ff88,
+            transparent: true,
+            opacity: 0.1,
+            wireframe: true
+        });
+        
+        const field = new THREE.Mesh(fieldGeometry, fieldMaterial);
+        field.name = 'GravitationalField';
+        field.position.copy(tractor.position);
+        this.scene.add(field);
+        
+        // Animate field pulsing
+        this.animateFieldPulsing(field);
+    }
+    
+    animateTractorHovering(tractor) {
+        const startPos = tractor.position.clone();
+        const hoverDistance = 0.2;
+        
+        const animate = () => {
+            const time = Date.now() * 0.001;
+            tractor.position.y = startPos.y + Math.sin(time * 2) * 0.05;
+            tractor.position.z = startPos.z + Math.cos(time * 1.5) * 0.03;
+            
+            requestAnimationFrame(animate);
+        };
+        
+        animate();
+    }
+    
+    animateFieldPulsing(field) {
+        const animate = () => {
+            const time = Date.now() * 0.002;
+            const scale = 1 + Math.sin(time) * 0.2;
+            field.scale.setScalar(scale);
+            
+            requestAnimationFrame(animate);
+        };
+        
+        animate();
+    }
+    
+    createNuclearStandoffEffects() {
+        console.log('💥 Creating Nuclear Standoff 3D effects...');
+        
+        // Create nuclear device
+        const nukeGeometry = new THREE.SphereGeometry(0.05, 16, 8);
+        const nukeMaterial = new THREE.MeshPhongMaterial({
+            color: 0xff0000,
+            emissive: 0x440000,
+            shininess: 100
+        });
+        
+        const nuke = new THREE.Mesh(nukeGeometry, nukeMaterial);
+        nuke.name = 'NuclearDevice';
+        nuke.position.set(0.3, 0, 0); // Near asteroid
+        this.scene.add(nuke);
+        
+        // Create countdown timer
+        this.createCountdownTimer();
+        
+        // Animate nuclear detonation
+        setTimeout(() => {
+            this.animateNuclearDetonation(nuke);
+        }, 3000);
+    }
+    
+    createCountdownTimer() {
+        const timerGeometry = new THREE.RingGeometry(0.1, 0.15, 16);
+        const timerMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const timer = new THREE.Mesh(timerGeometry, timerMaterial);
+        timer.name = 'CountdownTimer';
+        timer.position.set(0.3, 0.2, 0);
+        this.scene.add(timer);
+        
+        // Animate countdown
+        this.animateCountdown(timer);
+    }
+    
+    animateCountdown(timer) {
+        const duration = 3000;
+        const startTime = Date.now();
+        
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const rotation = progress * Math.PI * 2;
+            
+            timer.rotation.z = rotation;
+            timer.material.opacity = 1.0 - progress;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                this.scene.remove(timer);
+            }
+        };
+        
+        animate();
+    }
+    
+    animateNuclearDetonation(nuke) {
+        // Create massive explosion
+        const explosionGeometry = new THREE.SphereGeometry(0.1, 32, 16);
+        const explosionMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff4400,
+            transparent: true,
+            opacity: 1.0
+        });
+        
+        const explosion = new THREE.Mesh(explosionGeometry, explosionMaterial);
+        explosion.position.copy(nuke.position);
+        explosion.name = 'NuclearExplosion';
+        this.scene.add(explosion);
+        
+        // Remove nuke
+        this.scene.remove(nuke);
+        
+        // Animate explosion
+        const startScale = 0.1;
+        const endScale = 5.0;
+        const duration = 2000;
+        const startTime = Date.now();
+        
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const scale = startScale + (endScale - startScale) * progress;
+            const opacity = 1.0 - progress;
+            
+            explosion.scale.setScalar(scale);
+            explosion.material.opacity = opacity;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                this.scene.remove(explosion);
+            }
+        };
+        
+        animate();
+    }
+    
+    createLaserAblationEffects() {
+        console.log('🔴 Creating Laser Ablation 3D effects...');
+        
+        // Create laser source
+        const laserGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.5, 8);
+        const laserMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            emissive: 0xff0000,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const laser = new THREE.Mesh(laserGeometry, laserMaterial);
+        laser.name = 'LaserBeam';
+        laser.position.set(2, 0, 0);
+        laser.rotation.z = Math.PI / 2;
+        this.scene.add(laser);
+        
+        // Create laser beam
+        this.createLaserBeam(laser);
+        
+        // Animate laser heating
+        this.animateLaserHeating();
+    }
+    
+    createLaserBeam(laser) {
+        const beamGeometry = new THREE.CylinderGeometry(0.005, 0.005, 2, 8);
+        const beamMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            emissive: 0xff0000,
+            transparent: true,
+            opacity: 0.6
+        });
+        
+        const beam = new THREE.Mesh(beamGeometry, beamMaterial);
+        beam.name = 'LaserBeamLine';
+        beam.position.set(1, 0, 0);
+        beam.rotation.z = Math.PI / 2;
+        this.scene.add(beam);
+        
+        // Animate beam
+        this.animateLaserBeam(beam);
+    }
+    
+    animateLaserBeam(beam) {
+        const animate = () => {
+            const time = Date.now() * 0.01;
+            beam.material.opacity = 0.3 + Math.sin(time) * 0.3;
+            
+            requestAnimationFrame(animate);
+        };
+        
+        animate();
+    }
+    
+    animateLaserHeating() {
+        // Create heating effect on asteroid
+        const heatingGeometry = new THREE.SphereGeometry(0.12, 16, 8);
+        const heatingMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff4400,
+            transparent: true,
+            opacity: 0.3
+        });
+        
+        const heating = new THREE.Mesh(heatingGeometry, heatingMaterial);
+        heating.name = 'AsteroidHeating';
+        heating.position.copy(this.impactor2025.position);
+        this.scene.add(heating);
+        
+        // Animate heating
+        const animate = () => {
+            const time = Date.now() * 0.005;
+            heating.material.opacity = 0.1 + Math.sin(time) * 0.2;
+            heating.rotation.y += 0.01;
+            
+            requestAnimationFrame(animate);
+        };
+        
+        animate();
+    }
+    
+    createAlbedoModificationEffects() {
+        console.log('🎨 Creating Albedo Modification 3D effects...');
+        
+        // Create paint sprayer
+        const sprayerGeometry = new THREE.ConeGeometry(0.02, 0.1, 8);
+        const sprayerMaterial = new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            emissive: 0x444444,
+            shininess: 100
+        });
+        
+        const sprayer = new THREE.Mesh(sprayerGeometry, sprayerMaterial);
+        sprayer.name = 'PaintSprayer';
+        sprayer.position.set(0.2, 0, 0);
+        this.scene.add(sprayer);
+        
+        // Create paint particles
+        this.createPaintParticles(sprayer);
+        
+        // Animate paint application
+        this.animatePaintApplication(sprayer);
+    }
+    
+    createPaintParticles(sprayer) {
+        const particleCount = 100;
+        const particles = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = sprayer.position.x + (Math.random() - 0.5) * 0.1;
+            positions[i * 3 + 1] = sprayer.position.y + (Math.random() - 0.5) * 0.1;
+            positions[i * 3 + 2] = sprayer.position.z + (Math.random() - 0.5) * 0.1;
+            
+            colors[i * 3] = 1.0; // White paint
+            colors[i * 3 + 1] = 1.0;
+            colors[i * 3 + 2] = 1.0;
+        }
+        
+        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 0.01,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            sizeAttenuation: true,
+            alphaTest: 0.1
+        });
+        
+        const particleSystem = new THREE.Points(particles, particleMaterial);
+        particleSystem.name = 'PaintParticles';
+        this.scene.add(particleSystem);
+    }
+    
+    animatePaintApplication(sprayer) {
+        const startPos = sprayer.position.clone();
+        const duration = 5000;
+        const startTime = Date.now();
+        
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Move sprayer around asteroid
+            const angle = progress * Math.PI * 4;
+            sprayer.position.x = startPos.x + Math.cos(angle) * 0.1;
+            sprayer.position.y = startPos.y + Math.sin(angle) * 0.05;
+            sprayer.position.z = startPos.z + Math.sin(angle * 2) * 0.03;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                // Remove sprayer after painting
+                this.scene.remove(sprayer);
+            }
+        };
+        
+        animate();
     }
     
     applyDeltaV(deltaV) {
@@ -916,6 +1833,9 @@ class ImpactorMitigationSimulator {
     resetSimulation() {
         console.log('🔄 Resetting simulation...');
         
+        // Clean up all mitigation effects
+        this.cleanupMitigationEffects();
+        
         // Reset asteroid position to original
         this.impactor2025.position.set(6, 0, 0);
         
@@ -963,9 +1883,33 @@ class ImpactorMitigationSimulator {
         // Update performance monitor
         this.updatePerformanceMonitor();
         
-        // Rotate Earth
+        // Rotate Earth smoothly
         if (this.earth && this.earthRotationSpeed > 0) {
             this.earth.rotation.y += this.earthRotationSpeed;
+        }
+        
+        // Rotate atmosphere slightly faster
+        const atmosphere = this.scene.getObjectByName('Atmosphere');
+        if (atmosphere) {
+            atmosphere.rotation.y += this.earthRotationSpeed * 1.1;
+        }
+        
+        // Rotate outer glow even faster
+        const outerGlow = this.scene.getObjectByName('OuterGlow');
+        if (outerGlow) {
+            outerGlow.rotation.y += this.earthRotationSpeed * 1.2;
+        }
+        
+        // Rotate clouds slightly faster than Earth
+        const clouds = this.scene.getObjectByName('Clouds');
+        if (clouds) {
+            clouds.rotation.y += this.earthRotationSpeed * 1.05;
+        }
+        
+        // Rotate city lights with Earth
+        const cityLights = this.scene.getObjectByName('CityLights');
+        if (cityLights) {
+            cityLights.rotation.y += this.earthRotationSpeed;
         }
         
         // Update controls
@@ -973,6 +1917,13 @@ class ImpactorMitigationSimulator {
         
         // Render scene
         this.renderer.render(this.scene, this.camera);
+        
+        // Debug render every 60 frames
+        if (this.performanceMonitor.frameCount % 60 === 0) {
+            console.log('🎬 Rendering frame:', this.performanceMonitor.frameCount);
+            console.log('🌍 Earth visible:', this.earth ? this.earth.visible : 'null');
+            console.log('🪨 Asteroid visible:', this.impactor2025 ? this.impactor2025.visible : 'null');
+        }
     }
     
     updatePerformanceMonitor() {
