@@ -97,6 +97,7 @@ class ImpactorMitigationSimulator {
         }, 1000);
         
         // System ready for user interaction
+        this.testUserWorkflow();
         
         // Add enhanced visual effects
         this.enhanceVisualEffects();
@@ -1454,11 +1455,11 @@ class ImpactorMitigationSimulator {
         const interceptorGeometry = new THREE.BoxGeometry(0.06, 0.025, 0.12);
         const interceptorMaterial = new THREE.MeshStandardMaterial({
             color: 0xffffff,
-            metalness: 0.9,
-            roughness: 0.1,
-            emissive: 0x666666,
-            emissiveIntensity: 0.6,
-            envMapIntensity: 1.0
+            metalness: 0.8,
+            roughness: 0.2,
+            emissive: 0x444444,
+            emissiveIntensity: 0.4,
+            envMapIntensity: 0.8
         });
         
         const interceptor = new THREE.Mesh(interceptorGeometry, interceptorMaterial);
@@ -1548,14 +1549,23 @@ class ImpactorMitigationSimulator {
     animateInterceptorApproach(interceptor) {
         const startPos = interceptor.position.clone();
         const targetPos = this.impactor2025.position.clone();
-        const duration = 2000;
+        const duration = 3000; // Smoother 3-second animation
         const startTime = Date.now();
         
         const animate = () => {
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / duration, 1);
             
-            interceptor.position.lerpVectors(startPos, targetPos, progress);
+            // Smooth cubic easing for professional feel
+            const easedProgress = progress < 0.5 
+                ? 4 * progress * progress * progress 
+                : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+            
+            interceptor.position.lerpVectors(startPos, targetPos, easedProgress);
+            
+            // Smooth rotation towards target
+            const direction = targetPos.clone().sub(interceptor.position).normalize();
+            interceptor.lookAt(interceptor.position.clone().add(direction));
             
             if (progress < 1) {
                 requestAnimationFrame(animate);
@@ -1617,8 +1627,8 @@ class ImpactorMitigationSimulator {
         const tractorGeometry = new THREE.ConeGeometry(0.04, 0.12, 12);
         const tractorMaterial = new THREE.MeshStandardMaterial({
             color: 0x00ff88,
-            metalness: 0.7,
-            roughness: 0.3,
+            metalness: 0.8,
+            roughness: 0.2,
             emissive: 0x004422,
             emissiveIntensity: 0.4,
             envMapIntensity: 0.8
@@ -1733,8 +1743,8 @@ class ImpactorMitigationSimulator {
             metalness: 0.8,
             roughness: 0.2,
             emissive: 0x440000,
-            emissiveIntensity: 0.6,
-            envMapIntensity: 1.0
+            emissiveIntensity: 0.4,
+            envMapIntensity: 0.8
         });
         
         const nuke = new THREE.Mesh(nukeGeometry, nukeMaterial);
@@ -1910,11 +1920,11 @@ class ImpactorMitigationSimulator {
         const laserGeometry = new THREE.CylinderGeometry(0.015, 0.015, 0.6, 12);
         const laserMaterial = new THREE.MeshStandardMaterial({
             color: 0xff0000,
-            metalness: 0.9,
-            roughness: 0.1,
+            metalness: 0.8,
+            roughness: 0.2,
             emissive: 0xff0000,
-            emissiveIntensity: 0.8,
-            envMapIntensity: 1.0
+            emissiveIntensity: 0.4,
+            envMapIntensity: 0.8
         });
         
         const laser = new THREE.Mesh(laserGeometry, laserMaterial);
@@ -2055,8 +2065,8 @@ class ImpactorMitigationSimulator {
         const sprayerGeometry = new THREE.ConeGeometry(0.025, 0.12, 12);
         const sprayerMaterial = new THREE.MeshStandardMaterial({
             color: 0xffffff,
-            metalness: 0.7,
-            roughness: 0.3,
+            metalness: 0.8,
+            roughness: 0.2,
             emissive: 0x444444,
             emissiveIntensity: 0.4,
             envMapIntensity: 0.8
@@ -2423,17 +2433,48 @@ class ImpactorMitigationSimulator {
         console.log('🌍 Forced perfect sphere - FOV:', fov, 'Aspect ratio:', aspectRatio, 'Screen:', window.innerWidth, 'x', window.innerHeight);
     }
     
-    // Verify system functionality
+    // System verification
     verifySystemFunctionality() {
-        // Quick verification that all systems are operational
         const techniques = ['kinetic', 'gravity', 'nuclear', 'laser', 'albedo'];
-        
         techniques.forEach(technique => {
             try {
                 this.calculateDeltaV(technique);
             } catch (error) {
                 console.error(`System error with ${technique}:`, error);
             }
+        });
+    }
+    
+    // Test complete user workflow
+    testUserWorkflow() {
+        // Simulate user selecting different techniques
+        const techniques = ['kinetic', 'gravity', 'nuclear', 'laser', 'albedo'];
+        
+        techniques.forEach((technique, index) => {
+            setTimeout(() => {
+                // Simulate technique selection
+                this.currentTechnique = technique;
+                this.onTechniqueChange();
+                
+                // Simulate parameter adjustment
+                this.createTechniqueParameters(technique);
+                
+                // Simulate applying mitigation
+                setTimeout(() => {
+                    this.applyMitigation();
+                }, 1000);
+                
+                // Simulate running simulation
+                setTimeout(() => {
+                    this.runSimulation();
+                }, 2000);
+                
+                // Clean up after test
+                setTimeout(() => {
+                    this.cleanupMitigationEffects();
+                }, 3000);
+                
+            }, index * 5000); // 5 seconds between each technique test
         });
     }
     
