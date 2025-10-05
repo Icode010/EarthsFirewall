@@ -300,6 +300,9 @@ class ImpactorMitigationSimulator {
             bumpScale: 0.1
         });
         
+        // Ensure material is always visible
+        earthMaterial.needsUpdate = true;
+        
         // Create Earth mesh with enhanced properties
         this.earth = new THREE.Mesh(earthGeometry, earthMaterial);
         this.earth.name = 'Earth';
@@ -312,6 +315,8 @@ class ImpactorMitigationSimulator {
         
         // Ensure Earth is always visible
         console.log('🌍 Earth created and added to scene at position:', this.earth.position);
+        console.log('🌍 Earth material:', this.earth.material);
+        console.log('🌍 Earth geometry:', this.earth.geometry);
         
         // Add subtle rotation
         this.earth.rotation.y = Math.PI;
@@ -1016,8 +1021,8 @@ class ImpactorMitigationSimulator {
                 const G = 6.674e-11; // Gravitational constant
                 const force = (G * tractorMass * this.impactorData.mass) / Math.pow(hoverDistance, 2);
                 const gravityAcceleration = force / this.impactorData.mass;
-                const totalTime = duration * 30 * 24 * 3600; // Convert months to seconds
-                deltaV.magnitude = gravityAcceleration * totalTime * 0.1; // Scale down for realism
+                const gravityTime = duration * 30 * 24 * 3600; // Convert months to seconds
+                deltaV.magnitude = gravityAcceleration * gravityTime * 0.1; // Scale down for realism
                 break;
                 
             case 'nuclear':
