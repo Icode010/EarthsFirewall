@@ -80,6 +80,9 @@ class ImpactorMitigationSimulator {
         
         this.animate();
         
+        // Force perfect sphere rendering on initialization
+        this.forcePerfectSphere();
+        
         // Debug scene contents
         console.log('🔍 Scene contents:', this.scene.children.map(child => child.name || child.type));
         console.log('🌍 Earth object:', this.earth);
@@ -138,12 +141,27 @@ class ImpactorMitigationSimulator {
         // Add starfield background
         this.createStarfield();
         
-        // Create camera
-        this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        // Create camera with proper aspect ratio calculation
+        const aspectRatio = window.innerWidth / window.innerHeight;
+        
+        // Adjust FOV based on aspect ratio to maintain perfect sphere
+        let fov = 45;
+        if (aspectRatio < 1.0) {
+            // Portrait or narrow screens - reduce FOV to prevent oval Earth
+            fov = 45 * (1.0 / aspectRatio);
+        } else if (aspectRatio > 1.8) {
+            // Very wide screens - increase FOV to prevent oval Earth
+            fov = 45 * (aspectRatio / 1.8);
+        }
+        
+        this.camera = new THREE.PerspectiveCamera(fov, aspectRatio, 0.1, 1000);
         this.camera.position.set(-1, 1.5, 8); // Positioned to match the image view
         
-        // Ensure Earth appears as a perfect circle
+        // Force perfect sphere rendering regardless of screen size
+        this.camera.aspect = aspectRatio;
         this.camera.updateProjectionMatrix();
+        
+        console.log('📐 Camera FOV:', fov, 'Aspect ratio:', aspectRatio, 'Screen size:', window.innerWidth, 'x', window.innerHeight);
         
         // Create renderer
         const canvas = document.createElement('canvas');
@@ -2005,8 +2023,22 @@ class ImpactorMitigationSimulator {
     }
     
     onWindowResize() {
-        // Update camera aspect ratio to maintain perfect circle
-        this.camera.aspect = window.innerWidth / window.innerHeight;
+        // Calculate new aspect ratio
+        const aspectRatio = window.innerWidth / window.innerHeight;
+        
+        // Adjust FOV based on aspect ratio to maintain perfect sphere
+        let fov = 45;
+        if (aspectRatio < 1.0) {
+            // Portrait or narrow screens - reduce FOV to prevent oval Earth
+            fov = 45 * (1.0 / aspectRatio);
+        } else if (aspectRatio > 1.8) {
+            // Very wide screens - increase FOV to prevent oval Earth
+            fov = 45 * (aspectRatio / 1.8);
+        }
+        
+        // Update camera with new FOV and aspect ratio
+        this.camera.fov = fov;
+        this.camera.aspect = aspectRatio;
         this.camera.updateProjectionMatrix();
         
         // Update renderer size
@@ -2017,7 +2049,32 @@ class ImpactorMitigationSimulator {
             this.earthGroup.scale.set(1, 1, 1); // Ensure uniform scaling
         }
         
-        console.log('📐 Window resized - camera aspect ratio updated, Earth maintained as perfect sphere');
+        console.log('📐 Window resized - FOV:', fov, 'Aspect ratio:', aspectRatio, 'Earth maintained as perfect sphere');
+    }
+    
+    forcePerfectSphere() {
+        // Force Earth to appear as perfect sphere regardless of screen size
+        const aspectRatio = window.innerWidth / window.innerHeight;
+        
+        // Recalculate FOV to compensate for aspect ratio
+        let fov = 45;
+        if (aspectRatio < 1.0) {
+            fov = 45 * (1.0 / aspectRatio);
+        } else if (aspectRatio > 1.8) {
+            fov = 45 * (aspectRatio / 1.8);
+        }
+        
+        // Update camera
+        this.camera.fov = fov;
+        this.camera.aspect = aspectRatio;
+        this.camera.updateProjectionMatrix();
+        
+        // Ensure Earth group maintains perfect sphere
+        if (this.earthGroup) {
+            this.earthGroup.scale.set(1, 1, 1);
+        }
+        
+        console.log('🌍 Forced perfect sphere - FOV:', fov, 'Aspect ratio:', aspectRatio);
     }
     
     updateResults() {
