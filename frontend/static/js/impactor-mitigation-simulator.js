@@ -99,11 +99,6 @@ class ImpactorMitigationSimulator {
         // System ready for user interaction
         // Visual effects will be added when user interacts
         
-        // Create a test crater to verify crater system works
-        setTimeout(() => {
-            this.createTestCrater();
-        }, 2000);
-        
         // Scene initialized successfully
         
         // Test if objects are visible
@@ -2935,35 +2930,6 @@ class ImpactorMitigationSimulator {
         console.log('🔴 All craters should be visible on Earth surface');
     }
     
-    createTestCrater() {
-        console.log('🧪 Creating test crater to verify crater system...');
-        
-        // Create a test crater at a fixed position
-        const testGeometry = new THREE.CylinderGeometry(0.2, 0.15, 0.1, 16);
-        const testMaterial = new THREE.MeshBasicMaterial({
-            color: 0xFF00FF, // Bright magenta - very visible
-            transparent: false
-        });
-        
-        const testCrater = new THREE.Mesh(testGeometry, testMaterial);
-        testCrater.position.set(0.5, 0, 1.1); // Fixed position on Earth surface
-        testCrater.rotation.x = Math.PI / 2;
-        testCrater.name = 'TestCrater';
-        testCrater.visible = true;
-        
-        this.scene.add(testCrater);
-        
-        console.log('🧪 Test crater created at:', testCrater.position);
-        console.log('🧪 Test crater visible:', testCrater.visible);
-        
-        // Remove test crater after 5 seconds
-        setTimeout(() => {
-            if (testCrater.parent) {
-                this.scene.remove(testCrater);
-                console.log('🧪 Test crater removed');
-            }
-        }, 5000);
-    }
     
     createFallbackCrater(impactPoint) {
         // Create a simple, highly visible crater as fallback
@@ -3223,6 +3189,21 @@ class ImpactorMitigationSimulator {
         if (failureDetails) {
             failureDetails.remove();
         }
+        
+        // Remove any test craters that might still be there
+        const testCrater = this.scene.getObjectByName('TestCrater');
+        if (testCrater) {
+            this.scene.remove(testCrater);
+        }
+        
+        // Remove any colored test craters
+        const coloredCraters = ['YellowCrater', 'GreenCrater', 'BlueCrater'];
+        coloredCraters.forEach(name => {
+            const crater = this.scene.getObjectByName(name);
+            if (crater) {
+                this.scene.remove(crater);
+            }
+        });
         
         // Clear results
         if (this.resultsPanel) {
