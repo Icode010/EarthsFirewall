@@ -42,7 +42,7 @@ class ImpactorMitigationSimulator {
         const volume = (4/3) * Math.PI * Math.pow(radius, 3); // m³
         this.impactorData.mass = volume * this.impactorData.density; // kg
         
-        console.log('🪨 Impactor-2025 data initialized:', this.impactorData);
+        // Impactor-2025 data initialized
         
         // UI elements
         this.techniqueSelect = null;
@@ -96,20 +96,12 @@ class ImpactorMitigationSimulator {
             console.log('🌍 Second sphere enforcement applied');
         }, 1000);
         
-        // Test mitigation techniques after a short delay
-        setTimeout(() => {
-            this.testMitigationTechniques();
-        }, 3000);
+        // System ready for user interaction
         
         // Add enhanced visual effects
         this.enhanceVisualEffects();
         
-        // Debug scene contents
-        console.log('🔍 Scene contents:', this.scene.children.map(child => child.name || child.type));
-        console.log('🌍 Earth object:', this.earth);
-        console.log('🪨 Asteroid object:', this.impactor2025);
-        console.log('📷 Camera position:', this.camera.position);
-        console.log('💡 Lights in scene:', this.scene.children.filter(child => child.isLight).length);
+        // Scene initialized successfully
         
         // Test if objects are visible
         if (this.earth) {
@@ -191,7 +183,7 @@ class ImpactorMitigationSimulator {
             this.camera.updateProjectionMatrix();
         }, 100);
         
-        console.log('📐 Camera FOV:', fov, 'Aspect ratio:', aspectRatio, 'Screen size:', window.innerWidth, 'x', window.innerHeight);
+        // Camera configured for perfect sphere rendering
         
         // Create renderer
         const canvas = document.createElement('canvas');
@@ -1521,7 +1513,7 @@ class ImpactorMitigationSimulator {
     }
     
     createThrusterParticles(interceptor) {
-        const particleCount = 50;
+        const particleCount = 30; // Reduced for better performance
         const particles = new THREE.BufferGeometry();
         const thrusterPositions = new Float32Array(particleCount * 3);
         const thrusterColors = new Float32Array(particleCount * 3);
@@ -1651,7 +1643,7 @@ class ImpactorMitigationSimulator {
     
     createTractorThrusters(tractor) {
         // Create small thruster particles around the tractor
-        const thrusterCount = 30;
+        const thrusterCount = 20; // Reduced for better performance
         const particles = new THREE.BufferGeometry();
         const positions = new Float32Array(thrusterCount * 3);
         const colors = new Float32Array(thrusterCount * 3);
@@ -1769,7 +1761,7 @@ class ImpactorMitigationSimulator {
     
     createNuclearWarningLights(nuke) {
         // Create warning light particles around the nuclear device
-        const lightCount = 20;
+        const lightCount = 12; // Reduced for better performance
         const particles = new THREE.BufferGeometry();
         const positions = new Float32Array(lightCount * 3);
         const colors = new Float32Array(lightCount * 3);
@@ -1966,7 +1958,7 @@ class ImpactorMitigationSimulator {
     
     createLaserParticles(laser) {
         // Create laser beam particles
-        const particleCount = 100;
+        const particleCount = 50; // Reduced for better performance
         const particles = new THREE.BufferGeometry();
         const positions = new Float32Array(particleCount * 3);
         const colors = new Float32Array(particleCount * 3);
@@ -2138,7 +2130,7 @@ class ImpactorMitigationSimulator {
     }
     
     createPaintParticles(sprayer) {
-        const particleCount = 100;
+        const particleCount = 50; // Reduced for better performance
         const particles = new THREE.BufferGeometry();
         const paintPositions = new Float32Array(particleCount * 3);
         const paintColors = new Float32Array(particleCount * 3);
@@ -2431,51 +2423,18 @@ class ImpactorMitigationSimulator {
         console.log('🌍 Forced perfect sphere - FOV:', fov, 'Aspect ratio:', aspectRatio, 'Screen:', window.innerWidth, 'x', window.innerHeight);
     }
     
-    // Test method to verify all mitigation techniques work
-    testMitigationTechniques() {
-        console.log('🧪 Testing all mitigation techniques...');
-        
+    // Verify system functionality
+    verifySystemFunctionality() {
+        // Quick verification that all systems are operational
         const techniques = ['kinetic', 'gravity', 'nuclear', 'laser', 'albedo'];
         
-        techniques.forEach((technique, index) => {
-            setTimeout(() => {
-                console.log(`🧪 Testing ${technique}...`);
-                this.currentTechnique = technique;
-                
-                try {
-                    // Test delta-v calculation
-                    const deltaV = this.calculateDeltaV(technique);
-                    console.log(`✅ ${technique} delta-v calculation:`, deltaV);
-                    
-                    // Test visual effects creation
-                    this.createMitigationVisualEffects(technique);
-                    console.log(`✅ ${technique} visual effects created`);
-                    
-                    // Test parameter creation
-                    this.createTechniqueParameters(technique);
-                    console.log(`✅ ${technique} parameters created`);
-                    
-                    // Test results update
-                    this.updateResults();
-                    console.log(`✅ ${technique} results updated`);
-                    
-                    // Clean up after test
-                    setTimeout(() => {
-                        this.cleanupMitigationEffects();
-                        console.log(`🧹 Cleaned up ${technique} effects`);
-                    }, 1500);
-                    
-                } catch (error) {
-                    console.error(`❌ Error testing ${technique}:`, error);
-                }
-            }, index * 3000); // Stagger tests by 3 seconds
+        techniques.forEach(technique => {
+            try {
+                this.calculateDeltaV(technique);
+            } catch (error) {
+                console.error(`System error with ${technique}:`, error);
+            }
         });
-        
-        // Final comprehensive test
-        setTimeout(() => {
-            console.log('🎯 All mitigation techniques tested successfully!');
-            this.showMessage('All mitigation techniques are working properly!', 'success');
-        }, techniques.length * 3000 + 2000);
     }
     
     enhanceVisualEffects() {
@@ -2497,23 +2456,9 @@ class ImpactorMitigationSimulator {
     }
     
     addPostProcessingEffects() {
-        // Add bloom effect for bright objects
-        const bloomPass = new THREE.UnrealBloomPass(
-            new THREE.Vector2(window.innerWidth, window.innerHeight),
-            1.5, // strength
-            0.4, // radius
-            0.85 // threshold
-        );
-        
-        // Add film grain for cinematic effect
-        const filmPass = new THREE.FilmPass(
-            0.35, // noise intensity
-            0.025, // scanline intensity
-            648, // scanline count
-            false // grayscale
-        );
-        
-        console.log('🎬 Post-processing effects added');
+        // Enhanced rendering effects for professional appearance
+        // Note: Full post-processing requires additional Three.js passes
+        // For now, we use material and lighting enhancements
     }
     
     enhanceParticleSystems() {
@@ -2605,33 +2550,33 @@ class ImpactorMitigationSimulator {
     }
     
     addAuroraEffects() {
-        // Create aurora-like particle effects
+        // Create subtle aurora-like particle effects
         const auroraGeometry = new THREE.BufferGeometry();
-        const auroraPositions = new Float32Array(200 * 3);
-        const auroraColors = new Float32Array(200 * 3);
+        const auroraPositions = new Float32Array(50 * 3); // Reduced for performance
+        const auroraColors = new Float32Array(50 * 3);
         
-        for (let i = 0; i < 200; i++) {
+        for (let i = 0; i < 50; i++) {
             const i3 = i * 3;
-            const angle = (i / 200) * Math.PI * 2;
-            const radius = 1.2 + Math.random() * 0.3;
+            const angle = (i / 50) * Math.PI * 2;
+            const radius = 1.2 + Math.random() * 0.2;
             
             auroraPositions[i3] = Math.cos(angle) * radius;
             auroraPositions[i3 + 1] = Math.sin(angle) * radius;
-            auroraPositions[i3 + 2] = (Math.random() - 0.5) * 0.5;
+            auroraPositions[i3 + 2] = (Math.random() - 0.5) * 0.3;
             
-            auroraColors[i3] = 0.2;
-            auroraColors[i3 + 1] = 0.8;
-            auroraColors[i3 + 2] = 0.4;
+            auroraColors[i3] = 0.1;
+            auroraColors[i3 + 1] = 0.4;
+            auroraColors[i3 + 2] = 0.2;
         }
         
         auroraGeometry.setAttribute('position', new THREE.BufferAttribute(auroraPositions, 3));
         auroraGeometry.setAttribute('color', new THREE.BufferAttribute(auroraColors, 3));
         
         const auroraMaterial = new THREE.PointsMaterial({
-            size: 0.01,
+            size: 0.008,
             vertexColors: true,
             transparent: true,
-            opacity: 0.3,
+            opacity: 0.15, // More subtle
             blending: THREE.AdditiveBlending
         });
         
@@ -2968,13 +2913,9 @@ class ImpactorMitigationSimulator {
         // Render scene
         this.renderer.render(this.scene, this.camera);
         
-        // Debug render every 60 frames
-        if (this.performanceMonitor.frameCount % 60 === 0) {
-            console.log('🎬 Rendering frame:', this.performanceMonitor.frameCount);
-            console.log('🌍 Earth visible:', this.earth ? this.earth.visible : 'null');
-            console.log('🪨 Asteroid visible:', this.impactor2025 ? this.impactor2025.visible : 'null');
-            console.log('📷 Camera position:', this.camera.position);
-            console.log('🎯 Scene children count:', this.scene.children.length);
+        // Performance monitoring (reduced logging)
+        if (this.performanceMonitor.frameCount % 300 === 0) { // Every 5 seconds at 60fps
+            // Minimal performance check - no console spam
         }
     }
     
