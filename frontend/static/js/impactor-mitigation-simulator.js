@@ -1015,9 +1015,9 @@ class ImpactorMitigationSimulator {
                 
                 const G = 6.674e-11; // Gravitational constant
                 const force = (G * tractorMass * this.impactorData.mass) / Math.pow(hoverDistance, 2);
-                const acceleration = force / this.impactorData.mass;
+                const gravityAcceleration = force / this.impactorData.mass;
                 const totalTime = duration * 30 * 24 * 3600; // Convert months to seconds
-                deltaV.magnitude = acceleration * totalTime * 0.1; // Scale down for realism
+                deltaV.magnitude = gravityAcceleration * totalTime * 0.1; // Scale down for realism
                 break;
                 
             case 'nuclear':
