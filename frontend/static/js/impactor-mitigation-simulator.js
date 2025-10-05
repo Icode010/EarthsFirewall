@@ -137,7 +137,7 @@ class ImpactorMitigationSimulator {
         
         // Create camera
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(0, 0, 5);
+        this.camera.position.set(0, 2, 8); // Higher and further back to see both Earth and asteroid
         
         // Create renderer
         const canvas = document.createElement('canvas');
@@ -186,6 +186,9 @@ class ImpactorMitigationSimulator {
         this.controls.dampingFactor = 0.05;
         this.controls.enableZoom = true;
         this.controls.enablePan = true;
+        this.controls.minDistance = 3; // Don't get too close
+        this.controls.maxDistance = 50; // Allow zooming out to see full scene
+        this.controls.maxPolarAngle = Math.PI; // Allow full rotation
         this.controls.enableRotate = true;
         this.controls.autoRotate = false;
         
@@ -733,7 +736,7 @@ class ImpactorMitigationSimulator {
         this.impactor2025.visible = true;
         
         // Position asteroid far from Earth
-        this.impactor2025.position.set(6, 0, 0);
+        this.impactor2025.position.set(4, 1, 0); // Closer and higher for better visibility with Earth
         this.scene.add(this.impactor2025);
         
         // Ensure asteroid is always visible
@@ -784,10 +787,10 @@ class ImpactorMitigationSimulator {
     }
     
     async createTrajectory() {
-        // Create trajectory curve
+        // Create trajectory curve - updated for new asteroid position
         const points = [
-            new THREE.Vector3(6, 0, 0),  // Start position
-            new THREE.Vector3(3, 0.5, 0), // Mid point
+            new THREE.Vector3(4, 1, 0),  // Start position (asteroid)
+            new THREE.Vector3(2, 0.5, 0), // Mid point
             new THREE.Vector3(0, 0, 0)   // Earth position
         ];
         
@@ -1147,8 +1150,29 @@ class ImpactorMitigationSimulator {
         // Update results
         this.updateResults();
         
+        // Add visual feedback - highlight the asteroid to show mitigation is active
+        this.highlightAsteroid();
+        
         this.mitigationApplied = true;
         this.showMessage(`${this.currentTechnique} mitigation applied successfully!`, 'success');
+    }
+    
+    highlightAsteroid() {
+        if (this.impactor2025) {
+            // Add a subtle glow effect to show mitigation is active
+            const originalMaterial = this.impactor2025.material;
+            const highlightMaterial = originalMaterial.clone();
+            highlightMaterial.emissive = new THREE.Color(0x444444);
+            highlightMaterial.emissiveIntensity = 0.3;
+            this.impactor2025.material = highlightMaterial;
+            
+            // Remove highlight after 3 seconds
+            setTimeout(() => {
+                if (this.impactor2025) {
+                    this.impactor2025.material = originalMaterial;
+                }
+            }, 3000);
+        }
     }
     
     calculateDeltaV(technique) {
@@ -1242,20 +1266,27 @@ class ImpactorMitigationSimulator {
         
         switch (technique) {
             case 'kinetic':
+                console.log('🚀 Creating Kinetic Impactor effects...');
                 this.createKineticImpactorEffects();
                 break;
             case 'gravity':
+                console.log('🛸 Creating Gravity Tractor effects...');
                 this.createGravityTractorEffects();
                 break;
             case 'nuclear':
+                console.log('💥 Creating Nuclear Standoff effects...');
                 this.createNuclearStandoffEffects();
                 break;
             case 'laser':
+                console.log('🔴 Creating Laser Ablation effects...');
                 this.createLaserAblationEffects();
                 break;
             case 'albedo':
+                console.log('🎨 Creating Albedo Modification effects...');
                 this.createAlbedoModificationEffects();
                 break;
+            default:
+                console.log(`⚠️ Unknown mitigation technique: ${technique}`);
         }
     }
     
@@ -2070,7 +2101,7 @@ class ImpactorMitigationSimulator {
         this.cleanupMitigationEffects();
         
         // Reset asteroid position to original
-        this.impactor2025.position.set(6, 0, 0);
+        this.impactor2025.position.set(4, 1, 0); // Closer and higher for better visibility with Earth
         
         // Reset trajectory to original
         if (this.trajectory) {
