@@ -2839,46 +2839,136 @@ class ImpactorMitigationSimulator {
     }
     
     createImpactCrater() {
-        console.log('🌍 CREATING IMPACT CRATER - IMPACT DETECTED!');
+        console.log('🌍 IMPACT DETECTED - CREATING CRATER NOW!');
         
-        // Get impact point on Earth surface
-        const impactPoint = this.calculateImpactPoint();
-        
-        console.log('🌍 Impact point calculated:', impactPoint);
-        
-        // Create a HUGE, BRIGHT crater that's impossible to miss
-        const craterGeometry = new THREE.CylinderGeometry(
-            0.3, // Large radius - very visible
-            0.2, // Tapered bottom
-            0.1, // Depth
-            16
-        );
-        
+        // Create a MASSIVE, BRIGHT crater that's impossible to miss
+        const craterGeometry = new THREE.SphereGeometry(0.5, 16, 8); // HUGE sphere crater
         const craterMaterial = new THREE.MeshBasicMaterial({
-            color: 0xFF0000, // BRIGHT RED - impossible to miss
+            color: 0xFF0000, // BRIGHT RED
             transparent: false,
             opacity: 1.0
         });
         
         const crater = new THREE.Mesh(craterGeometry, craterMaterial);
         
-        // Position crater at impact point
-        crater.position.copy(impactPoint);
-        crater.rotation.x = Math.PI / 2; // Lay flat
+        // Position crater at Earth's surface
+        crater.position.set(0, 0, 1.5); // Above Earth surface
         crater.name = 'ImpactCrater';
         crater.visible = true;
         
         this.scene.add(crater);
         
-        console.log('🔴 HUGE RED CRATER CREATED at:', crater.position);
+        console.log('🔴 MASSIVE RED CRATER CREATED at:', crater.position);
         console.log('🔴 Crater visible:', crater.visible);
-        console.log('🔴 Crater in scene:', this.scene.getObjectByName('ImpactCrater'));
+        console.log('🔴 Crater scale:', crater.scale);
         
-        // Create multiple visible craters for testing
-        this.createMultipleVisibleCraters(impactPoint);
+        // Create additional craters for visibility
+        this.createAdditionalCraters();
         
         // Show impact message
-        this.showMessage('💥 IMPACT! Crater created at impact site!', 'error');
+        this.showMessage('💥 IMPACT! MASSIVE CRATER CREATED!', 'error');
+        
+        // Add a test button to manually create craters for debugging
+        this.addTestCraterButton();
+    }
+    
+    addTestCraterButton() {
+        // Create a test button to manually create craters
+        const testButton = document.createElement('button');
+        testButton.textContent = 'TEST CRATER';
+        testButton.style.cssText = `
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        `;
+        testButton.onclick = () => {
+            console.log('🧪 Manual crater test triggered');
+            this.createTestCraterManual();
+        };
+        document.body.appendChild(testButton);
+        
+        // Remove button after 10 seconds
+        setTimeout(() => {
+            if (testButton.parentNode) {
+                testButton.parentNode.removeChild(testButton);
+            }
+        }, 10000);
+    }
+    
+    createTestCraterManual() {
+        console.log('🧪 Creating manual test crater...');
+        
+        // Create a HUGE test crater
+        const testGeometry = new THREE.SphereGeometry(0.8, 16, 8);
+        const testMaterial = new THREE.MeshBasicMaterial({
+            color: 0xFF00FF, // Bright magenta
+            transparent: false
+        });
+        
+        const testCrater = new THREE.Mesh(testGeometry, testMaterial);
+        testCrater.position.set(0, 0, 2); // Above Earth
+        testCrater.name = 'ManualTestCrater';
+        testCrater.visible = true;
+        
+        this.scene.add(testCrater);
+        
+        console.log('🧪 Manual test crater created at:', testCrater.position);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            if (testCrater.parent) {
+                this.scene.remove(testCrater);
+                console.log('🧪 Manual test crater removed');
+            }
+        }, 5000);
+    }
+    
+    createAdditionalCraters() {
+        console.log('🔴 Creating additional craters for maximum visibility...');
+        
+        // Create a bright yellow crater
+        const yellowGeometry = new THREE.SphereGeometry(0.3, 16, 8);
+        const yellowMaterial = new THREE.MeshBasicMaterial({
+            color: 0xFFFF00, // Bright yellow
+            transparent: false
+        });
+        const yellowCrater = new THREE.Mesh(yellowGeometry, yellowMaterial);
+        yellowCrater.position.set(0.3, 0, 1.5);
+        yellowCrater.name = 'YellowCrater';
+        yellowCrater.visible = true;
+        this.scene.add(yellowCrater);
+        
+        // Create a bright green crater
+        const greenGeometry = new THREE.SphereGeometry(0.4, 16, 8);
+        const greenMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00FF00, // Bright green
+            transparent: false
+        });
+        const greenCrater = new THREE.Mesh(greenGeometry, greenMaterial);
+        greenCrater.position.set(-0.3, 0, 1.5);
+        greenCrater.name = 'GreenCrater';
+        greenCrater.visible = true;
+        this.scene.add(greenCrater);
+        
+        // Create a bright blue crater
+        const blueGeometry = new THREE.SphereGeometry(0.2, 16, 8);
+        const blueMaterial = new THREE.MeshBasicMaterial({
+            color: 0x0000FF, // Bright blue
+            transparent: false
+        });
+        const blueCrater = new THREE.Mesh(blueGeometry, blueMaterial);
+        blueCrater.position.set(0, 0.3, 1.5);
+        blueCrater.name = 'BlueCrater';
+        blueCrater.visible = true;
+        this.scene.add(blueCrater);
+        
+        console.log('🔴 Additional craters created - RED, YELLOW, GREEN, BLUE');
     }
     
     createMultipleVisibleCraters(impactPoint) {
