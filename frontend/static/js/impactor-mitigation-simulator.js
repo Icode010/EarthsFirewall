@@ -37,6 +37,13 @@ class ImpactorMitigationSimulator {
             composition: 'Rocky/Iron'
         };
         
+        // Calculate mass immediately
+        const radius = this.impactorData.diameter / 2; // meters
+        const volume = (4/3) * Math.PI * Math.pow(radius, 3); // m³
+        this.impactorData.mass = volume * this.impactorData.density; // kg
+        
+        console.log('🪨 Impactor-2025 data initialized:', this.impactorData);
+        
         // UI elements
         this.techniqueSelect = null;
         this.techniqueDescription = null;
@@ -1293,7 +1300,18 @@ class ImpactorMitigationSimulator {
     }
     
     calculateDeltaV(technique) {
+        console.log(`🧮 Calculating delta-v for ${technique}...`);
+        console.log('Impactor data:', this.impactorData);
+        
         const deltaV = { magnitude: 0, direction: new THREE.Vector3(1, 0, 0) };
+        
+        // Ensure mass is calculated
+        if (!this.impactorData.mass || this.impactorData.mass === 0) {
+            const radius = this.impactorData.diameter / 2;
+            const volume = (4/3) * Math.PI * Math.pow(radius, 3);
+            this.impactorData.mass = volume * this.impactorData.density;
+            console.log('🔄 Recalculated mass:', this.impactorData.mass);
+        }
         
         switch (technique) {
             case 'kinetic':
@@ -1437,29 +1455,66 @@ class ImpactorMitigationSimulator {
     createKineticImpactorEffects() {
         console.log('🚀 Creating Kinetic Impactor 3D effects...');
         
-        // Create interceptor spacecraft
-        const interceptorGeometry = new THREE.BoxGeometry(0.05, 0.02, 0.1);
-        const interceptorMaterial = new THREE.MeshPhongMaterial({
+        // Create enhanced interceptor spacecraft
+        const interceptorGeometry = new THREE.BoxGeometry(0.06, 0.025, 0.12);
+        const interceptorMaterial = new THREE.MeshStandardMaterial({
             color: 0xffffff,
-            emissive: 0x444444,
-            shininess: 100
+            metalness: 0.9,
+            roughness: 0.1,
+            emissive: 0x666666,
+            emissiveIntensity: 0.6,
+            envMapIntensity: 1.0
         });
         
         const interceptor = new THREE.Mesh(interceptorGeometry, interceptorMaterial);
         interceptor.name = 'Interceptor';
         interceptor.position.set(8, 0, 0);
+        interceptor.castShadow = true;
+        interceptor.receiveShadow = true;
         this.scene.add(interceptor);
         
-        // Create thruster particles
+        // Create enhanced thruster particles
         this.createThrusterParticles(interceptor);
         
-        // Animate interceptor approach
+        // Create approach trajectory
+        this.createInterceptorTrajectory(interceptor);
+        
+        // Animate interceptor approach with realistic physics
         this.animateInterceptorApproach(interceptor);
         
-        // Create impact explosion
+        // Create enhanced impact explosion
         setTimeout(() => {
-            this.createImpactExplosion();
-        }, 2000);
+            this.createImpactExplosion(interceptor.position);
+        }, 3000);
+    }
+    
+    createInterceptorTrajectory(interceptor) {
+        // Create trajectory line from interceptor to asteroid
+        const startPoint = interceptor.position.clone();
+        const endPoint = this.impactor2025.position.clone();
+        
+        const trajectoryGeometry = new THREE.BufferGeometry().setFromPoints([startPoint, endPoint]);
+        const trajectoryMaterial = new THREE.LineBasicMaterial({
+            color: 0xff4444,
+            linewidth: 2,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const trajectory = new THREE.Line(trajectoryGeometry, trajectoryMaterial);
+        trajectory.name = 'InterceptorTrajectory';
+        this.scene.add(trajectory);
+        
+        // Animate trajectory appearance
+        let opacity = 0;
+        const fadeIn = () => {
+            opacity += 0.02;
+            trajectoryMaterial.opacity = opacity;
+            if (opacity < 0.8) {
+                requestAnimationFrame(fadeIn);
+            }
+        };
+        fadeIn();
     }
     
     createThrusterParticles(interceptor) {
@@ -1563,24 +1618,69 @@ class ImpactorMitigationSimulator {
     createGravityTractorEffects() {
         console.log('🛸 Creating Gravity Tractor 3D effects...');
         
-        // Create tractor spacecraft
-        const tractorGeometry = new THREE.ConeGeometry(0.03, 0.1, 8);
-        const tractorMaterial = new THREE.MeshPhongMaterial({
+        // Create enhanced tractor spacecraft
+        const tractorGeometry = new THREE.ConeGeometry(0.04, 0.12, 12);
+        const tractorMaterial = new THREE.MeshStandardMaterial({
             color: 0x00ff88,
+            metalness: 0.7,
+            roughness: 0.3,
             emissive: 0x004422,
-            shininess: 50
+            emissiveIntensity: 0.4,
+            envMapIntensity: 0.8
         });
         
         const tractor = new THREE.Mesh(tractorGeometry, tractorMaterial);
         tractor.name = 'GravityTractor';
-        tractor.position.set(0.2, 0, 0); // Near asteroid
+        tractor.position.set(0.3, 0, 0); // Near asteroid
+        tractor.castShadow = true;
+        tractor.receiveShadow = true;
         this.scene.add(tractor);
         
-        // Create gravitational field visualization
+        // Create enhanced gravitational field visualization
         this.createGravitationalField(tractor);
         
-        // Animate tractor hovering
+        // Create tractor thrusters
+        this.createTractorThrusters(tractor);
+        
+        // Animate tractor hovering with enhanced effects
         this.animateTractorHovering(tractor);
+    }
+    
+    createTractorThrusters(tractor) {
+        // Create small thruster particles around the tractor
+        const thrusterCount = 30;
+        const particles = new THREE.BufferGeometry();
+        const positions = new Float32Array(thrusterCount * 3);
+        const colors = new Float32Array(thrusterCount * 3);
+        
+        for (let i = 0; i < thrusterCount; i++) {
+            const i3 = i * 3;
+            const angle = (i / thrusterCount) * Math.PI * 2;
+            const radius = 0.05;
+            
+            positions[i3] = tractor.position.x + Math.cos(angle) * radius;
+            positions[i3 + 1] = tractor.position.y + Math.sin(angle) * radius;
+            positions[i3 + 2] = tractor.position.z + (Math.random() - 0.5) * 0.02;
+            
+            colors[i3] = 0.0; // No red
+            colors[i3 + 1] = 1.0; // Green
+            colors[i3 + 2] = 0.5; // Blue
+        }
+        
+        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        
+        const thrusterMaterial = new THREE.PointsMaterial({
+            size: 0.008,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.7,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const thrusterParticles = new THREE.Points(particles, thrusterMaterial);
+        thrusterParticles.name = 'TractorThrusters';
+        this.scene.add(thrusterParticles);
     }
     
     createGravitationalField(tractor) {
