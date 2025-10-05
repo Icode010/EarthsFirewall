@@ -132,8 +132,25 @@ class RealisticEarthDamage {
     findAsteroidInScene() {
         let asteroid = null;
         this.scene.traverse((child) => {
-            if (child.name === 'Asteroid' || child.name === 'UltraRealisticAsteroid' || child.name.includes('asteroid')) {
+            // Look for asteroid by name patterns
+            if (child.name && (
+                child.name === 'Asteroid' || 
+                child.name === 'UltraRealisticAsteroid' || 
+                child.name.includes('asteroid') ||
+                child.name.includes('Asteroid') ||
+                child.name.includes('Lt') || // Common asteroid object name
+                child.name.includes('Wn')   // Another common asteroid object name
+            )) {
                 asteroid = child;
+            }
+            // Also look for objects with asteroid-like properties
+            else if (child.isMesh && child.geometry && child.material && 
+                     child.position && child.position.length() > 0) {
+                // Check if it's likely an asteroid (small, positioned away from origin)
+                const distance = child.position.length();
+                if (distance > 0.5 && distance < 10) {
+                    asteroid = child;
+                }
             }
         });
         return asteroid;
@@ -370,8 +387,8 @@ class RealisticEarthDamage {
         // Create atmospheric effects
         this.createAtmosphericEffects(damageData);
         
-        // Darken Earth surface globally
-        this.darkenEarthSurface(0.3);
+        // Don't darken Earth surface globally - only show localized damage
+        console.log('🌍 Catastrophic damage - localized craters created');
     }
     
     // Create regional damage (medium asteroids)
@@ -386,8 +403,8 @@ class RealisticEarthDamage {
         // Create dust clouds
         this.createDustClouds(damageData);
         
-        // Partially darken Earth surface
-        this.darkenEarthSurface(0.6);
+        // Don't darken Earth surface globally - only show localized damage
+        console.log('🌍 Regional damage - localized craters created');
     }
     
     // Create local damage (small asteroids)
@@ -399,8 +416,8 @@ class RealisticEarthDamage {
         // Create local destruction
         this.createLocalDestruction(damageData);
         
-        // Minimal Earth surface changes
-        this.darkenEarthSurface(0.9);
+        // Don't darken Earth surface globally - only show localized damage
+        console.log('🌍 Local damage - localized craters created');
     }
     
     // Create massive crater for catastrophic impacts
@@ -489,11 +506,8 @@ class RealisticEarthDamage {
         crater.rotation.x = Math.PI / 2;
         crater.name = 'CentralCrater';
         
-        if (this.earthGroup) {
-            this.earthGroup.add(crater);
-        } else {
-            this.scene.add(crater);
-        }
+        // Always add to scene directly for proper rendering
+        this.scene.add(crater);
         
         return crater;
     }
@@ -518,11 +532,8 @@ class RealisticEarthDamage {
         rim.rotation.x = Math.PI / 2;
         rim.name = 'CraterRim';
         
-        if (this.earthGroup) {
-            this.earthGroup.add(rim);
-        } else {
-            this.scene.add(rim);
-        }
+        // Always add to scene directly for proper rendering
+        this.scene.add(rim);
         
         return rim;
     }
@@ -543,11 +554,8 @@ class RealisticEarthDamage {
         ejecta.rotation.x = Math.PI / 2;
         ejecta.name = 'EjectaBlanket';
         
-        if (this.earthGroup) {
-            this.earthGroup.add(ejecta);
-        } else {
-            this.scene.add(ejecta);
-        }
+        // Always add to scene directly for proper rendering
+        this.scene.add(ejecta);
         
         return ejecta;
     }
@@ -779,14 +787,9 @@ class RealisticEarthDamage {
     updateEarthAppearance(damageData) {
         console.log('🌍 Updating Earth appearance...');
         
-        if (this.earthGroup) {
-            // Add damage texture overlay
-            const damageOverlay = this.createDamageTexture(damageData);
-            if (damageOverlay) {
-                this.earthGroup.add(damageOverlay);
-                this.damageEffects.push(damageOverlay);
-            }
-        }
+        // Don't add global damage overlay - only create localized craters
+        // The craters will be created separately in the damage creation methods
+        console.log('🌍 Earth appearance updated - localized craters will be created separately');
     }
     
     // Create damage texture overlay - improved 3D approach

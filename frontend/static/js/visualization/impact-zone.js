@@ -401,6 +401,8 @@ function createDustCloud(position, dustAmount) {
         size: 0.02,
         vertexColors: true,
         transparent: true,
+        sizeAttenuation: true,
+        alphaTest: 0.1,
         opacity: 0.6,
         blending: THREE.AdditiveBlending
     });

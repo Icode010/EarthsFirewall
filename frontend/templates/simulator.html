@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}Asteroid Impact Simulator{% endblock %}
+{% block title %}Impactor-2025 Mitigation Simulator{% endblock %}
 
 {% block content %}
 <div class="simulator-container">
   <!-- Header -->
   <div class="simulator-header">
-    <h1>Asteroid Impact Simulator</h1>
-    <p>Explore the effects of asteroid impacts on Earth using real NASA data</p>
+    <h1>Impactor-2025 Mitigation Simulator</h1>
+    <p>NASA Space Apps Challenge - Defend Earth from Impactor-2025 using real mitigation techniques</p>
     <div class="header-stats">
-      <span class="stat">Live NASA Data</span>
-      <span class="stat">Tsunami Modeling</span>
+      <span class="stat">Real NASA Data</span>
       <span class="stat">Mitigation Strategies</span>
+      <span class="stat">Delta-V Physics</span>
       <span class="stat">3D Visualization</span>
     </div>
   </div>
@@ -19,125 +19,104 @@
   <!-- Main Content -->
   <div class="simulator-main">
     <!-- 3D Visualization -->
-    <div id="asteroid-impact-simulator" class="visualization-container">
+    <div id="impactor-simulator" class="visualization-container">
       <!-- 3D scene will be rendered here -->
       <div class="camera-instructions">
         <p>Drag to rotate view • Scroll to zoom • Right-click to pan</p>
         <p id="cameraMode" class="camera-mode">Default View</p>
+      </div>
     </div>
-  </div>
 
-    <!-- Control Panel -->
-    <div class="simulator-controls">
-      <h3>Simulation Controls</h3>
+    <!-- Mitigation Control Panel -->
+    <div class="mitigation-controls">
+      <h3>Mitigation Techniques (Impactor-2025)</h3>
       
-      <!-- Asteroid Selection -->
-      <div class="controls-section">
+      <!-- Asteroid Overview -->
+      <div class="asteroid-overview">
+        <h4>Impactor-2025</h4>
+        <p class="asteroid-description">
+          A newly identified near-Earth asteroid posing a potential threat to Earth. 
+          Explore how different mitigation techniques can alter its trajectory and prevent impact.
+        </p>
+        <div class="asteroid-stats">
+          <div class="stat-item">
+            <span class="label">Diameter:</span>
+            <span class="value">~150m</span>
+          </div>
+          <div class="stat-item">
+            <span class="label">Velocity:</span>
+            <span class="value">~15 km/s</span>
+          </div>
+          <div class="stat-item">
+            <span class="label">Composition:</span>
+            <span class="value">Rocky/Iron</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mitigation Technique Selection -->
+      <div class="mitigation-section">
         <div class="control-group">
-          <label for="asteroidSelect">Choose Asteroid:</label>
-          <select id="asteroidSelect" class="asteroid-select">
-            <option value="">Loading asteroids...</option>
+          <label for="mitigationTechnique">Mitigation Technique:</label>
+          <select id="mitigationTechnique" class="mitigation-select">
+            <option value="none">None / Observe</option>
+            <option value="kinetic">Kinetic Impactor (DART-style)</option>
+            <option value="gravity">Gravity Tractor</option>
+            <option value="nuclear">Nuclear Standoff</option>
+            <option value="laser">Laser/Solar Ablation</option>
+            <option value="albedo">Albedo Paint / Yarkovsky</option>
           </select>
-  </div>
+        </div>
 
-        <!-- Asteroid Preview and Info -->
-        <div class="asteroid-preview-section">
-          <div id="asteroidPreview" class="asteroid-preview"></div>
-          <div id="asteroidInfo" class="asteroid-info"></div>
-    </div>
-    
-        <div class="control-group">
-          <label for="impactLocation">Impact Location:</label>
-          <select id="impactLocation" class="impact-location">
-            <option value="land">Land (Continental)</option>
-            <option value="ocean">Ocean (Water)</option>
-            <option value="coast">Coastal</option>
-        </select>
-      </div>
+        <!-- Technique Description -->
+        <div id="techniqueDescription" class="technique-description">
+          <p><strong>None / Observe:</strong> Baseline trajectory and risk assessment.</p>
+        </div>
 
-        <div class="control-group">
-          <label for="impactAngle">Impact Angle (degrees):</label>
-          <input type="range" id="impactAngle" min="15" max="90" value="45" class="angle-slider">
-          <span class="angle-value">45°</span>
-      </div>
+        <!-- Technique Parameters -->
+        <div id="techniqueParameters" class="technique-parameters" style="display: none;">
+          <!-- Parameters will be populated dynamically -->
+        </div>
 
-        <div class="control-group">
-          <label for="impactVelocity">Impact Velocity (km/s):</label>
-          <input type="range" id="impactVelocity" min="5" max="50" value="15" class="velocity-slider">
-          <span class="velocity-value">15 km/s</span>
-      </div>
-
-        <!-- Custom Asteroid Parameters -->
-        <div class="control-group">
-          <label>Custom Asteroid Parameters:</label>
-          <div class="custom-inputs">
-            <input type="number" id="customDiameter" placeholder="Diameter (km)" min="0.01" max="10" step="0.01">
-            <input type="number" id="customVelocity" placeholder="Velocity (km/s)" min="5" max="50" step="1">
-          </div>
-      </div>
-
-      <!-- Action Buttons -->
+        <!-- Action Buttons -->
         <div class="action-buttons">
-          <button id="runSimulation" class="primary-btn">Run Simulation</button>
-          <button id="startAnimation" class="secondary-btn">Start Animation</button>
+          <button id="applyMitigation" class="primary-btn">Apply Mitigation</button>
           <button id="resetSimulation" class="secondary-btn">Reset</button>
-          <button id="toggleAnimation" class="secondary-btn">Play/Pause</button>
-          <button id="replayAnimation" class="replay-btn" style="display: none;">Replay Animation</button>
+          <button id="runSimulation" class="secondary-btn">Run Simulation</button>
+        </div>
       </div>
-
-        <!-- Animation Controls -->
-        <div class="animation-controls">
-          <label for="animationSpeed">Animation Speed:</label>
-          <input type="range" id="animationSpeed" min="0.1" max="3" value="1" step="0.1">
-          <span class="speed-value">1x</span>
-          </div>
-          </div>
-          </div>
+    </div>
 
     <!-- Results Panel -->
     <div class="simulation-results">
-      <h3>Impact Analysis</h3>
-      <div id="impactResults" class="results-content">
+      <h3>Mitigation Results</h3>
+      <div id="mitigationResults" class="results-content">
         <div class="loading-message">
-          <p>Select an asteroid and run simulation to see results</p>
-          </div>
-        </div>
-      </div>
-
-    <!-- Status Messages -->
-    <div id="statusMessage" class="status-message"></div>
-    
-    <!-- Impact Information Display -->
-    <div id="impactInfo" class="impact-info-display" style="display: none;">
-      <h3>Impact Analysis</h3>
-      <div id="impactDetails" class="impact-details">
-        <!-- Impact details will be displayed here -->
+          <p>Select a mitigation technique to see results</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Three.js Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Status Messages -->
+  <div id="statusMessage" class="status-message"></div>
+</div>
+
+<!-- Three.js Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-  <script>
-    // Fix OrbitControls import for Three.js r128
-    if (typeof THREE !== 'undefined' && !THREE.OrbitControls) {
-        THREE.OrbitControls = OrbitControls;
-    }
+<script>
+  // Fix OrbitControls import for Three.js r128
+  if (typeof THREE !== 'undefined' && !THREE.OrbitControls) {
+    THREE.OrbitControls = OrbitControls;
+  }
 </script>
 <script src="{{ url_for('static', filename='js/visualization/earth-model.js') }}"></script>
 <script src="{{ url_for('static', filename='js/visualization/realistic-earth-model.js') }}"></script>
 <script src="{{ url_for('static', filename='js/visualization/asteroid-model.js') }}"></script>
-<script src="{{ url_for('static', filename='js/visualization/asteroid-selector.js') }}"></script>
 <script src="{{ url_for('static', filename='js/visualization/trajectory-system.js') }}"></script>
-<script src="{{ url_for('static', filename='js/visualization/impact-animation-system.js') }}"></script>
-<script src="{{ url_for('static', filename='js/visualization/slow-approach-animation.js') }}"></script>
-<script src="{{ url_for('static', filename='js/visualization/earth-impact-effects.js') }}"></script>
-<script src="{{ url_for('static', filename='js/visualization/realistic-earth-damage.js') }}"></script>
-<script src="{{ url_for('static', filename='js/visualization/cinematic-camera.js') }}"></script>
 <script src="{{ url_for('static', filename='js/visualization/interactive-arrows.js') }}"></script>
-<script src="{{ url_for('static', filename='js/asteroid-impact-simulator.js') }}"></script>
+<script src="{{ url_for('static', filename='js/impactor-mitigation-simulator.js') }}"></script>
 
 <style>
 /* Main Container */
@@ -226,66 +205,9 @@
   font-family: 'Courier New', monospace;
 }
 
-/* Impact Information Display */
-.impact-info-display {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  background: rgba(0, 0, 0, 0.9);
-  color: #ffffff;
-  padding: 15px;
-  border-radius: 8px;
-  border: 2px solid #ff4444;
-  min-width: 300px;
-  max-width: 400px;
-  z-index: 200;
-  backdrop-filter: blur(10px);
-}
-
-.impact-info-display h3 {
-  margin: 0 0 10px 0;
-  color: #ff4444;
-  font-size: 16px;
-  text-align: center;
-}
-
-.impact-details {
-  font-size: 12px;
-  line-height: 1.4;
-}
-
-.impact-details .detail-row {
-  display: flex;
-  justify-content: space-between;
-  margin: 5px 0;
-  padding: 3px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.impact-details .detail-label {
-  color: #cccccc;
-  font-weight: bold;
-}
-
-.impact-details .detail-value {
-  color: #ffffff;
-}
-
-.impact-details .detail-value.high {
-  color: #ff6666;
-}
-
-.impact-details .detail-value.medium {
-  color: #ffaa44;
-}
-
-.impact-details .detail-value.low {
-  color: #66ff66;
-}
-
-/* Control Panel */
-.simulator-controls {
-  width: 350px;
+/* Mitigation Control Panel */
+.mitigation-controls {
+  width: 400px;
   background: rgba(0, 0, 0, 0.9);
   border-right: 1px solid #333;
   padding: 20px;
@@ -293,7 +215,7 @@
   backdrop-filter: blur(10px);
 }
 
-.simulator-controls h3 {
+.mitigation-controls h3 {
   margin: 0 0 20px 0;
   color: #4a9eff;
   font-size: 1.4em;
@@ -302,7 +224,56 @@
   padding-bottom: 10px;
 }
 
-.controls-section {
+/* Asteroid Overview */
+.asteroid-overview {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid #333;
+}
+
+.asteroid-overview h4 {
+  margin: 0 0 10px 0;
+  color: #4a9eff;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.asteroid-description {
+  margin: 0 0 15px 0;
+  font-size: 0.9em;
+  color: #ccc;
+  line-height: 1.4;
+}
+
+.asteroid-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-item .label {
+  font-size: 0.8em;
+  color: #888;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.stat-item .value {
+  font-size: 0.9em;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* Mitigation Section */
+.mitigation-section {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -320,20 +291,14 @@
   font-size: 0.9em;
 }
 
-.control-group select,
-.control-group input {
-  padding: 10px;
+.mitigation-select {
+  padding: 12px 16px;
   border: 1px solid #444;
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.9);
   color: white;
   font-size: 14px;
   transition: all 0.3s ease;
-}
-
-.control-group select {
-  background: rgba(0, 0, 0, 0.9);
-  color: white;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -344,154 +309,68 @@
   padding-right: 35px;
 }
 
-    .control-group select option {
-      background: #1a1a2e;
-      color: white;
-      padding: 10px;
-    }
-    
-    /* Asteroid Preview Section */
-    .asteroid-preview-section {
-      margin: 20px 0;
-      padding: 15px;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 10px;
-      border: 1px solid #333;
-    }
-    
-    .asteroid-preview {
-      width: 200px;
-      height: 150px;
-      margin: 0 auto 15px auto;
-      border: 2px solid #444;
-      border-radius: 8px;
-      background: #000;
-      overflow: hidden;
-    }
-    
-    .asteroid-info {
-      color: white;
-      font-size: 12px;
-    }
-    
-    .asteroid-info h3 {
-      margin: 0 0 10px 0;
-      color: #4a9eff;
-      font-size: 16px;
-      text-align: center;
-    }
-    
-    .info-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    
-    .info-item {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .info-item label {
-      font-weight: bold;
-      color: #888;
-      font-size: 10px;
-      text-transform: uppercase;
-    }
-    
-    .info-item span {
-      color: white;
-      font-size: 11px;
-    }
-    
-    .hazard-yes {
-      color: #ff4444;
-      font-weight: bold;
-    }
-    
-    .hazard-no {
-      color: #44ff44;
-      font-weight: bold;
-    }
-    
-    /* Shrink footer in simulation mode */
-    .simulator-container ~ footer {
-      padding: 5px 10px !important;
-      margin-top: 5px !important;
-      min-height: 40px !important;
-    }
-    
-    .simulator-container ~ footer .footer-content {
-      padding: 2px 0 !important;
-    }
-    
-    .simulator-container ~ footer h3 {
-      font-size: 12px !important;
-      margin: 2px 0 !important;
-    }
-    
-    .simulator-container ~ footer p {
-      font-size: 10px !important;
-      margin: 1px 0 !important;
-    }
-    
-    .simulator-container ~ footer .footer-links {
-      margin: 2px 0 !important;
-    }
-    
-    .simulator-container ~ footer .footer-links a {
-      font-size: 10px !important;
-      padding: 2px 5px !important;
-    }
-
-.control-group select:focus,
-.control-group input:focus {
+.mitigation-select:focus {
   outline: none;
   border-color: #4a9eff;
   box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
 }
 
-.custom-inputs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+.mitigation-select option {
+  background: #1a1a2e;
+  color: white;
+  padding: 10px;
 }
 
-.custom-inputs input {
-  font-size: 12px;
-  padding: 8px;
-}
-
-/* Slider Styling */
-.angle-slider,
-.velocity-slider {
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: #444;
-  outline: none;
-  -webkit-appearance: none;
-}
-
-.angle-slider::-webkit-slider-thumb,
-.velocity-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #4a9eff;
-  cursor: pointer;
-  border: 2px solid #fff;
-}
-
-.angle-value,
-.velocity-value,
-.speed-value {
-  font-weight: bold;
-  color: #4a9eff;
+/* Technique Description */
+.technique-description {
+  background: rgba(74, 158, 255, 0.1);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+  border-radius: 6px;
+  padding: 12px;
   font-size: 0.9em;
-  text-align: center;
+  color: #ccc;
+  line-height: 1.4;
+}
+
+/* Technique Parameters */
+.technique-parameters {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  padding: 12px;
+  border: 1px solid #333;
+}
+
+.parameter-group {
+  margin-bottom: 15px;
+}
+
+.parameter-group:last-child {
+  margin-bottom: 0;
+}
+
+.parameter-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+  color: #fff;
+}
+
+.parameter-group input,
+.parameter-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #444;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 14px;
+}
+
+.parameter-group input:focus,
+.parameter-group select:focus {
+  outline: none;
+  border-color: #4a9eff;
+  box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
 }
 
 /* Action Buttons */
@@ -545,47 +424,6 @@
   border-color: #666;
   color: #ffffff;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
-}
-
-.replay-btn {
-  background: linear-gradient(135deg, #27ae60, #2ecc71);
-  color: #ffffff;
-  border: 1px solid #27ae60;
-  padding: 14px 24px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.2);
-}
-
-.replay-btn:hover {
-  background: linear-gradient(135deg, #229954, #27ae60);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
-  border-color: #2ecc71;
-}
-
-/* Animation Controls */
-.animation-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-top: 15px;
-  border-top: 1px solid #333;
-}
-
-.animation-controls label {
-  font-size: 0.9em;
-  color: #ccc;
-  white-space: nowrap;
-}
-
-.animation-controls input {
-  flex: 1;
 }
 
 /* Results Panel */
@@ -682,10 +520,7 @@
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-  .simulator-controls {
-    width: 300px;
-  }
-  
+  .mitigation-controls,
   .simulation-results {
     width: 350px;
   }
@@ -696,7 +531,7 @@
     flex-direction: column;
   }
   
-  .simulator-controls,
+  .mitigation-controls,
   .simulation-results {
     width: 100%;
     height: 200px;
@@ -723,24 +558,24 @@
 }
 
 /* Scrollbar Styling */
-.simulator-controls::-webkit-scrollbar,
+.mitigation-controls::-webkit-scrollbar,
 .simulation-results::-webkit-scrollbar {
   width: 6px;
 }
 
-.simulator-controls::-webkit-scrollbar-track,
+.mitigation-controls::-webkit-scrollbar-track,
 .simulation-results::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
 }
 
-.simulator-controls::-webkit-scrollbar-thumb,
+.mitigation-controls::-webkit-scrollbar-thumb,
 .simulation-results::-webkit-scrollbar-thumb {
   background: rgba(74, 158, 255, 0.5);
   border-radius: 3px;
 }
 
-.simulator-controls::-webkit-scrollbar-thumb:hover,
+.mitigation-controls::-webkit-scrollbar-thumb:hover,
 .simulation-results::-webkit-scrollbar-thumb:hover {
   background: rgba(74, 158, 255, 0.7);
 }

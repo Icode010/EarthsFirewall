@@ -704,6 +704,33 @@ class AsteroidSelector {
         return this.selectedAsteroid;
     }
 
+    clearPreview() {
+        if (this.previewScene) {
+            // Clear all objects from preview scene
+            while (this.previewScene.children.length > 0) {
+                const child = this.previewScene.children[0];
+                this.previewScene.remove(child);
+                
+                // Dispose of geometry and materials
+                if (child.geometry) {
+                    child.geometry.dispose();
+                }
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(mat => mat.dispose());
+                    } else {
+                        child.material.dispose();
+                    }
+                }
+            }
+        }
+        
+        // Clear selected asteroid
+        this.selectedAsteroid = null;
+        
+        console.log('🧹 Asteroid preview cleared');
+    }
+
     destroy() {
         if (this.previewRenderer) {
             this.previewRenderer.dispose();

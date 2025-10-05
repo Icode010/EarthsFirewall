@@ -1018,6 +1018,11 @@ class AsteroidImpactSimulator {
             this.createAsteroidTrajectory();
             // Don't auto-zoom - let user control camera manually
         }
+        
+        // Update interactive arrows with new asteroid
+        if (this.interactiveArrows && this.interactiveArrows.updateAsteroidArrow) {
+            this.interactiveArrows.updateAsteroidArrow();
+        }
     }
     
     createAsteroidTrajectory() {
@@ -1626,6 +1631,9 @@ class AsteroidImpactSimulator {
         // Clean up all asteroid-related objects
         this.cleanupAsteroidObjects();
         
+        // Clean up blue trajectory and orbital elements
+        this.cleanupBlueElements();
+        
         // Clean up impact animation system
         if (this.impactAnimationSystem) {
             this.impactAnimationSystem.clearImpactEffects();
@@ -1658,7 +1666,14 @@ class AsteroidImpactSimulator {
         
         this.clearImpactEffects();
         
-        // Don't reset camera position - let user control it manually
+        // Reset camera to default Earth view
+        this.resetCameraView();
+        
+        // Hide all overlays and damage effects
+        this.hideOverlays();
+        
+        // Clear asteroid overview section
+        this.clearAsteroidOverview();
         
         // Clear results
         document.getElementById('impactResults').innerHTML = `
@@ -1721,43 +1736,51 @@ class AsteroidImpactSimulator {
     }
 
     showImpactInfo(damageData) {
-        if (this.impactInfo && this.impactDetails) {
+        if (this.impactInfo && this.impactDetails && damageData) {
+            // Add null checks for all properties
+            const craterDiameter = damageData.craterDiameter || 0;
+            const craterDepth = damageData.craterDepth || 0;
+            const blastRadius = damageData.blastRadius || 0;
+            const thermalRadius = damageData.thermalRadius || 0;
+            const ejectaRadius = damageData.ejectaRadius || 0;
+            const kineticEnergy = damageData.kineticEnergy || 0;
+            
             this.impactDetails.innerHTML = `
                 <div class="detail-row">
                     <span class="detail-label">Crater Diameter:</span>
-                    <span class="detail-value high">${damageData.craterDiameter.toFixed(2)} km</span>
+                    <span class="detail-value high">${craterDiameter.toFixed(2)} km</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Crater Depth:</span>
-                    <span class="detail-value high">${damageData.craterDepth.toFixed(2)} km</span>
+                    <span class="detail-value high">${craterDepth.toFixed(2)} km</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Blast Radius:</span>
-                    <span class="detail-value medium">${damageData.blastRadius.toFixed(1)} km</span>
+                    <span class="detail-value medium">${blastRadius.toFixed(1)} km</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Thermal Radius:</span>
-                    <span class="detail-value medium">${damageData.thermalRadius.toFixed(1)} km</span>
+                    <span class="detail-value medium">${thermalRadius.toFixed(1)} km</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Ejecta Radius:</span>
-                    <span class="detail-value low">${damageData.ejectaRadius.toFixed(1)} km</span>
+                    <span class="detail-value low">${ejectaRadius.toFixed(1)} km</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Energy Release:</span>
-                    <span class="detail-value high">${(damageData.kineticEnergy / 4.184e15).toFixed(2)} MT</span>
+                    <span class="detail-value high">${(kineticEnergy / 4.184e15).toFixed(2)} MT</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Seismic Magnitude:</span>
-                    <span class="detail-value medium">${damageData.seismicMagnitude.toFixed(1)}</span>
+                    <span class="detail-value medium">${(damageData.seismicMagnitude || 0).toFixed(1)}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Asteroid Size:</span>
-                    <span class="detail-value low">${damageData.asteroidDiameter.toFixed(2)} km</span>
+                    <span class="detail-value low">${(damageData.asteroidDiameter || 0).toFixed(2)} km</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Impact Velocity:</span>
-                    <span class="detail-value medium">${damageData.impactVelocity.toFixed(1)} km/s</span>
+                    <span class="detail-value medium">${(damageData.impactVelocity || 0).toFixed(1)} km/s</span>
                 </div>
             `;
             this.impactInfo.style.display = 'block';
@@ -1957,15 +1980,44 @@ class AsteroidImpactSimulator {
     // Hide overlays during simulation
     hideOverlays() {
         this.scene.traverse((child) => {
+            // Hide by name patterns
             if (child.name && (
                 child.name.includes('DamageZone') ||
                 child.name.includes('ImpactZone') ||
                 child.name.includes('DamageOverlay') ||
                 child.name.includes('Overlay') ||
                 child.name.includes('3DCrater') ||
-                child.name.includes('CraterRim')
+                child.name.includes('CraterRim') ||
+                child.name.includes('EjectaBlanket') ||
+                child.name.includes('CentralCrater') ||
+                child.name.includes('EarthDamageOverlay') ||
+                child.name.includes('3DDamageOverlay') ||
+                child.name.includes('CraterRimTexture') ||
+                child.name.includes('3DDamageTexture') ||
+                child.name.includes('DamageOverlay') ||
+                child.name.includes('ImpactZone') ||
+                child.name.includes('totalDestruction') ||
+                child.name.includes('severeDamage') ||
+                child.name.includes('moderateDamage') ||
+                child.name.includes('lightDamage')
             )) {
                 child.visible = false;
+            }
+            
+            // Hide red and blue overlay materials
+            if (child.isMesh && child.material && child.material.color) {
+                const colorHex = child.material.color.getHex();
+                // Hide red overlays (0xff0000, 0xff4400, 0xff6600, 0xff6b35, 0xff4757, 0x8b0000)
+                if (colorHex === 0xff0000 || colorHex === 0xff4400 || colorHex === 0xff6600 || 
+                    colorHex === 0xff6b35 || colorHex === 0xff4757 || colorHex === 0x8b0000 ||
+                    colorHex === 0xff4444 || colorHex === 0xff8800 || colorHex === 0xffaa00) {
+                    child.visible = false;
+                }
+                // Hide blue overlays (0x0000ff, 0x0088ff, 0x00aaff, 0x00d4ff, 0x00ffff)
+                if (colorHex === 0x0000ff || colorHex === 0x0088ff || colorHex === 0x00aaff || 
+                    colorHex === 0x00d4ff || colorHex === 0x00ffff || colorHex === 0x0066cc) {
+                    child.visible = false;
+                }
             }
         });
     }
@@ -1973,15 +2025,38 @@ class AsteroidImpactSimulator {
     // Show overlays after simulation
     showOverlays() {
         this.scene.traverse((child) => {
+            // Show by name patterns
             if (child.name && (
                 child.name.includes('DamageZone') ||
                 child.name.includes('ImpactZone') ||
                 child.name.includes('DamageOverlay') ||
                 child.name.includes('Overlay') ||
                 child.name.includes('3DCrater') ||
-                child.name.includes('CraterRim')
+                child.name.includes('CraterRim') ||
+                child.name.includes('EjectaBlanket') ||
+                child.name.includes('CentralCrater') ||
+                child.name.includes('EarthDamageOverlay') ||
+                child.name.includes('3DDamageOverlay') ||
+                child.name.includes('CraterRimTexture') ||
+                child.name.includes('3DDamageTexture') ||
+                child.name.includes('DamageOverlay') ||
+                child.name.includes('ImpactZone') ||
+                child.name.includes('totalDestruction') ||
+                child.name.includes('severeDamage') ||
+                child.name.includes('moderateDamage') ||
+                child.name.includes('lightDamage')
             )) {
                 child.visible = true;
+            }
+            
+            // Show red and blue overlay materials (but only the ones we want to show)
+            if (child.isMesh && child.material && child.material.color) {
+                const colorHex = child.material.color.getHex();
+                // Show only the 3D crater materials (dark colors)
+                if (colorHex === 0x1a1a1a || colorHex === 0x2a2a2a || colorHex === 0x3a3a3a || 
+                    colorHex === 0x4a4a4a) {
+                    child.visible = true;
+                }
             }
         });
     }
@@ -2004,6 +2079,84 @@ class AsteroidImpactSimulator {
                 }
             }
         });
+    }
+    
+    // Clean up blue trajectory and orbital elements
+    cleanupBlueElements() {
+        const blueElementNames = [
+            'OrbitalPath', 'ApproachTrajectory', 'GravitationalField',
+            'Apoapsis', 'Periapsis', 'ImpactZone', 'TrajectoryLine',
+            'OrbitalMechanics', 'TrajectorySystem'
+        ];
+        
+        blueElementNames.forEach(name => {
+            const obj = this.scene.getObjectByName(name);
+            if (obj) {
+                this.scene.remove(obj);
+            }
+        });
+        
+        // Remove blue colored objects
+        this.scene.traverse((child) => {
+            if (child.isMesh && child.material && child.material.color) {
+                const colorHex = child.material.color.getHex();
+                if (colorHex === 0x00aaff || colorHex === 0x00d4ff || 
+                    colorHex === 0x00ffff || colorHex === 0x0088ff) {
+                    if (child.parent) {
+                        child.parent.remove(child);
+                    }
+                }
+            }
+        });
+    }
+    
+    // Clear asteroid overview section
+    clearAsteroidOverview() {
+        // Clear asteroid preview 3D model
+        if (this.asteroidPreview) {
+            this.scene.remove(this.asteroidPreview);
+            this.asteroidPreview = null;
+        }
+        
+        // Clear asteroid visualization
+        if (this.asteroidVisualization) {
+            this.scene.remove(this.asteroidVisualization);
+            this.asteroidVisualization = null;
+        }
+        
+        // Clear asteroid trail
+        if (this.asteroidTrajectory) {
+            this.scene.remove(this.asteroidTrajectory);
+            this.asteroidTrajectory = null;
+        }
+        
+        // Clear asteroid selector preview
+        if (this.asteroidSelector && this.asteroidSelector.clearPreview) {
+            this.asteroidSelector.clearPreview();
+        }
+        
+        // Reset asteroid dropdown to default
+        if (this.asteroidSelect) {
+            this.asteroidSelect.value = '';
+        }
+        
+        // Clear any asteroid-related UI elements
+        const asteroidOverview = document.querySelector('.asteroid-overview');
+        if (asteroidOverview) {
+            asteroidOverview.innerHTML = `
+                <div class="loading-message">
+                    <p>Select an asteroid to see details</p>
+                </div>
+            `;
+        }
+        
+        // Clear asteroid data display
+        const asteroidDataElements = document.querySelectorAll('.asteroid-data, .asteroid-info, .asteroid-details');
+        asteroidDataElements.forEach(element => {
+            element.innerHTML = '';
+        });
+        
+        console.log('🧹 Asteroid overview cleared');
     }
     
     onWindowResize() {

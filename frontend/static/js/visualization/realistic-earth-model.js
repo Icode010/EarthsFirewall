@@ -375,7 +375,10 @@ function autoScaleTrajectoryElements(zoomScale) {
         }
     });
     
-    console.log(`🔄 Auto-scaled trajectory elements with zoom factor: ${zoomScale.toFixed(2)}`);
+    // Reduced logging frequency to prevent console spam
+    if (Math.random() < 0.1) { // Only log 10% of the time
+        console.log(`🔄 Auto-scaled trajectory elements with zoom factor: ${zoomScale.toFixed(2)}`);
+    }
 }
 
 // Auto-scale Earth effects based on zoom level
