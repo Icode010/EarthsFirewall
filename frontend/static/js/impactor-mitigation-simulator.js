@@ -75,6 +75,9 @@ class ImpactorMitigationSimulator {
             await this.createTrajectory();
             await this.setupLighting();
             
+        // Add window resize handler to maintain correct aspect ratio
+        window.addEventListener('resize', () => this.onWindowResize());
+        
         this.animate();
         
         // Debug scene contents
@@ -138,6 +141,9 @@ class ImpactorMitigationSimulator {
         // Create camera
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.camera.position.set(-1, 1.5, 8); // Positioned to match the image view
+        
+        // Ensure Earth appears as a perfect circle
+        this.camera.updateProjectionMatrix();
         
         // Create renderer
         const canvas = document.createElement('canvas');
@@ -295,8 +301,19 @@ class ImpactorMitigationSimulator {
         this.earthGroup.rotation.z = (-23.4 * Math.PI) / 180;
         this.earthGroup.name = 'EarthModel';
         
-        // Create Earth geometry using IcosahedronGeometry for high quality
+        // Create Earth geometry using IcosahedronGeometry for high quality - perfectly spherical
         const earthGeometry = new THREE.IcosahedronGeometry(1.0, 14);
+        
+        // Ensure perfect sphere by normalizing vertices
+        const positions = earthGeometry.attributes.position;
+        for (let i = 0; i < positions.count; i++) {
+            const x = positions.getX(i);
+            const y = positions.getY(i);
+            const z = positions.getZ(i);
+            const length = Math.sqrt(x * x + y * y + z * z);
+            positions.setXYZ(i, x / length, y / length, z / length);
+        }
+        positions.needsUpdate = true;
         
         // Load textures and create Earth components
         const textureLoader = new THREE.TextureLoader();
@@ -1947,6 +1964,17 @@ class ImpactorMitigationSimulator {
             this.techniqueParameters.appendChild(previewElement);
         }
         previewElement.textContent = previewText;
+    }
+    
+    onWindowResize() {
+        // Update camera aspect ratio to maintain perfect circle
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        
+        // Update renderer size
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        console.log('📐 Window resized - camera aspect ratio updated');
     }
     
     updateResults() {
