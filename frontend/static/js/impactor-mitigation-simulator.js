@@ -2826,16 +2826,28 @@ class ImpactorMitigationSimulator {
     }
     
     handleDeflection() {
-        console.log('✅ Deflection successful!');
+        console.log('✅ DEFLECTION SUCCESSFUL! Creating visual effects...');
         this.isAnimating = false;
-        this.showMessage('SUCCESS! Asteroid deflected away from Earth.', 'success');
+        
+        // Create deflection success visual effects
+        this.createDeflectionEffects();
+        
+        // Show success message with technique details
+        const techniqueName = this.getTechniqueDisplayName(this.currentTechnique);
+        this.showMessage(`🎯 SUCCESS! ${techniqueName} deflected asteroid away from Earth!`, 'success');
         
         // Update results to show deflection
         const resultsHTML = `
-            <div class="result-card">
-                <h4>✅ Deflection Successful</h4>
-                <p><strong>Technique:</strong> ${this.currentTechnique}</p>
-                <p><strong>Result:</strong> Asteroid deflected</p>
+            <div class="result-card success">
+                <h4>🎯 Deflection Successful!</h4>
+                <p><strong>Mitigation Technique:</strong> ${techniqueName}</p>
+                <p><strong>Result:</strong> Asteroid successfully deflected away from Earth</p>
+                <p><strong>Status:</strong> <span style="color: #00ff00;">✓ Mission Accomplished</span></p>
+                <div class="success-indicators">
+                    <p>✅ No impact crater formed</p>
+                    <p>✅ Earth remains safe</p>
+                    <p>✅ Asteroid trajectory altered</p>
+                </div>
                 <p><strong>Miss Distance:</strong> ${this.impactor2025.position.length().toFixed(2)} Earth radii</p>
                 <p><strong>Status:</strong> Earth is safe!</p>
             </div>
@@ -2883,6 +2895,182 @@ class ImpactorMitigationSimulator {
         
         // Add debug button to test crater creation
         this.addDebugImpactButton();
+        
+        // Add debug button to test deflection
+        this.addDebugDeflectionButton();
+    }
+    
+    createDeflectionEffects() {
+        console.log('🎯 Creating deflection success visual effects...');
+        
+        // Create deflection success particles
+        this.createDeflectionParticles();
+        
+        // Create deflection trajectory
+        this.createDeflectionTrajectory();
+        
+        // Create success indicator
+        this.createSuccessIndicator();
+        
+        // Animate asteroid away from Earth
+        this.animateAsteroidDeflection();
+    }
+    
+    createDeflectionParticles() {
+        // Create green success particles around asteroid
+        const particleCount = 100;
+        const particlesGeometry = new THREE.BufferGeometry();
+        const positions = [];
+        const colors = [];
+        
+        for (let i = 0; i < particleCount; i++) {
+            // Random positions around asteroid
+            positions.push(
+                (Math.random() - 0.5) * 2,
+                (Math.random() - 0.5) * 2,
+                (Math.random() - 0.5) * 2
+            );
+            
+            // Green success colors
+            colors.push(0, 1, 0); // Green
+        }
+        
+        particlesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        particlesGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.05,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+        particles.position.copy(this.impactor2025.position);
+        particles.name = 'DeflectionParticles';
+        
+        this.scene.add(particles);
+        
+        // Animate particles outward
+        let scale = 1;
+        let opacity = 0.8;
+        const animateParticles = () => {
+            scale += 0.1;
+            opacity -= 0.02;
+            particles.scale.setScalar(scale);
+            particles.material.opacity = opacity;
+            
+            if (opacity > 0) {
+                requestAnimationFrame(animateParticles);
+            } else {
+                this.scene.remove(particles);
+            }
+        };
+        
+        animateParticles();
+    }
+    
+    createDeflectionTrajectory() {
+        // Create a curved trajectory showing the asteroid being deflected
+        const startPoint = this.impactor2025.position.clone();
+        const deflectionPoint = new THREE.Vector3(0, 0, 2); // Point where deflection occurs
+        const endPoint = new THREE.Vector3(3, 1, 2); // Final deflected position
+        
+        // Create curved path
+        const curve = new THREE.QuadraticBezierCurve3(startPoint, deflectionPoint, endPoint);
+        const points = curve.getPoints(50);
+        
+        const trajectoryGeometry = new THREE.BufferGeometry().setFromPoints(points);
+        const trajectoryMaterial = new THREE.LineBasicMaterial({
+            color: 0x00ff00, // Green for success
+            linewidth: 3,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const deflectionTrajectory = new THREE.Line(trajectoryGeometry, trajectoryMaterial);
+        deflectionTrajectory.name = 'DeflectionTrajectory';
+        
+        this.scene.add(deflectionTrajectory);
+        
+        // Fade out trajectory
+        setTimeout(() => {
+            if (deflectionTrajectory.parent) {
+                this.scene.remove(deflectionTrajectory);
+            }
+        }, 3000);
+    }
+    
+    createSuccessIndicator() {
+        // Create a success indicator above Earth
+        const indicatorGeometry = new THREE.SphereGeometry(0.2, 16, 8);
+        const indicatorMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ff00, // Green
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const successIndicator = new THREE.Mesh(indicatorGeometry, indicatorMaterial);
+        successIndicator.position.set(0, 0, 2); // Above Earth
+        successIndicator.name = 'SuccessIndicator';
+        
+        this.scene.add(successIndicator);
+        
+        // Animate indicator
+        let scale = 0.2;
+        let opacity = 0.8;
+        const animateIndicator = () => {
+            scale += 0.02;
+            opacity -= 0.01;
+            successIndicator.scale.setScalar(scale);
+            successIndicator.material.opacity = opacity;
+            
+            if (opacity > 0) {
+                requestAnimationFrame(animateIndicator);
+            } else {
+                this.scene.remove(successIndicator);
+            }
+        };
+        
+        animateIndicator();
+    }
+    
+    animateAsteroidDeflection() {
+        // Animate asteroid moving away from Earth
+        const startPos = this.impactor2025.position.clone();
+        const endPos = new THREE.Vector3(5, 2, 3); // Deflected position
+        const duration = 2000; // 2 seconds
+        const startTime = Date.now();
+        
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Smooth easing
+            const easedProgress = 1 - Math.pow(1 - progress, 2);
+            
+            this.impactor2025.position.lerpVectors(startPos, endPos, easedProgress);
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                console.log('✅ Asteroid deflection animation completed');
+            }
+        };
+        
+        animate();
+    }
+    
+    getTechniqueDisplayName(technique) {
+        const names = {
+            'none': 'No Mitigation',
+            'kinetic': 'Kinetic Impactor',
+            'gravity': 'Gravity Tractor',
+            'nuclear': 'Nuclear Standoff',
+            'laser': 'Laser Ablation',
+            'albedo': 'Albedo Modification'
+        };
+        return names[technique] || technique;
     }
     
     addDebugImpactButton() {
@@ -2912,6 +3100,37 @@ class ImpactorMitigationSimulator {
         setTimeout(() => {
             if (debugButton.parentNode) {
                 debugButton.parentNode.removeChild(debugButton);
+            }
+        }, 15000);
+    }
+    
+    addDebugDeflectionButton() {
+        // Create a debug button to test deflection manually
+        const debugDeflectionButton = document.createElement('button');
+        debugDeflectionButton.textContent = 'DEBUG: Test Deflection';
+        debugDeflectionButton.style.cssText = `
+            position: fixed;
+            top: 80px;
+            left: 10px;
+            z-index: 1000;
+            background: #00aa00;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 12px;
+        `;
+        debugDeflectionButton.onclick = () => {
+            console.log('🧪 DEBUG: Testing deflection effects...');
+            this.impactor2025.position.set(0, 0, 1.5); // Move asteroid close to Earth but not impacting
+            this.handleDeflection();
+        };
+        document.body.appendChild(debugDeflectionButton);
+        
+        // Remove button after 15 seconds
+        setTimeout(() => {
+            if (debugDeflectionButton.parentNode) {
+                debugDeflectionButton.parentNode.removeChild(debugDeflectionButton);
             }
         }, 15000);
     }
