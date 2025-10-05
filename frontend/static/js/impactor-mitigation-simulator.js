@@ -83,6 +83,11 @@ class ImpactorMitigationSimulator {
         // Force perfect sphere rendering on initialization
         this.forcePerfectSphere();
         
+        // Test mitigation techniques after a short delay
+        setTimeout(() => {
+            this.testMitigationTechniques();
+        }, 3000);
+        
         // Debug scene contents
         console.log('🔍 Scene contents:', this.scene.children.map(child => child.name || child.type));
         console.log('🌍 Earth object:', this.earth);
@@ -1049,6 +1054,7 @@ class ImpactorMitigationSimulator {
     }
     
     onTechniqueChange(technique) {
+        console.log('🔄 Technique changed to:', technique);
         this.currentTechnique = technique;
         
         // Update description
@@ -1065,6 +1071,8 @@ class ImpactorMitigationSimulator {
             const description = descriptions[technique] || descriptions['none'];
             this.techniqueDescription.innerHTML = `<p>${description}</p>`;
             console.log(`🔄 Updated description for technique: ${technique}`);
+        } else {
+            console.error('❌ techniqueDescription element not found!');
         }
         
         // Show/hide parameters
@@ -1207,6 +1215,9 @@ class ImpactorMitigationSimulator {
     }
     
     applyMitigation() {
+        console.log('🛡️ Apply Mitigation button clicked!');
+        console.log('Current technique:', this.currentTechnique);
+        
         if (this.currentTechnique === 'none') {
             this.showMessage('No mitigation technique selected', 'info');
             return;
@@ -1214,26 +1225,38 @@ class ImpactorMitigationSimulator {
         
         console.log(`🛡️ Applying ${this.currentTechnique} mitigation technique...`);
         
-        // Calculate delta-v based on technique
-        const deltaV = this.calculateDeltaV(this.currentTechnique);
-        
-        // Apply delta-v to asteroid velocity
-        this.applyDeltaV(deltaV);
-        
-        // Create 3D visual effects for each technique
-        this.createMitigationVisualEffects(this.currentTechnique);
-        
-        // Update trajectory
-        this.updateTrajectory();
-        
-        // Update results
-        this.updateResults();
-        
-        // Add visual feedback - highlight the asteroid to show mitigation is active
-        this.highlightAsteroid();
-        
-        this.mitigationApplied = true;
-        this.showMessage(`${this.currentTechnique} mitigation applied successfully!`, 'success');
+        try {
+            // Calculate delta-v based on technique
+            const deltaV = this.calculateDeltaV(this.currentTechnique);
+            console.log('Calculated delta-v:', deltaV);
+            
+            // Apply delta-v to asteroid velocity
+            this.applyDeltaV(deltaV);
+            console.log('Delta-v applied to asteroid');
+            
+            // Create 3D visual effects for each technique
+            this.createMitigationVisualEffects(this.currentTechnique);
+            console.log('3D visual effects created');
+            
+            // Update trajectory
+            this.updateTrajectory();
+            console.log('Trajectory updated');
+            
+            // Update results
+            this.updateResults();
+            console.log('Results updated');
+            
+            // Add visual feedback - highlight the asteroid to show mitigation is active
+            this.highlightAsteroid();
+            console.log('Asteroid highlighted');
+            
+            this.mitigationApplied = true;
+            this.showMessage(`${this.currentTechnique} mitigation applied successfully!`, 'success');
+            console.log('✅ Mitigation applied successfully!');
+        } catch (error) {
+            console.error('❌ Error applying mitigation:', error);
+            this.showMessage('Error applying mitigation technique', 'error');
+        }
     }
     
     highlightAsteroid() {
@@ -2077,6 +2100,38 @@ class ImpactorMitigationSimulator {
         console.log('🌍 Forced perfect sphere - FOV:', fov, 'Aspect ratio:', aspectRatio);
     }
     
+    // Test method to verify all mitigation techniques work
+    testMitigationTechniques() {
+        console.log('🧪 Testing all mitigation techniques...');
+        
+        const techniques = ['kinetic', 'gravity', 'nuclear', 'laser', 'albedo'];
+        
+        techniques.forEach((technique, index) => {
+            setTimeout(() => {
+                console.log(`🧪 Testing ${technique}...`);
+                this.currentTechnique = technique;
+                
+                try {
+                    const deltaV = this.calculateDeltaV(technique);
+                    console.log(`✅ ${technique} delta-v calculation:`, deltaV);
+                    
+                    // Test visual effects creation
+                    this.createMitigationVisualEffects(technique);
+                    console.log(`✅ ${technique} visual effects created`);
+                    
+                    // Clean up after test
+                    setTimeout(() => {
+                        this.cleanupMitigationEffects();
+                        console.log(`🧹 Cleaned up ${technique} effects`);
+                    }, 1000);
+                    
+                } catch (error) {
+                    console.error(`❌ Error testing ${technique}:`, error);
+                }
+            }, index * 2000); // Stagger tests by 2 seconds
+        });
+    }
+    
     updateResults() {
         // Calculate comprehensive results
         const impactProbability = this.calculateImpactProbability();
@@ -2192,6 +2247,10 @@ class ImpactorMitigationSimulator {
     }
     
     runSimulation() {
+        console.log('🎬 Run Simulation button clicked!');
+        console.log('Mitigation applied:', this.mitigationApplied);
+        console.log('Current technique:', this.currentTechnique);
+        
         if (!this.mitigationApplied) {
             this.showMessage('Please apply a mitigation technique first', 'info');
             return;
@@ -2200,8 +2259,14 @@ class ImpactorMitigationSimulator {
         console.log('🎬 Running Impactor-2025 simulation...');
         this.isAnimating = true;
         
-        // Animate asteroid approach
-        this.animateAsteroidApproach();
+        try {
+            // Animate asteroid approach
+            this.animateAsteroidApproach();
+            console.log('✅ Simulation animation started');
+        } catch (error) {
+            console.error('❌ Error running simulation:', error);
+            this.showMessage('Error running simulation', 'error');
+        }
     }
     
     animateAsteroidApproach() {
