@@ -2847,285 +2847,214 @@ class ImpactorMitigationSimulator {
     }
     
     createImpactCrater() {
-        console.log('🌍 IMPACT DETECTED - CREATING PROPER CRATER!');
+        console.log('🌍 IMPACT DETECTED - CREATING CRATER NOW!');
         
-        // Get exact impact point on Earth surface
-        const impactPoint = this.calculateImpactPoint();
-        
-        console.log('🌍 Impact point calculated:', impactPoint);
-        
-        // Create proper grey upside-down dome crater
-        const craterGeometry = new THREE.SphereGeometry(0.1, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2); // Hemisphere
-        const craterMaterial = new THREE.MeshStandardMaterial({
-            color: 0x666666, // Grey color
-            metalness: 0.3,
-            roughness: 0.8,
-            transparent: false
+        // Create a MASSIVE, BRIGHT crater that's impossible to miss
+        const craterGeometry = new THREE.SphereGeometry(0.5, 16, 8); // HUGE sphere crater
+        const craterMaterial = new THREE.MeshBasicMaterial({
+            color: 0xFF0000, // BRIGHT RED
+            transparent: false,
+            opacity: 1.0
         });
         
         const crater = new THREE.Mesh(craterGeometry, craterMaterial);
         
-        // Position crater at exact impact point on Earth surface
-        crater.position.copy(impactPoint);
-        crater.rotation.x = Math.PI; // Flip to be upside-down dome
+        // Position crater at Earth's surface
+        crater.position.set(0, 0, 1.5); // Above Earth surface
         crater.name = 'ImpactCrater';
         crater.visible = true;
-        crater.castShadow = true;
-        crater.receiveShadow = true;
         
         this.scene.add(crater);
         
-        console.log('🌍 Grey dome crater created at:', crater.position);
-        console.log('🌍 Crater visible:', crater.visible);
+        console.log('🔴 MASSIVE RED CRATER CREATED at:', crater.position);
+        console.log('🔴 Crater visible:', crater.visible);
+        console.log('🔴 Crater scale:', crater.scale);
+        
+        // Create additional craters for visibility
+        this.createAdditionalCraters();
         
         // Show impact message
-        this.showMessage('💥 IMPACT! Crater created at impact site!', 'error');
+        this.showMessage('💥 IMPACT! MASSIVE CRATER CREATED!', 'error');
         
-        // Add debug button to test crater creation
-        this.addDebugImpactButton();
-        
-        // Add debug button to test deflection
-        this.addDebugDeflectionButton();
+        // Add a test button to manually create craters for debugging
+        this.addTestCraterButton();
     }
     
-    createDeflectionEffects() {
-        console.log('🎯 Creating deflection success visual effects...');
-        
-        // Create deflection success particles
-        this.createDeflectionParticles();
-        
-        // Create deflection trajectory
-        this.createDeflectionTrajectory();
-        
-        // Create success indicator
-        this.createSuccessIndicator();
-        
-        // Animate asteroid away from Earth
-        this.animateAsteroidDeflection();
-    }
-    
-    createDeflectionParticles() {
-        // Create green success particles around asteroid
-        const particleCount = 100;
-        const particlesGeometry = new THREE.BufferGeometry();
-        const positions = [];
-        const colors = [];
-        
-        for (let i = 0; i < particleCount; i++) {
-            // Random positions around asteroid
-            positions.push(
-                (Math.random() - 0.5) * 2,
-                (Math.random() - 0.5) * 2,
-                (Math.random() - 0.5) * 2
-            );
-            
-            // Green success colors
-            colors.push(0, 1, 0); // Green
-        }
-        
-        particlesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-        particlesGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-        
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.05,
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.8
-        });
-        
-        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-        particles.position.copy(this.impactor2025.position);
-        particles.name = 'DeflectionParticles';
-        
-        this.scene.add(particles);
-        
-        // Animate particles outward
-        let scale = 1;
-        let opacity = 0.8;
-        const animateParticles = () => {
-            scale += 0.1;
-            opacity -= 0.02;
-            particles.scale.setScalar(scale);
-            particles.material.opacity = opacity;
-            
-            if (opacity > 0) {
-                requestAnimationFrame(animateParticles);
-            } else {
-                this.scene.remove(particles);
-            }
-        };
-        
-        animateParticles();
-    }
-    
-    createDeflectionTrajectory() {
-        // Create a curved trajectory showing the asteroid being deflected
-        const startPoint = this.impactor2025.position.clone();
-        const deflectionPoint = new THREE.Vector3(0, 0, 2); // Point where deflection occurs
-        const endPoint = new THREE.Vector3(3, 1, 2); // Final deflected position
-        
-        // Create curved path
-        const curve = new THREE.QuadraticBezierCurve3(startPoint, deflectionPoint, endPoint);
-        const points = curve.getPoints(50);
-        
-        const trajectoryGeometry = new THREE.BufferGeometry().setFromPoints(points);
-        const trajectoryMaterial = new THREE.LineBasicMaterial({
-            color: 0x00ff00, // Green for success
-            linewidth: 3,
-            transparent: true,
-            opacity: 0.8
-        });
-        
-        const deflectionTrajectory = new THREE.Line(trajectoryGeometry, trajectoryMaterial);
-        deflectionTrajectory.name = 'DeflectionTrajectory';
-        
-        this.scene.add(deflectionTrajectory);
-        
-        // Fade out trajectory
-        setTimeout(() => {
-            if (deflectionTrajectory.parent) {
-                this.scene.remove(deflectionTrajectory);
-            }
-        }, 3000);
-    }
-    
-    createSuccessIndicator() {
-        // Create a success indicator above Earth
-        const indicatorGeometry = new THREE.SphereGeometry(0.2, 16, 8);
-        const indicatorMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00ff00, // Green
-            transparent: true,
-            opacity: 0.8
-        });
-        
-        const successIndicator = new THREE.Mesh(indicatorGeometry, indicatorMaterial);
-        successIndicator.position.set(0, 0, 2); // Above Earth
-        successIndicator.name = 'SuccessIndicator';
-        
-        this.scene.add(successIndicator);
-        
-        // Animate indicator
-        let scale = 0.2;
-        let opacity = 0.8;
-        const animateIndicator = () => {
-            scale += 0.02;
-            opacity -= 0.01;
-            successIndicator.scale.setScalar(scale);
-            successIndicator.material.opacity = opacity;
-            
-            if (opacity > 0) {
-                requestAnimationFrame(animateIndicator);
-            } else {
-                this.scene.remove(successIndicator);
-            }
-        };
-        
-        animateIndicator();
-    }
-    
-    animateAsteroidDeflection() {
-        // Animate asteroid moving away from Earth
-        const startPos = this.impactor2025.position.clone();
-        const endPos = new THREE.Vector3(5, 2, 3); // Deflected position
-        const duration = 2000; // 2 seconds
-        const startTime = Date.now();
-        
-        const animate = () => {
-            const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            // Smooth easing
-            const easedProgress = 1 - Math.pow(1 - progress, 2);
-            
-            this.impactor2025.position.lerpVectors(startPos, endPos, easedProgress);
-            
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                console.log('✅ Asteroid deflection animation completed');
-            }
-        };
-        
-        animate();
-    }
-    
-    getTechniqueDisplayName(technique) {
-        const names = {
-            'none': 'No Mitigation',
-            'kinetic': 'Kinetic Impactor',
-            'gravity': 'Gravity Tractor',
-            'nuclear': 'Nuclear Standoff',
-            'laser': 'Laser Ablation',
-            'albedo': 'Albedo Modification'
-        };
-        return names[technique] || technique;
-    }
-    
-    addDebugImpactButton() {
-        // Create a debug button to test impact manually
-        const debugButton = document.createElement('button');
-        debugButton.textContent = 'DEBUG: Force Impact';
-        debugButton.style.cssText = `
+    addTestCraterButton() {
+        // Create a test button to manually create craters
+        const testButton = document.createElement('button');
+        testButton.textContent = 'TEST CRATER';
+        testButton.style.cssText = `
             position: fixed;
-            top: 50px;
+            top: 10px;
             left: 10px;
             z-index: 1000;
-            background: #ff6600;
+            background: #ff0000;
             color: white;
             border: none;
             padding: 10px;
             cursor: pointer;
-            font-size: 12px;
         `;
-        debugButton.onclick = () => {
-            console.log('🧪 DEBUG: Forcing impact test...');
-            this.impactor2025.position.set(0, 0, 0.5); // Move asteroid close to Earth
-            this.checkImpact();
+        testButton.onclick = () => {
+            console.log('🧪 Manual crater test triggered');
+            this.createTestCraterManual();
         };
-        document.body.appendChild(debugButton);
+        document.body.appendChild(testButton);
         
-        // Remove button after 15 seconds
+        // Remove button after 10 seconds
         setTimeout(() => {
-            if (debugButton.parentNode) {
-                debugButton.parentNode.removeChild(debugButton);
+            if (testButton.parentNode) {
+                testButton.parentNode.removeChild(testButton);
             }
-        }, 15000);
+        }, 10000);
     }
     
-    addDebugDeflectionButton() {
-        // Create a debug button to test deflection manually
-        const debugDeflectionButton = document.createElement('button');
-        debugDeflectionButton.textContent = 'DEBUG: Test Deflection';
-        debugDeflectionButton.style.cssText = `
-            position: fixed;
-            top: 80px;
-            left: 10px;
-            z-index: 1000;
-            background: #00aa00;
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            font-size: 12px;
-        `;
-        debugDeflectionButton.onclick = () => {
-            console.log('🧪 DEBUG: Testing deflection effects...');
-            this.impactor2025.position.set(0, 0, 1.5); // Move asteroid close to Earth but not impacting
-            this.handleDeflection();
-        };
-        document.body.appendChild(debugDeflectionButton);
+    createTestCraterManual() {
+        console.log('🧪 Creating manual test crater...');
         
-        // Remove button after 15 seconds
+        // Create a HUGE test crater
+        const testGeometry = new THREE.SphereGeometry(0.8, 16, 8);
+        const testMaterial = new THREE.MeshBasicMaterial({
+            color: 0xFF00FF, // Bright magenta
+            transparent: false
+        });
+        
+        const testCrater = new THREE.Mesh(testGeometry, testMaterial);
+        testCrater.position.set(0, 0, 2); // Above Earth
+        testCrater.name = 'ManualTestCrater';
+        testCrater.visible = true;
+        
+        this.scene.add(testCrater);
+        
+        console.log('🧪 Manual test crater created at:', testCrater.position);
+        
+        // Remove after 5 seconds
         setTimeout(() => {
-            if (debugDeflectionButton.parentNode) {
-                debugDeflectionButton.parentNode.removeChild(debugDeflectionButton);
+            if (testCrater.parent) {
+                this.scene.remove(testCrater);
+                console.log('🧪 Manual test crater removed');
             }
-        }, 15000);
+        }, 5000);
+    }
+    
+    createAdditionalCraters() {
+        console.log('🔴 Creating additional craters for maximum visibility...');
+        
+        // Create a bright yellow crater
+        const yellowGeometry = new THREE.SphereGeometry(0.3, 16, 8);
+        const yellowMaterial = new THREE.MeshBasicMaterial({
+            color: 0xFFFF00, // Bright yellow
+            transparent: false
+        });
+        const yellowCrater = new THREE.Mesh(yellowGeometry, yellowMaterial);
+        yellowCrater.position.set(0.3, 0, 1.5);
+        yellowCrater.name = 'YellowCrater';
+        yellowCrater.visible = true;
+        this.scene.add(yellowCrater);
+        
+        // Create a bright green crater
+        const greenGeometry = new THREE.SphereGeometry(0.4, 16, 8);
+        const greenMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00FF00, // Bright green
+            transparent: false
+        });
+        const greenCrater = new THREE.Mesh(greenGeometry, greenMaterial);
+        greenCrater.position.set(-0.3, 0, 1.5);
+        greenCrater.name = 'GreenCrater';
+        greenCrater.visible = true;
+        this.scene.add(greenCrater);
+        
+        // Create a bright blue crater
+        const blueGeometry = new THREE.SphereGeometry(0.2, 16, 8);
+        const blueMaterial = new THREE.MeshBasicMaterial({
+            color: 0x0000FF, // Bright blue
+            transparent: false
+        });
+        const blueCrater = new THREE.Mesh(blueGeometry, blueMaterial);
+        blueCrater.position.set(0, 0.3, 1.5);
+        blueCrater.name = 'BlueCrater';
+        blueCrater.visible = true;
+        this.scene.add(blueCrater);
+        
+        console.log('🔴 Additional craters created - RED, YELLOW, GREEN, BLUE');
+    }
+    
+    createMultipleVisibleCraters(impactPoint) {
+        console.log('🔴 Creating multiple visible craters for testing...');
+        
+        // Create a bright yellow crater
+        const yellowGeometry = new THREE.CylinderGeometry(0.2, 0.15, 0.08, 16);
+        const yellowMaterial = new THREE.MeshBasicMaterial({
+            color: 0xFFFF00, // Bright yellow
+            transparent: false
+        });
+        const yellowCrater = new THREE.Mesh(yellowGeometry, yellowMaterial);
+        yellowCrater.position.copy(impactPoint);
+        yellowCrater.position.x += 0.2; // Offset slightly
+        yellowCrater.rotation.x = Math.PI / 2;
+        yellowCrater.name = 'YellowCrater';
+        yellowCrater.visible = true;
+        this.scene.add(yellowCrater);
+        
+        // Create a bright green crater
+        const greenGeometry = new THREE.CylinderGeometry(0.15, 0.1, 0.06, 16);
+        const greenMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00FF00, // Bright green
+            transparent: false
+        });
+        const greenCrater = new THREE.Mesh(greenGeometry, greenMaterial);
+        greenCrater.position.copy(impactPoint);
+        greenCrater.position.y += 0.2; // Offset slightly
+        greenCrater.rotation.x = Math.PI / 2;
+        greenCrater.name = 'GreenCrater';
+        greenCrater.visible = true;
+        this.scene.add(greenCrater);
+        
+        // Create a bright blue crater
+        const blueGeometry = new THREE.CylinderGeometry(0.1, 0.08, 0.04, 16);
+        const blueMaterial = new THREE.MeshBasicMaterial({
+            color: 0x0000FF, // Bright blue
+            transparent: false
+        });
+        const blueCrater = new THREE.Mesh(blueGeometry, blueMaterial);
+        blueCrater.position.copy(impactPoint);
+        blueCrater.position.z += 0.2; // Offset slightly
+        blueCrater.rotation.x = Math.PI / 2;
+        blueCrater.name = 'BlueCrater';
+        blueCrater.visible = true;
+        this.scene.add(blueCrater);
+        
+        console.log('🔴 Multiple craters created - RED, YELLOW, GREEN, BLUE');
+        console.log('🔴 All craters should be visible on Earth surface');
     }
     
     
-    
-    
+    createFallbackCrater(impactPoint) {
+        // Create a simple, highly visible crater as fallback
+        const fallbackGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.05, 16);
+        const fallbackMaterial = new THREE.MeshBasicMaterial({
+            color: 0xFF0000, // Bright red - impossible to miss
+            transparent: false
+        });
+        
+        const fallbackCrater = new THREE.Mesh(fallbackGeometry, fallbackMaterial);
+        fallbackCrater.position.copy(impactPoint);
+        fallbackCrater.rotation.x = Math.PI / 2;
+        fallbackCrater.name = 'FallbackCrater';
+        fallbackCrater.visible = true;
+        
+        this.scene.add(fallbackCrater);
+        
+        console.log('🔴 Fallback crater created at:', fallbackCrater.position);
+        
+        // Remove fallback crater after 5 seconds
+        setTimeout(() => {
+            if (fallbackCrater.parent) {
+                this.scene.remove(fallbackCrater);
+                console.log('🔴 Fallback crater removed');
+            }
+        }, 5000);
+    }
     
     calculateScientificCraterSize() {
         // Scientific crater scaling based on impact energy
@@ -3359,17 +3288,20 @@ class ImpactorMitigationSimulator {
             failureDetails.remove();
         }
         
-            // Remove any test craters that might still be there
-            const testCrater = this.scene.getObjectByName('TestCrater');
-            if (testCrater) {
-                this.scene.remove(testCrater);
+        // Remove any test craters that might still be there
+        const testCrater = this.scene.getObjectByName('TestCrater');
+        if (testCrater) {
+            this.scene.remove(testCrater);
+        }
+        
+        // Remove any colored test craters
+        const coloredCraters = ['YellowCrater', 'GreenCrater', 'BlueCrater'];
+        coloredCraters.forEach(name => {
+            const crater = this.scene.getObjectByName(name);
+            if (crater) {
+                this.scene.remove(crater);
             }
-            
-            // Remove any manual test craters
-            const manualTestCrater = this.scene.getObjectByName('ManualTestCrater');
-            if (manualTestCrater) {
-                this.scene.remove(manualTestCrater);
-            }
+        });
         
         // Clear results
         if (this.resultsPanel) {
