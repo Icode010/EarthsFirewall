@@ -18,6 +18,7 @@ class AsteroidSelector {
         
         // Load asteroid data
         await this.loadAsteroidData();
+        console.log('🪨 Asteroid data loaded:', this.asteroids);
         
         // Setup preview canvas
         this.setupPreviewCanvas();
@@ -30,6 +31,9 @@ class AsteroidSelector {
         
         this.isInitialized = true;
         console.log('✅ Asteroid selector initialized');
+        
+        // Test dropdown functionality
+        this.testDropdownFunctionality();
     }
 
     async loadAsteroidData() {
@@ -299,6 +303,8 @@ class AsteroidSelector {
             return;
         }
         
+        console.log('🪨 Populating dropdown with asteroids:', this.asteroids);
+        
         // Clear existing options
         select.innerHTML = '<option value="">Select an asteroid...</option>';
         
@@ -307,7 +313,7 @@ class AsteroidSelector {
             const option = document.createElement('option');
             option.value = index;
             
-            // Create enhanced display name
+            // Create enhanced display name with clear asteroid names
             let displayName = asteroid.name || asteroid.designation;
             let displayInfo = `(${asteroid.diameter_km.toFixed(2)} km, ${asteroid.velocity_km_s.toFixed(1)} km/s)`;
             
@@ -323,9 +329,17 @@ class AsteroidSelector {
             
             option.textContent = `${displayName} ${displayInfo}`;
             select.appendChild(option);
+            
+            console.log(`🪨 Added asteroid option: ${displayName}`);
         });
         
+        // Enable the select element
+        select.disabled = false;
+        select.style.pointerEvents = 'auto';
+        
         console.log(`✅ Populated dropdown with ${this.asteroids.length} asteroids`);
+        console.log('🪨 Dropdown element:', select);
+        console.log('🪨 Dropdown options count:', select.options.length);
     }
 
     setupEventListeners() {
@@ -354,6 +368,35 @@ class AsteroidSelector {
         select.addEventListener('focus', (e) => {
             console.log('🪨 Dropdown focused');
         });
+        
+        // Add mousedown event for debugging
+        select.addEventListener('mousedown', (e) => {
+            console.log('🪨 Dropdown mousedown');
+        });
+    }
+
+    // Test dropdown functionality
+    testDropdownFunctionality() {
+        const select = document.getElementById('asteroidSelect');
+        if (!select) {
+            console.error('❌ Cannot test dropdown - element not found');
+            return;
+        }
+        
+        console.log('🧪 Testing dropdown functionality...');
+        console.log('🪨 Dropdown element:', select);
+        console.log('🪨 Dropdown disabled:', select.disabled);
+        console.log('🪨 Dropdown style pointerEvents:', select.style.pointerEvents);
+        console.log('🪨 Dropdown options length:', select.options.length);
+        console.log('🪨 Dropdown value:', select.value);
+        
+        // Test if dropdown can be opened programmatically
+        try {
+            select.focus();
+            console.log('✅ Dropdown focus test passed');
+        } catch (error) {
+            console.error('❌ Dropdown focus test failed:', error);
+        }
     }
 
     selectAsteroid(asteroid) {

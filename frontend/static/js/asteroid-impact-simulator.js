@@ -53,6 +53,7 @@ class AsteroidImpactSimulator {
             await this.initImpactAnimationSystem();
             await this.initSlowApproachAnimation();
             await this.initEarthImpactEffects();
+            await this.initCinematicCamera();
             
             this.animate();
             this.showMessage('Simulator ready! Select an asteroid to begin.', 'success');
@@ -642,6 +643,22 @@ class AsteroidImpactSimulator {
             console.log('Earth impact effects system initialized');
         } catch (error) {
             console.error('Failed to initialize Earth impact effects system:', error);
+        }
+    }
+
+    async initCinematicCamera() {
+        try {
+            console.log('🎬 Initializing cinematic camera system...');
+            
+            if (typeof CinematicCamera === 'undefined') {
+                console.warn('CinematicCamera not available');
+                return;
+            }
+            
+            this.cinematicCamera = new CinematicCamera(this);
+            console.log('🎬 Cinematic camera system initialized');
+        } catch (error) {
+            console.error('Failed to initialize cinematic camera system:', error);
         }
     }
 
@@ -1397,8 +1414,12 @@ class AsteroidImpactSimulator {
                     );
                 }
                 
-                // Start slow approach animation
-                await this.slowApproachAnimation.startSlowApproach(this.currentAsteroid, impactParams);
+                // Start slow approach animation and cinematic camera simultaneously
+                const animationPromise = this.slowApproachAnimation.startSlowApproach(this.currentAsteroid, impactParams);
+                const cameraPromise = this.cinematicCamera ? this.cinematicCamera.startCinematicSequence(this.currentAsteroid, impactParams) : Promise.resolve();
+                
+                // Wait for both to complete
+                await Promise.all([animationPromise, cameraPromise]);
                 
                 // Create Earth damage effects after impact
                 await this.earthImpactEffects.createImpactDamage(this.currentAsteroid, impactParams, impactCalculations);

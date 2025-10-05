@@ -80,7 +80,7 @@ class SlowApproachAnimation {
         
         if (this.simulation.asteroid) {
             this.simulation.asteroid.position.copy(startPosition);
-            this.simulation.asteroid.scale.setScalar(0.05); // Start very small for dramatic effect
+            this.simulation.asteroid.scale.setScalar(0.3); // Start larger for better visibility
             this.simulation.asteroid.visible = true;
             
             // Add realistic rotation to the asteroid
@@ -295,8 +295,8 @@ class SlowApproachAnimation {
                 const easedProgress = 1 - Math.pow(1 - progress, 3);
                 
                 // Scale up asteroid with realistic scaling
-                const targetScale = Math.max(0.3, Math.min(1.5, Math.log(asteroidData.diameter_km + 1) * 0.3));
-                this.simulation.asteroid.scale.setScalar(0.05 + (targetScale - 0.05) * easedProgress);
+                const targetScale = Math.max(0.5, Math.min(2.0, Math.log(asteroidData.diameter_km + 1) * 0.4));
+                this.simulation.asteroid.scale.setScalar(0.3 + (targetScale - 0.3) * easedProgress);
                 
                 // Add realistic rotation based on asteroid data
                 const rotationSpeed = (asteroidData.velocity_km_s || 15) * 0.001;
@@ -683,8 +683,9 @@ class SlowApproachAnimation {
                     this.simulation.asteroid.position.lerpVectors(startPosition, impactPosition, easedProgress);
                     
                     // Scale up as it approaches (dramatic effect)
-                    const scaleMultiplier = 1 + progress * 0.5;
-                    this.simulation.asteroid.scale.setScalar(scaleMultiplier);
+                    const baseScale = Math.max(0.5, Math.min(2.0, Math.log(asteroidData.diameter_km + 1) * 0.4));
+                    const scaleMultiplier = 1 + progress * 0.3;
+                    this.simulation.asteroid.scale.setScalar(baseScale * scaleMultiplier);
                     
                     // Increase rotation speed
                     const rotationSpeed = 0.1 + progress * 0.5;
