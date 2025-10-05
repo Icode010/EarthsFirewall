@@ -2012,7 +2012,12 @@ class ImpactorMitigationSimulator {
         // Update renderer size
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         
-        console.log('📐 Window resized - camera aspect ratio updated');
+        // Force Earth to maintain perfect spherical appearance
+        if (this.earthGroup) {
+            this.earthGroup.scale.set(1, 1, 1); // Ensure uniform scaling
+        }
+        
+        console.log('📐 Window resized - camera aspect ratio updated, Earth maintained as perfect sphere');
     }
     
     updateResults() {
