@@ -70,10 +70,15 @@ class ImpactorMitigationSimulator {
             
             await this.setupThreeJS();
             await this.setupUI();
-            await this.createEarth();
-            await this.createImpactor2025();
-            await this.createTrajectory();
-            await this.setupLighting();
+        await this.createEarth();
+        await this.createImpactor2025();
+        await this.createTrajectory();
+        await this.setupLighting();
+        
+        // Debug: Log scene contents
+        console.log('🔍 Scene contents:', this.scene.children.map(child => child.name || child.type));
+        console.log('🌍 Earth object:', this.earth);
+        console.log('🪨 Asteroid object:', this.impactor2025);
             
             this.animate();
             this.showMessage('Impactor-2025 Mitigation Simulator ready!', 'success');
@@ -89,9 +94,12 @@ class ImpactorMitigationSimulator {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x000011);
         
+        // Add starfield background
+        this.createStarfield();
+        
         // Create camera
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(0, 0, 8);
+        this.camera.position.set(0, 0, 5); // Closer to Earth for better visibility
         
         // Create renderer
         const canvas = document.createElement('canvas');
@@ -162,20 +170,64 @@ class ImpactorMitigationSimulator {
         // Create Earth geometry
         const earthGeometry = new THREE.SphereGeometry(1, 64, 32);
         
-        // Load Earth textures (4K quality)
-        const textureLoader = new THREE.TextureLoader();
-        const earthTexture = textureLoader.load('/static/assets/images/earthmap.jpg');
-        const normalTexture = textureLoader.load('/static/assets/images/earth_normal.jpg');
-        const specularTexture = textureLoader.load('/static/assets/images/earth_specular.jpg');
-        
-        // Create Earth material with PBR
+        // Create Earth material with fallback colors
         const earthMaterial = new THREE.MeshPhongMaterial({
-            map: earthTexture,
-            normalMap: normalTexture,
-            specularMap: specularTexture,
-            shininess: 100,
-            transparent: false
+            color: 0x4a9eff, // Blue Earth color as fallback
         });
+        
+        // Try to load Earth textures, but don't fail if they don't exist
+        try {
+            const textureLoader = new THREE.TextureLoader();
+            
+            // Load Earth texture with error handling
+            textureLoader.load(
+                '/static/assets/images/earthmap.jpg',
+                (texture) => {
+                    earthMaterial.map = texture;
+                    earthMaterial.needsUpdate = true;
+                    console.log('✅ Earth texture loaded');
+                },
+                undefined,
+                (error) => {
+                    console.warn('⚠️ Earth texture not found, using fallback color');
+                }
+            );
+            
+            // Load normal texture
+            textureLoader.load(
+                '/static/assets/images/earth_normal.jpg',
+                (texture) => {
+                    earthMaterial.normalMap = texture;
+                    earthMaterial.needsUpdate = true;
+                    console.log('✅ Earth normal map loaded');
+                },
+                undefined,
+                (error) => {
+                    console.warn('⚠️ Earth normal map not found');
+                }
+            );
+            
+            // Load specular texture
+            textureLoader.load(
+                '/static/assets/images/earth_specular.jpg',
+                (texture) => {
+                    earthMaterial.specularMap = texture;
+                    earthMaterial.needsUpdate = true;
+                    console.log('✅ Earth specular map loaded');
+                },
+                undefined,
+                (error) => {
+                    console.warn('⚠️ Earth specular map not found');
+                }
+            );
+            
+        } catch (error) {
+            console.warn('⚠️ Texture loading failed, using fallback materials');
+        }
+        
+        // Set material properties
+        earthMaterial.shininess = 100;
+        earthMaterial.transparent = false;
         
         // Create Earth mesh
         this.earth = new THREE.Mesh(earthGeometry, earthMaterial);
@@ -185,6 +237,8 @@ class ImpactorMitigationSimulator {
         
         // Add subtle rotation
         this.earth.rotation.y = Math.PI;
+        
+        console.log('🌍 Earth model created and added to scene');
     }
     
     async createImpactor2025() {
@@ -275,22 +329,58 @@ class ImpactorMitigationSimulator {
     }
     
     async setupLighting() {
-        // Ambient light
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+        // Ambient light - brighter to ensure visibility
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
         this.scene.add(ambientLight);
         
-        // Directional light (sun)
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+        // Directional light (sun) - stronger lighting
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
         directionalLight.position.set(5, 5, 5);
         directionalLight.castShadow = true;
         directionalLight.shadow.mapSize.width = 2048;
         directionalLight.shadow.mapSize.height = 2048;
         this.scene.add(directionalLight);
         
+        // Additional fill light
+        const fillLight = new THREE.DirectionalLight(0x4a9eff, 0.3);
+        fillLight.position.set(-3, 2, -3);
+        this.scene.add(fillLight);
+        
         // Point light for asteroid
         const pointLight = new THREE.PointLight(0x4a9eff, 0.5, 10);
         pointLight.position.copy(this.impactor2025.position);
         this.scene.add(pointLight);
+        
+        console.log('💡 Lighting setup complete');
+    }
+    
+    createStarfield() {
+        // Create starfield background
+        const starGeometry = new THREE.BufferGeometry();
+        const starCount = 1000;
+        const positions = new Float32Array(starCount * 3);
+        
+        for (let i = 0; i < starCount * 3; i += 3) {
+            positions[i] = (Math.random() - 0.5) * 2000;
+            positions[i + 1] = (Math.random() - 0.5) * 2000;
+            positions[i + 2] = (Math.random() - 0.5) * 2000;
+        }
+        
+        starGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        
+        const starMaterial = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 0.5,
+            sizeAttenuation: true,
+            transparent: true,
+            opacity: 0.8,
+            alphaTest: 0.1
+        });
+        
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        this.scene.add(stars);
+        
+        console.log('⭐ Starfield created');
     }
     
     onTechniqueChange(technique) {
@@ -298,12 +388,12 @@ class ImpactorMitigationSimulator {
         
         // Update description
         const descriptions = {
-            'none': '<strong>None / Observe:</strong> Baseline trajectory and risk assessment.',
-            'kinetic': '<strong>Kinetic Impactor:</strong> High-speed interceptor impacts asteroid to change velocity. Proven concept (DART mission).',
-            'gravity': '<strong>Gravity Tractor:</strong> Spacecraft hovers near asteroid, using gravity to slowly pull it off course.',
-            'nuclear': '<strong>Nuclear Standoff:</strong> Nuclear detonation near asteroid surface for maximum deflection.',
-            'laser': '<strong>Laser/Solar Ablation:</strong> Focused energy beam heats asteroid surface, creating thrust.',
-            'albedo': '<strong>Albedo Paint:</strong> Change asteroid surface reflectivity to alter thermal radiation forces.'
+            'none': '<strong>None / Observe:</strong> Baseline trajectory and risk.',
+            'kinetic': '<strong>Kinetic Impactor:</strong> Instant push from a high-speed interceptor (DART-style). Best with months+ lead time.',
+            'gravity': '<strong>Gravity Tractor:</strong> Slow pull from a nearby spacecraft. Needs long lead time.',
+            'nuclear': '<strong>Nuclear Standoff:</strong> Strong impulse from a near-surface detonation (no contact).',
+            'laser': '<strong>Laser / Solar Ablation:</strong> Gentle continuous thrust by heating one side.',
+            'albedo': '<strong>Albedo / Yarkovsky Boost:</strong> Tiny long-term drift via surface reflectivity change.'
         };
         
         this.techniqueDescription.innerHTML = `<p>${descriptions[technique]}</p>`;
