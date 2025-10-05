@@ -2796,7 +2796,14 @@ class ImpactorMitigationSimulator {
     handleImpact() {
         console.log('💥 Impact detected!');
         this.isAnimating = false;
+        
+        // Get detailed failure explanation
+        const failureExplanation = this.getMitigationFailureExplanation();
+        
         this.showMessage('IMPACT! Mitigation failed to prevent collision.', 'error');
+        
+        // Show detailed failure explanation
+        this.showFailureDetails(failureExplanation);
         
         // Stop Earth rotation
         this.earthRotationSpeed = 0;
@@ -2832,19 +2839,234 @@ class ImpactorMitigationSimulator {
     }
     
     createImpactCrater() {
-        // Create simple crater geometry
-        const craterGeometry = new THREE.CylinderGeometry(0.2, 0.3, 0.1, 16);
-        const craterMaterial = new THREE.MeshPhongMaterial({
-            color: 0x2a2a2a,
+        // Calculate scientifically accurate crater size
+        const craterData = this.calculateScientificCraterSize();
+        
+        // Get impact point on Earth surface
+        const impactPoint = this.calculateImpactPoint();
+        
+        console.log('🌍 Creating crater at impact point:', impactPoint);
+        console.log('📏 Crater diameter:', craterData.diameter, 'm, depth:', craterData.depth, 'm');
+        
+        // Create scientifically accurate crater geometry
+        const craterGeometry = new THREE.CylinderGeometry(
+            craterData.diameter / 2, // Top radius
+            craterData.diameter / 2.5, // Bottom radius (tapered)
+            craterData.depth, // Depth
+            32 // Higher resolution for realism
+        );
+        
+        const craterMaterial = new THREE.MeshStandardMaterial({
+            color: 0x1a1a1a, // Dark crater material
+            metalness: 0.1,
+            roughness: 0.9,
             transparent: true,
-            opacity: 0.8
+            opacity: 0.9
         });
         
         const crater = new THREE.Mesh(craterGeometry, craterMaterial);
-        crater.position.set(0, 0, 1.01);
-        crater.rotation.x = Math.PI / 2;
+        
+        // Position crater at exact impact point on Earth surface
+        crater.position.copy(impactPoint);
+        crater.rotation.x = Math.PI / 2; // Lay flat on Earth surface
         crater.name = 'ImpactCrater';
+        crater.castShadow = true;
+        crater.receiveShadow = true;
+        
         this.scene.add(crater);
+        
+        // Create crater rim for realism
+        this.createCraterRim(impactPoint, craterData.diameter);
+        
+        // Create ejecta blanket
+        this.createEjectaBlanket(impactPoint, craterData.diameter);
+    }
+    
+    calculateScientificCraterSize() {
+        // Scientific crater scaling based on impact energy
+        const asteroidMass = this.impactorData.mass; // kg
+        const impactVelocity = this.impactorData.velocity; // m/s
+        const impactEnergy = 0.5 * asteroidMass * Math.pow(impactVelocity, 2); // Joules
+        
+        // Convert to TNT equivalent for scaling
+        const tntEquivalent = impactEnergy / (4.184e9); // 1 ton TNT = 4.184 GJ
+        
+        // Scientific crater diameter scaling (Pi-scaling law)
+        // D = 1.161 * (E/ρ)^(1/3) where E is energy and ρ is target density
+        const targetDensity = 2700; // kg/m³ (Earth's crust density)
+        const craterDiameter = 1.161 * Math.pow(impactEnergy / targetDensity, 1/3);
+        
+        // Crater depth is typically 1/5 to 1/3 of diameter
+        const craterDepth = craterDiameter * 0.25;
+        
+        // Scale to 3D scene (Earth radius = 1 unit)
+        const earthRadius = 1.0; // Scene units
+        const earthRadiusMeters = 6371000; // Real Earth radius in meters
+        const scaleFactor = earthRadius / earthRadiusMeters;
+        
+        return {
+            diameter: craterDiameter * scaleFactor,
+            depth: craterDepth * scaleFactor,
+            energy: impactEnergy,
+            tntEquivalent: tntEquivalent
+        };
+    }
+    
+    calculateImpactPoint() {
+        // Calculate where the asteroid actually hits Earth's surface
+        if (!this.impactor2025) {
+            console.error('❌ Cannot calculate impact point - asteroid not found');
+            return new THREE.Vector3(0, 0, 1.01); // Default position
+        }
+        
+        // Get asteroid's final position
+        const asteroidPos = this.impactor2025.position.clone();
+        
+        // Normalize to Earth's surface (radius = 1.0)
+        const earthRadius = 1.0;
+        const impactPoint = asteroidPos.clone().normalize().multiplyScalar(earthRadius + 0.01);
+        
+        console.log('🎯 Asteroid final position:', asteroidPos);
+        console.log('🌍 Calculated impact point:', impactPoint);
+        
+        return impactPoint;
+    }
+    
+    createCraterRim(impactPoint, diameter) {
+        // Create raised rim around crater
+        const rimGeometry = new THREE.TorusGeometry(
+            diameter / 2 + 0.05, // Outer radius
+            0.02, // Tube radius
+            16, // Radial segments
+            8 // Tubular segments
+        );
+        
+        const rimMaterial = new THREE.MeshStandardMaterial({
+            color: 0x3a3a3a,
+            metalness: 0.2,
+            roughness: 0.8
+        });
+        
+        const rim = new THREE.Mesh(rimGeometry, rimMaterial);
+        rim.position.copy(impactPoint);
+        rim.rotation.x = Math.PI / 2;
+        rim.name = 'CraterRim';
+        rim.castShadow = true;
+        rim.receiveShadow = true;
+        
+        this.scene.add(rim);
+    }
+    
+    createEjectaBlanket(impactPoint, diameter) {
+        // Create ejecta blanket around crater
+        const ejectaGeometry = new THREE.CircleGeometry(
+            diameter * 1.5, // Ejecta extends beyond crater
+            32
+        );
+        
+        const ejectaMaterial = new THREE.MeshStandardMaterial({
+            color: 0x2a2a2a,
+            metalness: 0.1,
+            roughness: 0.9,
+            transparent: true,
+            opacity: 0.6
+        });
+        
+        const ejecta = new THREE.Mesh(ejectaGeometry, ejectaMaterial);
+        ejecta.position.copy(impactPoint);
+        ejecta.rotation.x = Math.PI / 2;
+        ejecta.name = 'EjectaBlanket';
+        ejecta.castShadow = true;
+        ejecta.receiveShadow = true;
+        
+        this.scene.add(ejecta);
+    }
+    
+    getMitigationFailureExplanation() {
+        const technique = this.currentTechnique;
+        const deltaV = this.lastDeltaV ? this.lastDeltaV.magnitude : 0;
+        
+        const explanations = {
+            'none': {
+                title: 'No Mitigation Applied',
+                reason: 'No deflection technique was applied to alter the asteroid\'s trajectory.',
+                details: 'The asteroid continued on its original collision course with Earth. Without any intervention, the impact was inevitable.',
+                recommendations: 'Apply a mitigation technique such as Kinetic Impactor, Gravity Tractor, or Nuclear Standoff to deflect the asteroid.'
+            },
+            'kinetic': {
+                title: 'Kinetic Impactor Failed',
+                reason: 'Insufficient delta-v applied or poor timing of impact.',
+                details: `Applied delta-v: ${deltaV.toFixed(2)} m/s. The interceptor may have been too small, hit at wrong angle, or asteroid was too massive to deflect significantly.`,
+                recommendations: 'Increase interceptor mass, improve impact angle, or apply multiple impacts for larger asteroids.'
+            },
+            'gravity': {
+                title: 'Gravity Tractor Failed',
+                reason: 'Insufficient gravitational pull or insufficient time for deflection.',
+                details: `Applied delta-v: ${deltaV.toFixed(2)} m/s. The tractor spacecraft may have been too small, positioned too far away, or didn\'t have enough time to build up significant deflection.`,
+                recommendations: 'Use larger tractor mass, position closer to asteroid, or extend operation time for more cumulative effect.'
+            },
+            'nuclear': {
+                title: 'Nuclear Standoff Failed',
+                reason: 'Insufficient explosive yield or poor positioning.',
+                details: `Applied delta-v: ${deltaV.toFixed(2)} m/s. The nuclear device may have been too small, detonated too far away, or the asteroid was too massive to deflect.`,
+                recommendations: 'Increase yield, position closer to asteroid, or use multiple devices for larger asteroids.'
+            },
+            'laser': {
+                title: 'Laser Ablation Failed',
+                reason: 'Insufficient laser power or insufficient operation time.',
+                details: `Applied delta-v: ${deltaV.toFixed(2)} m/s. The laser may have been too weak, operated for too short a time, or the asteroid\'s surface was too reflective.`,
+                recommendations: 'Increase laser power, extend operation time, or use multiple laser systems for continuous ablation.'
+            },
+            'albedo': {
+                title: 'Albedo Modification Failed',
+                reason: 'Insufficient surface coverage or insufficient time for Yarkovsky effect.',
+                details: `Applied delta-v: ${deltaV.toFixed(2)} m/s. The paint coverage may have been too small, not reflective enough, or insufficient time for thermal effects to build up.`,
+                recommendations: 'Increase surface coverage, use more reflective paint, or extend operation time for cumulative thermal effects.'
+            }
+        };
+        
+        return explanations[technique] || explanations['none'];
+    }
+    
+    showFailureDetails(failureExplanation) {
+        const detailsHTML = `
+            <div class="failure-details" style="
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.95);
+                color: white;
+                padding: 30px;
+                border-radius: 10px;
+                border: 2px solid #e74c3c;
+                max-width: 500px;
+                z-index: 1000;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            ">
+                <h3 style="color: #e74c3c; margin: 0 0 15px 0;">${failureExplanation.title}</h3>
+                <p style="margin: 10px 0; color: #ff6b6b;"><strong>Reason:</strong> ${failureExplanation.reason}</p>
+                <p style="margin: 10px 0; color: #ccc;"><strong>Details:</strong> ${failureExplanation.details}</p>
+                <p style="margin: 10px 0; color: #4a9eff;"><strong>Recommendations:</strong> ${failureExplanation.recommendations}</p>
+                <button onclick="this.parentElement.remove()" style="
+                    background: #e74c3c;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    margin-top: 15px;
+                ">Close</button>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', detailsHTML);
+        
+        // Auto-remove after 10 seconds
+        setTimeout(() => {
+            const details = document.querySelector('.failure-details');
+            if (details) details.remove();
+        }, 10000);
     }
     
     resetSimulation() {
@@ -2870,10 +3092,26 @@ class ImpactorMitigationSimulator {
         // Reset Earth rotation
         this.earthRotationSpeed = 0.001;
         
-        // Clear any impact craters
+        // Clear any impact craters and related elements
         const crater = this.scene.getObjectByName('ImpactCrater');
         if (crater) {
             this.scene.remove(crater);
+        }
+        
+        const craterRim = this.scene.getObjectByName('CraterRim');
+        if (craterRim) {
+            this.scene.remove(craterRim);
+        }
+        
+        const ejectaBlanket = this.scene.getObjectByName('EjectaBlanket');
+        if (ejectaBlanket) {
+            this.scene.remove(ejectaBlanket);
+        }
+        
+        // Remove any failure detail popups
+        const failureDetails = document.querySelector('.failure-details');
+        if (failureDetails) {
+            failureDetails.remove();
         }
         
         // Clear results
