@@ -161,13 +161,19 @@ class ImpactorMitigationSimulator {
             alpha: false,
             preserveDrawingBuffer: false,
             logarithmicDepthBuffer: true,
-            precision: 'highp'
+            precision: 'highp',
+            stencil: false,
+            depth: true
         });
         
         this.renderer.setSize(container.clientWidth, container.clientHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 3)); // Higher pixel ratio for 4K quality
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        
+        // Enhanced anti-aliasing for cleaner edges
+        this.renderer.antialias = true;
+        this.renderer.alpha = false;
         this.renderer.toneMappingExposure = 1.0;
         
         // Ultra-high quality rendering settings
@@ -302,7 +308,7 @@ class ImpactorMitigationSimulator {
         this.earthGroup.name = 'EarthModel';
         
         // Create Earth geometry using IcosahedronGeometry for high quality - perfectly spherical
-        const earthGeometry = new THREE.IcosahedronGeometry(1.0, 14);
+        const earthGeometry = new THREE.IcosahedronGeometry(1.0, 16); // Higher subdivision for ultra-smooth Earth
         
         // Ensure perfect sphere by normalizing vertices
         const positions = earthGeometry.attributes.position;
@@ -363,8 +369,20 @@ class ImpactorMitigationSimulator {
             '/static/assets/images/earthmap.jpg',
             (texture) => {
                 console.log('📸 Earth texture loaded successfully');
-                const earthMaterial = new THREE.MeshPhongMaterial({
-                    map: texture
+                // Enhanced texture filtering for cleaner appearance
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.minFilter = THREE.LinearMipmapLinearFilter;
+                texture.magFilter = THREE.LinearFilter;
+                texture.generateMipmaps = true;
+                
+                const earthMaterial = new THREE.MeshStandardMaterial({
+                    map: texture,
+                    metalness: 0.0,
+                    roughness: 0.8,
+                    envMapIntensity: 1.0,
+                    normalScale: new THREE.Vector2(1, 1),
+                    bumpScale: 0.1
                 });
                 
                 const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
@@ -388,9 +406,18 @@ class ImpactorMitigationSimulator {
             '/static/assets/images/earth_lights.png',
             (texture) => {
                 console.log('📸 Earth lights texture loaded successfully');
+                // Enhanced lights texture filtering
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.minFilter = THREE.LinearMipmapLinearFilter;
+                texture.magFilter = THREE.LinearFilter;
+                texture.generateMipmaps = true;
+                
                 const lightsMaterial = new THREE.MeshBasicMaterial({
                     map: texture,
-                    blending: THREE.AdditiveBlending
+                    blending: THREE.AdditiveBlending,
+                    transparent: true,
+                    alphaTest: 0.1
                 });
                 
                 const lightsMesh = new THREE.Mesh(earthGeometry, lightsMaterial);
@@ -409,11 +436,19 @@ class ImpactorMitigationSimulator {
             '/static/assets/images/cloud_combined.jpg',
             (texture) => {
                 console.log('📸 Cloud texture loaded successfully');
+                // Enhanced cloud texture filtering
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.minFilter = THREE.LinearMipmapLinearFilter;
+                texture.magFilter = THREE.LinearFilter;
+                texture.generateMipmaps = true;
+                
                 const cloudsMaterial = new THREE.MeshStandardMaterial({
                     map: texture,
                     transparent: true,
                     opacity: 0.9,
-                    blending: THREE.AdditiveBlending
+                    blending: THREE.AdditiveBlending,
+                    side: THREE.DoubleSide
                 });
                 
                 const cloudsMesh = new THREE.Mesh(earthGeometry, cloudsMaterial);
@@ -708,7 +743,7 @@ class ImpactorMitigationSimulator {
     
     async createImpactor2025() {
         // Create ultra-high quality irregular asteroid geometry
-        const asteroidGeometry = new THREE.IcosahedronGeometry(0.1, 4);
+        const asteroidGeometry = new THREE.IcosahedronGeometry(0.1, 6); // Higher subdivision for smoother mesh
         
         // Add detailed noise to vertices for ultra-realistic irregular shape
         const vertices = asteroidGeometry.attributes.position.array;
@@ -732,13 +767,15 @@ class ImpactorMitigationSimulator {
         // Create ultra-realistic asteroid material with PBR properties
         const asteroidMaterial = new THREE.MeshStandardMaterial({
             color: 0x8b7355,
-            metalness: 0.1,
-            roughness: 0.9,
+            metalness: 0.0,
+            roughness: 0.95,
             transparent: false,
-            emissive: 0x2a2a2a,
-            emissiveIntensity: 0.05,
-            normalScale: new THREE.Vector2(1, 1),
-            bumpScale: 0.2
+            emissive: 0x1a1a1a,
+            emissiveIntensity: 0.02,
+            normalScale: new THREE.Vector2(0.5, 0.5),
+            bumpScale: 0.1,
+            flatShading: false,
+            side: THREE.FrontSide
         });
         
         // Create asteroid mesh with enhanced properties
@@ -882,6 +919,7 @@ class ImpactorMitigationSimulator {
         sunLight.shadow.bias = -0.0001;
         sunLight.shadow.normalBias = 0.02;
         sunLight.shadow.radius = 4;
+        sunLight.shadow.type = THREE.PCFSoftShadowMap;
         this.scene.add(sunLight);
         
         // Secondary sun light for realistic lighting
