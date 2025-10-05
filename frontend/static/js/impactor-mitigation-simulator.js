@@ -84,6 +84,16 @@ class ImpactorMitigationSimulator {
         console.log('📷 Camera position:', this.camera.position);
         console.log('💡 Lights in scene:', this.scene.children.filter(child => child.isLight).length);
         
+        // Test if objects are visible
+        if (this.earth) {
+            console.log('✅ Earth is visible:', this.earth.visible);
+            console.log('✅ Earth position:', this.earth.position);
+        }
+        if (this.impactor2025) {
+            console.log('✅ Asteroid is visible:', this.impactor2025.visible);
+            console.log('✅ Asteroid position:', this.impactor2025.position);
+        }
+        
         this.showMessage('Impactor-2025 Mitigation Simulator ready!', 'success');
             
         } catch (error) {
@@ -171,7 +181,7 @@ class ImpactorMitigationSimulator {
         this.techniqueSelect = document.getElementById('mitigationTechnique');
         this.techniqueDescription = document.getElementById('techniqueDescription');
         this.techniqueParameters = document.getElementById('techniqueParameters');
-        this.resultsPanel = document.getElementById('mitigationResults');
+        this.resultsPanel = document.getElementById('resultsPanel');
         
         console.log('🔍 UI Elements found:');
         console.log('  - techniqueSelect:', this.techniqueSelect);
@@ -180,11 +190,19 @@ class ImpactorMitigationSimulator {
         console.log('  - resultsPanel:', this.resultsPanel);
         
         if (!this.techniqueSelect) {
-            console.error('❌ techniqueSelect not found!');
+            console.error('❌ techniqueSelect not found! Looking for: mitigationTechnique');
             return;
         }
         if (!this.techniqueDescription) {
-            console.error('❌ techniqueDescription not found!');
+            console.error('❌ techniqueDescription not found! Looking for: techniqueDescription');
+            return;
+        }
+        if (!this.techniqueParameters) {
+            console.error('❌ techniqueParameters not found! Looking for: techniqueParameters');
+            return;
+        }
+        if (!this.resultsPanel) {
+            console.error('❌ resultsPanel not found! Looking for: resultsPanel');
             return;
         }
         
@@ -199,9 +217,31 @@ class ImpactorMitigationSimulator {
         const resetBtn = document.getElementById('resetSimulation');
         const runBtn = document.getElementById('runSimulation');
         
-        if (applyBtn) applyBtn.addEventListener('click', () => this.applyMitigation());
-        if (resetBtn) resetBtn.addEventListener('click', () => this.resetSimulation());
-        if (runBtn) runBtn.addEventListener('click', () => this.runSimulation());
+        console.log('🔍 Buttons found:');
+        console.log('  - applyBtn:', applyBtn);
+        console.log('  - resetBtn:', resetBtn);
+        console.log('  - runBtn:', runBtn);
+        
+        if (applyBtn) {
+            applyBtn.addEventListener('click', () => this.applyMitigation());
+            console.log('✅ Apply button event listener added');
+        } else {
+            console.error('❌ Apply button not found! Looking for: applyMitigation');
+        }
+        
+        if (resetBtn) {
+            resetBtn.addEventListener('click', () => this.resetSimulation());
+            console.log('✅ Reset button event listener added');
+        } else {
+            console.error('❌ Reset button not found! Looking for: resetSimulation');
+        }
+        
+        if (runBtn) {
+            runBtn.addEventListener('click', () => this.runSimulation());
+            console.log('✅ Run button event listener added');
+        } else {
+            console.error('❌ Run button not found! Looking for: runSimulation');
+        }
         
         // Initialize with default technique
         this.onTechniqueChange('none');
@@ -1923,6 +1963,8 @@ class ImpactorMitigationSimulator {
             console.log('🎬 Rendering frame:', this.performanceMonitor.frameCount);
             console.log('🌍 Earth visible:', this.earth ? this.earth.visible : 'null');
             console.log('🪨 Asteroid visible:', this.impactor2025 ? this.impactor2025.visible : 'null');
+            console.log('📷 Camera position:', this.camera.position);
+            console.log('🎯 Scene children count:', this.scene.children.length);
         }
     }
     
