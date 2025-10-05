@@ -319,12 +319,27 @@ class ImpactorMitigationSimulator {
         
         const onTextureError = (error, textureName) => {
             console.error(`❌ Failed to load ${textureName} texture:`, error);
+            // Create fallback Earth if textures fail
+            if (textureName === 'Earth' && !this.earth) {
+                console.log('🔄 Creating fallback Earth without textures...');
+                const fallbackMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x4a9eff, // Ocean blue
+                    emissive: 0x0a1a2a,
+                    emissiveIntensity: 0.1
+                });
+                const fallbackEarth = new THREE.Mesh(earthGeometry, fallbackMaterial);
+                fallbackEarth.name = 'Earth';
+                fallbackEarth.castShadow = true;
+                fallbackEarth.receiveShadow = true;
+                this.earthGroup.add(fallbackEarth);
+                this.earth = fallbackEarth;
+            }
             checkComplete(); // Still count as loaded to avoid hanging
         };
         
         // Load Earth surface texture
         textureLoader.load(
-            '../../Assets/images/earthmap.jpg',
+            '/static/assets/images/earthmap.jpg',
             (texture) => {
                 console.log('📸 Earth texture loaded successfully');
                 const earthMaterial = new THREE.MeshPhongMaterial({
@@ -349,7 +364,7 @@ class ImpactorMitigationSimulator {
         
         // Load Earth lights texture
         textureLoader.load(
-            '../../Assets/images/earth_lights.png',
+            '/static/assets/images/earth_lights.png',
             (texture) => {
                 console.log('📸 Earth lights texture loaded successfully');
                 const lightsMaterial = new THREE.MeshBasicMaterial({
@@ -370,7 +385,7 @@ class ImpactorMitigationSimulator {
         
         // Load cloud texture
         textureLoader.load(
-            '../../Assets/images/cloud_combined.jpg',
+            '/static/assets/images/cloud_combined.jpg',
             (texture) => {
                 console.log('📸 Cloud texture loaded successfully');
                 const cloudsMaterial = new THREE.MeshStandardMaterial({
