@@ -2759,10 +2759,15 @@ class ImpactorMitigationSimulator {
             // Interpolate position
             this.impactor2025.position.lerpVectors(startPosition, endPosition, easedProgress);
             
+            // Debug: Log position every 20% of animation
+            if (Math.floor(progress * 5) !== Math.floor((progress - 0.01) * 5)) {
+                console.log('🚀 Animation progress:', Math.floor(progress * 100) + '%', 'Position:', this.impactor2025.position);
+            }
+            
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
-                console.log('✅ Asteroid approach animation completed');
+                console.log('✅ Asteroid approach animation completed - Final position:', this.impactor2025.position);
                 this.checkImpact();
             }
         };
@@ -2780,11 +2785,14 @@ class ImpactorMitigationSimulator {
         const distance = this.impactor2025.position.length();
         const earthRadius = 1.1; // Slightly larger than Earth for impact detection
         
-        console.log('🔍 Checking impact - Distance:', distance, 'Earth radius:', earthRadius);
+        console.log('🔍 IMPACT CHECK - Asteroid position:', this.impactor2025.position);
+        console.log('🔍 IMPACT CHECK - Distance from center:', distance);
+        console.log('🔍 IMPACT CHECK - Earth radius threshold:', earthRadius);
+        console.log('🔍 IMPACT CHECK - Will impact?', distance < earthRadius);
         
         if (distance < earthRadius) {
             // Impact occurred
-            console.log('💥 Impact detected!');
+            console.log('💥 IMPACT DETECTED! Creating crater now...');
             this.handleImpact();
         } else {
             // Miss - show deflection success
@@ -2872,6 +2880,40 @@ class ImpactorMitigationSimulator {
         
         // Show impact message
         this.showMessage('💥 IMPACT! Crater created at impact site!', 'error');
+        
+        // Add debug button to test crater creation
+        this.addDebugImpactButton();
+    }
+    
+    addDebugImpactButton() {
+        // Create a debug button to test impact manually
+        const debugButton = document.createElement('button');
+        debugButton.textContent = 'DEBUG: Force Impact';
+        debugButton.style.cssText = `
+            position: fixed;
+            top: 50px;
+            left: 10px;
+            z-index: 1000;
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 12px;
+        `;
+        debugButton.onclick = () => {
+            console.log('🧪 DEBUG: Forcing impact test...');
+            this.impactor2025.position.set(0, 0, 0.5); // Move asteroid close to Earth
+            this.checkImpact();
+        };
+        document.body.appendChild(debugButton);
+        
+        // Remove button after 15 seconds
+        setTimeout(() => {
+            if (debugButton.parentNode) {
+                debugButton.parentNode.removeChild(debugButton);
+            }
+        }, 15000);
     }
     
     
