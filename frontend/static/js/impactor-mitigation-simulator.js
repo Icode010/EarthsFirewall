@@ -1000,10 +1000,13 @@ class ImpactorMitigationSimulator {
                 this.techniqueParameters.style.display = 'none';
             }
         } else {
-            if (this.techniqueParameters) {
-                this.techniqueParameters.style.display = 'block';
-                this.createTechniqueParameters(technique);
-            }
+        if (this.techniqueParameters) {
+            this.techniqueParameters.style.display = 'block';
+            this.createTechniqueParameters(technique);
+            
+            // Add real-time parameter change listeners
+            this.addParameterListeners(technique);
+        }
         }
     }
     
@@ -1799,7 +1802,7 @@ class ImpactorMitigationSimulator {
         this.impactor2025.position.add(velocityChange);
         
         // Add some orbital mechanics - the asteroid should curve toward Earth
-        const earthPositionition = new THREE.Vector3(0, 0, 0);
+        const earthPosition = new THREE.Vector3(0, 0, 0);
         const directionToEarth = earthPosition.clone().sub(this.impactor2025.position).normalize();
         const gravityEffect = directionToEarth.multiplyScalar(0.05);
         this.impactor2025.position.add(gravityEffect);
@@ -1863,21 +1866,87 @@ class ImpactorMitigationSimulator {
     }
     
     calculateDeflectionSuccess() {
-        // Calculate how successful the deflection is
+        // Calculate how successful the deflection is based on actual delta-v applied
         const currentPos = this.impactor2025.position;
-        const earthPositionition = new THREE.Vector3(0, 0, 0);
+        const earthPosition = new THREE.Vector3(0, 0, 0);
         const distance = currentPos.distanceTo(earthPosition);
         const earthRadius = 1.1; // Slightly larger than Earth for impact detection
         
+        // Base deflection on distance from Earth
+        let baseSuccess = 0;
         if (distance < earthRadius) {
-            return 0; // Impact
+            baseSuccess = 0; // Impact
         } else if (distance < earthRadius * 1.5) {
-            return 0.3; // Close call
+            baseSuccess = 0.3; // Close call
         } else if (distance < earthRadius * 2) {
-            return 0.7; // Partial deflection
+            baseSuccess = 0.7; // Partial deflection
         } else {
-            return 1.0; // Full deflection
+            baseSuccess = 1.0; // Full deflection
         }
+        
+        // Modify based on delta-v magnitude (higher delta-v = better deflection)
+        if (this.lastDeltaV) {
+            const deltaVEffect = Math.min(this.lastDeltaV.magnitude / 10, 1); // Scale delta-v effect
+            baseSuccess = Math.min(baseSuccess + deltaVEffect * 0.3, 1.0);
+        }
+        
+        return baseSuccess;
+    }
+    
+    getTechniqueDisplayName(technique) {
+        const names = {
+            'none': 'None / Observe',
+            'kinetic': 'Kinetic Impactor (DART-style)',
+            'gravity': 'Gravity Tractor',
+            'nuclear': 'Nuclear Standoff',
+            'laser': 'Laser/Solar Ablation',
+            'albedo': 'Albedo Paint / Yarkovsky'
+        };
+        return names[technique] || technique;
+    }
+    
+    addParameterListeners(technique) {
+        // Add listeners to all parameter inputs for real-time updates
+        const parameterIds = this.getParameterIds(technique);
+        
+        parameterIds.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('input', () => {
+                    this.updateParameterPreview(technique);
+                });
+                element.addEventListener('change', () => {
+                    this.updateParameterPreview(technique);
+                });
+            }
+        });
+    }
+    
+    getParameterIds(technique) {
+        const parameterMap = {
+            'kinetic': ['interceptorMass', 'relativeSpeed', 'leadTime'],
+            'gravity': ['tractorMass', 'hoverDistance', 'duration'],
+            'nuclear': ['yieldLevel', 'standoffDistance', 'nuclearLeadTime'],
+            'laser': ['laserPower', 'activeDays', 'laserLeadTime'],
+            'albedo': ['coveragePercent', 'effectYears', 'albedoLeadTime']
+        };
+        return parameterMap[technique] || [];
+    }
+    
+    updateParameterPreview(technique) {
+        // Show preview of delta-v that would be applied
+        const deltaV = this.calculateDeltaV(technique);
+        const previewText = `Preview: ${deltaV.magnitude.toFixed(3)} m/s delta-v`;
+        
+        // Update or create preview element
+        let previewElement = document.getElementById('parameterPreview');
+        if (!previewElement) {
+            previewElement = document.createElement('div');
+            previewElement.id = 'parameterPreview';
+            previewElement.style.cssText = 'margin-top: 10px; padding: 8px; background: #2a2a2a; border-radius: 4px; font-size: 12px; color: #4a9eff;';
+            this.techniqueParameters.appendChild(previewElement);
+        }
+        previewElement.textContent = previewText;
     }
     
     updateResults() {
