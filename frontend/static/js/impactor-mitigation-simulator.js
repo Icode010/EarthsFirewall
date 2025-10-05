@@ -95,6 +95,31 @@ class ImpactorMitigationSimulator {
         }
         
         this.showMessage('Impactor-2025 Mitigation Simulator ready!', 'success');
+        
+        // Add a visible test indicator to confirm the script is running
+        const testIndicator = document.createElement('div');
+        testIndicator.id = 'test-indicator';
+        testIndicator.style.cssText = `
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: #00ff00;
+            color: #000;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 10000;
+            font-family: monospace;
+            font-size: 12px;
+        `;
+        testIndicator.textContent = '✅ Simulator Loaded - 4K Quality Active';
+        document.body.appendChild(testIndicator);
+        
+        // Remove indicator after 5 seconds
+        setTimeout(() => {
+            if (testIndicator.parentNode) {
+                testIndicator.parentNode.removeChild(testIndicator);
+            }
+        }, 5000);
             
         } catch (error) {
             console.error('Failed to initialize simulator:', error);
