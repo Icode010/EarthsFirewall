@@ -137,7 +137,7 @@ class ImpactorMitigationSimulator {
         
         // Create camera
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        this.camera.position.set(0, 2, 8); // Higher and further back to see both Earth and asteroid
+        this.camera.position.set(-1, 1.5, 8); // Positioned to match the image view
         
         // Create renderer
         const canvas = document.createElement('canvas');
@@ -189,6 +189,7 @@ class ImpactorMitigationSimulator {
         this.controls.minDistance = 3; // Don't get too close
         this.controls.maxDistance = 50; // Allow zooming out to see full scene
         this.controls.maxPolarAngle = Math.PI; // Allow full rotation
+        this.controls.target.set(1.5, 0, 0); // Center view between Earth and asteroid
         this.controls.enableRotate = true;
         this.controls.autoRotate = false;
         
@@ -736,7 +737,7 @@ class ImpactorMitigationSimulator {
         this.impactor2025.visible = true;
         
         // Position asteroid far from Earth
-        this.impactor2025.position.set(4, 1, 0); // Closer and higher for better visibility with Earth
+        this.impactor2025.position.set(4, -0.5, 0); // Positioned to match the image - right side, slightly below Earth
         this.scene.add(this.impactor2025);
         
         // Ensure asteroid is always visible
@@ -787,11 +788,13 @@ class ImpactorMitigationSimulator {
     }
     
     async createTrajectory() {
-        // Create trajectory curve - updated for new asteroid position
+        // Create trajectory curve - matches the image path from Earth to asteroid
         const points = [
-            new THREE.Vector3(4, 1, 0),  // Start position (asteroid)
-            new THREE.Vector3(2, 0.5, 0), // Mid point
-            new THREE.Vector3(0, 0, 0)   // Earth position
+            new THREE.Vector3(0, 0, 0),   // Earth position
+            new THREE.Vector3(1, 0.3, 0), // First curve point
+            new THREE.Vector3(2, 0.5, 0), // Peak of curve
+            new THREE.Vector3(3, 0.2, 0), // Descending curve
+            new THREE.Vector3(4, -0.5, 0) // Asteroid position
         ];
         
         this.originalTrajectory = new THREE.CatmullRomCurve3(points);
@@ -2101,7 +2104,7 @@ class ImpactorMitigationSimulator {
         this.cleanupMitigationEffects();
         
         // Reset asteroid position to original
-        this.impactor2025.position.set(4, 1, 0); // Closer and higher for better visibility with Earth
+        this.impactor2025.position.set(4, -0.5, 0); // Positioned to match the image - right side, slightly below Earth
         
         // Reset trajectory to original
         if (this.trajectory) {
