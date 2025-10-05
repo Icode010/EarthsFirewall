@@ -2848,20 +2848,21 @@ class ImpactorMitigationSimulator {
         console.log('🌍 Creating crater at impact point:', impactPoint);
         console.log('📏 Crater diameter:', craterData.diameter, 'm, depth:', craterData.depth, 'm');
         
-        // Create scientifically accurate crater geometry
+        // Create scientifically accurate crater geometry (scaled up for visibility)
+        const scaleFactor = 100; // Make crater much more visible
         const craterGeometry = new THREE.CylinderGeometry(
-            craterData.diameter / 2, // Top radius
-            craterData.diameter / 2.5, // Bottom radius (tapered)
-            craterData.depth, // Depth
+            (craterData.diameter / 2) * scaleFactor, // Top radius
+            (craterData.diameter / 2.5) * scaleFactor, // Bottom radius (tapered)
+            craterData.depth * scaleFactor, // Depth
             32 // Higher resolution for realism
         );
         
         const craterMaterial = new THREE.MeshStandardMaterial({
-            color: 0x1a1a1a, // Dark crater material
+            color: 0x8B4513, // Brown crater material - more visible
             metalness: 0.1,
             roughness: 0.9,
-            transparent: true,
-            opacity: 0.9
+            transparent: false, // Make it fully opaque
+            opacity: 1.0
         });
         
         const crater = new THREE.Mesh(craterGeometry, craterMaterial);
@@ -2872,14 +2873,49 @@ class ImpactorMitigationSimulator {
         crater.name = 'ImpactCrater';
         crater.castShadow = true;
         crater.receiveShadow = true;
+        crater.visible = true; // Ensure crater is visible
         
         this.scene.add(crater);
+        
+        console.log('🌍 Crater added to scene at position:', crater.position);
+        console.log('🌍 Crater visible:', crater.visible);
+        console.log('🌍 Crater scale:', crater.scale);
         
         // Create crater rim for realism
         this.createCraterRim(impactPoint, craterData.diameter);
         
         // Create ejecta blanket
         this.createEjectaBlanket(impactPoint, craterData.diameter);
+        
+        // Add a simple fallback crater that's guaranteed to be visible
+        this.createFallbackCrater(impactPoint);
+    }
+    
+    createFallbackCrater(impactPoint) {
+        // Create a simple, highly visible crater as fallback
+        const fallbackGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.05, 16);
+        const fallbackMaterial = new THREE.MeshBasicMaterial({
+            color: 0xFF0000, // Bright red - impossible to miss
+            transparent: false
+        });
+        
+        const fallbackCrater = new THREE.Mesh(fallbackGeometry, fallbackMaterial);
+        fallbackCrater.position.copy(impactPoint);
+        fallbackCrater.rotation.x = Math.PI / 2;
+        fallbackCrater.name = 'FallbackCrater';
+        fallbackCrater.visible = true;
+        
+        this.scene.add(fallbackCrater);
+        
+        console.log('🔴 Fallback crater created at:', fallbackCrater.position);
+        
+        // Remove fallback crater after 5 seconds
+        setTimeout(() => {
+            if (fallbackCrater.parent) {
+                this.scene.remove(fallbackCrater);
+                console.log('🔴 Fallback crater removed');
+            }
+        }, 5000);
     }
     
     calculateScientificCraterSize() {
@@ -2942,7 +2978,7 @@ class ImpactorMitigationSimulator {
         );
         
         const rimMaterial = new THREE.MeshStandardMaterial({
-            color: 0x3a3a3a,
+            color: 0x654321, // Brown rim - more visible
             metalness: 0.2,
             roughness: 0.8
         });
@@ -2965,11 +3001,11 @@ class ImpactorMitigationSimulator {
         );
         
         const ejectaMaterial = new THREE.MeshStandardMaterial({
-            color: 0x2a2a2a,
+            color: 0x8B7355, // Brown ejecta - more visible
             metalness: 0.1,
             roughness: 0.9,
             transparent: true,
-            opacity: 0.6
+            opacity: 0.8 // More opaque
         });
         
         const ejecta = new THREE.Mesh(ejectaGeometry, ejectaMaterial);
