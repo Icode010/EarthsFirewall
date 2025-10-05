@@ -57,8 +57,8 @@ function createRealisticEarthModel(scene, position = { x: 0, y: 0, z: 0 }) {
     earthMesh.castShadow = true;
     earthMesh.receiveShadow = true;
     
-    // Apply Earth's axial tilt
-    earthMesh.rotation.x = THREE.MathUtils.degToRad(REALISTIC_EARTH_CONFIG.tiltAngle);
+    // Apply Earth's axial tilt (flipped to correct orientation)
+    earthMesh.rotation.x = THREE.MathUtils.degToRad(REALISTIC_EARTH_CONFIG.tiltAngle + 180);
     
     earthGroup.add(earthMesh);
     
@@ -79,7 +79,7 @@ function createRealisticEarthModel(scene, position = { x: 0, y: 0, z: 0 }) {
     
     const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
     cloudMesh.name = 'Clouds';
-    cloudMesh.rotation.x = THREE.MathUtils.degToRad(REALISTIC_EARTH_CONFIG.tiltAngle);
+    cloudMesh.rotation.x = THREE.MathUtils.degToRad(REALISTIC_EARTH_CONFIG.tiltAngle + 180);
     
     earthGroup.add(cloudMesh);
     
@@ -100,7 +100,7 @@ function createRealisticEarthModel(scene, position = { x: 0, y: 0, z: 0 }) {
     
     const lightsMesh = new THREE.Mesh(lightsGeometry, lightsMaterial);
     lightsMesh.name = 'CityLights';
-    lightsMesh.rotation.x = THREE.MathUtils.degToRad(REALISTIC_EARTH_CONFIG.tiltAngle);
+    lightsMesh.rotation.x = THREE.MathUtils.degToRad(REALISTIC_EARTH_CONFIG.tiltAngle + 180);
     
     earthGroup.add(lightsMesh);
     
@@ -296,8 +296,12 @@ function createEarthCameraControls(camera, renderer, earthGroup) {
         return null;
     }
     
-    // Ensure we have a valid DOM element
-    const domElement = renderer.domElement || document.body;
+    // Ensure we have a valid DOM element - restrict to canvas only
+    const domElement = renderer.domElement;
+    if (!domElement) {
+        console.error('Renderer DOM element not available for controls');
+        return null;
+    }
     const controls = new ControlsClass(camera, domElement);
     
     // Enhanced settings for Earth viewing
