@@ -1731,26 +1731,100 @@ class ImpactorMitigationSimulator {
     createNuclearStandoffEffects() {
         console.log('💥 Creating Nuclear Standoff 3D effects...');
         
-        // Create nuclear device
-        const nukeGeometry = new THREE.SphereGeometry(0.05, 16, 8);
-        const nukeMaterial = new THREE.MeshPhongMaterial({
+        // Create enhanced nuclear device
+        const nukeGeometry = new THREE.SphereGeometry(0.06, 20, 12);
+        const nukeMaterial = new THREE.MeshStandardMaterial({
             color: 0xff0000,
+            metalness: 0.8,
+            roughness: 0.2,
             emissive: 0x440000,
-            shininess: 100
+            emissiveIntensity: 0.6,
+            envMapIntensity: 1.0
         });
         
         const nuke = new THREE.Mesh(nukeGeometry, nukeMaterial);
         nuke.name = 'NuclearDevice';
-        nuke.position.set(0.3, 0, 0); // Near asteroid
+        nuke.position.set(0.4, 0, 0); // Near asteroid
+        nuke.castShadow = true;
+        nuke.receiveShadow = true;
         this.scene.add(nuke);
         
-        // Create countdown timer
+        // Create nuclear warning lights
+        this.createNuclearWarningLights(nuke);
+        
+        // Create countdown timer with enhanced effects
         this.createCountdownTimer();
         
-        // Animate nuclear detonation
+        // Create nuclear field visualization
+        this.createNuclearField(nuke);
+        
+        // Animate nuclear detonation with massive effects
         setTimeout(() => {
             this.animateNuclearDetonation(nuke);
-        }, 3000);
+        }, 4000);
+    }
+    
+    createNuclearWarningLights(nuke) {
+        // Create warning light particles around the nuclear device
+        const lightCount = 20;
+        const particles = new THREE.BufferGeometry();
+        const positions = new Float32Array(lightCount * 3);
+        const colors = new Float32Array(lightCount * 3);
+        
+        for (let i = 0; i < lightCount; i++) {
+            const i3 = i * 3;
+            const angle = (i / lightCount) * Math.PI * 2;
+            const radius = 0.1;
+            
+            positions[i3] = nuke.position.x + Math.cos(angle) * radius;
+            positions[i3 + 1] = nuke.position.y + Math.sin(angle) * radius;
+            positions[i3 + 2] = nuke.position.z + (Math.random() - 0.5) * 0.05;
+            
+            colors[i3] = 1.0; // Red
+            colors[i3 + 1] = 0.0; // No green
+            colors[i3 + 2] = 0.0; // No blue
+        }
+        
+        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        
+        const lightMaterial = new THREE.PointsMaterial({
+            size: 0.01,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const warningLights = new THREE.Points(particles, lightMaterial);
+        warningLights.name = 'NuclearWarningLights';
+        this.scene.add(warningLights);
+    }
+    
+    createNuclearField(nuke) {
+        // Create nuclear field visualization
+        const fieldGeometry = new THREE.SphereGeometry(0.8, 16, 8);
+        const fieldMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff4444,
+            transparent: true,
+            opacity: 0.05,
+            wireframe: true
+        });
+        
+        const field = new THREE.Mesh(fieldGeometry, fieldMaterial);
+        field.name = 'NuclearField';
+        field.position.copy(nuke.position);
+        this.scene.add(field);
+        
+        // Animate field pulsing
+        let pulse = 0;
+        const animateField = () => {
+            pulse += 0.05;
+            field.scale.setScalar(1 + Math.sin(pulse) * 0.1);
+            field.material.opacity = 0.05 + Math.sin(pulse) * 0.02;
+            requestAnimationFrame(animateField);
+        };
+        animateField();
     }
     
     createCountdownTimer() {
@@ -1837,26 +1911,90 @@ class ImpactorMitigationSimulator {
     createLaserAblationEffects() {
         console.log('🔴 Creating Laser Ablation 3D effects...');
         
-        // Create laser source
-        const laserGeometry = new THREE.CylinderGeometry(0.01, 0.01, 0.5, 8);
-        const laserMaterial = new THREE.MeshBasicMaterial({
+        // Create enhanced laser source
+        const laserGeometry = new THREE.CylinderGeometry(0.015, 0.015, 0.6, 12);
+        const laserMaterial = new THREE.MeshStandardMaterial({
             color: 0xff0000,
+            metalness: 0.9,
+            roughness: 0.1,
             emissive: 0xff0000,
-            transparent: true,
-            opacity: 0.8
+            emissiveIntensity: 0.8,
+            envMapIntensity: 1.0
         });
         
         const laser = new THREE.Mesh(laserGeometry, laserMaterial);
         laser.name = 'LaserBeam';
-        laser.position.set(2, 0, 0);
+        laser.position.set(2.5, 0, 0);
         laser.rotation.z = Math.PI / 2;
+        laser.castShadow = true;
+        laser.receiveShadow = true;
         this.scene.add(laser);
         
-        // Create laser beam
+        // Create laser source housing
+        this.createLaserHousing(laser);
+        
+        // Create enhanced laser beam
         this.createLaserBeam(laser);
         
-        // Animate laser heating
+        // Create laser particles
+        this.createLaserParticles(laser);
+        
+        // Animate laser heating with enhanced effects
         this.animateLaserHeating();
+    }
+    
+    createLaserHousing(laser) {
+        // Create housing for the laser source
+        const housingGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+        const housingMaterial = new THREE.MeshStandardMaterial({
+            color: 0x333333,
+            metalness: 0.8,
+            roughness: 0.2
+        });
+        
+        const housing = new THREE.Mesh(housingGeometry, housingMaterial);
+        housing.name = 'LaserHousing';
+        housing.position.copy(laser.position);
+        housing.position.x += 0.3;
+        housing.castShadow = true;
+        housing.receiveShadow = true;
+        this.scene.add(housing);
+    }
+    
+    createLaserParticles(laser) {
+        // Create laser beam particles
+        const particleCount = 100;
+        const particles = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const colors = new Float32Array(particleCount * 3);
+        
+        for (let i = 0; i < particleCount; i++) {
+            const i3 = i * 3;
+            const t = i / particleCount;
+            
+            positions[i3] = laser.position.x - t * 2.5; // From laser to asteroid
+            positions[i3 + 1] = laser.position.y + (Math.random() - 0.5) * 0.02;
+            positions[i3 + 2] = laser.position.z + (Math.random() - 0.5) * 0.02;
+            
+            colors[i3] = 1.0; // Red
+            colors[i3 + 1] = 0.2; // Slight green
+            colors[i3 + 2] = 0.0; // No blue
+        }
+        
+        particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particles.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 0.005,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.9,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const laserParticles = new THREE.Points(particles, particleMaterial);
+        laserParticles.name = 'LaserParticles';
+        this.scene.add(laserParticles);
     }
     
     createLaserBeam(laser) {
@@ -1918,24 +2056,82 @@ class ImpactorMitigationSimulator {
     createAlbedoModificationEffects() {
         console.log('🎨 Creating Albedo Modification 3D effects...');
         
-        // Create paint sprayer
-        const sprayerGeometry = new THREE.ConeGeometry(0.02, 0.1, 8);
-        const sprayerMaterial = new THREE.MeshPhongMaterial({
+        // Create enhanced paint sprayer
+        const sprayerGeometry = new THREE.ConeGeometry(0.025, 0.12, 12);
+        const sprayerMaterial = new THREE.MeshStandardMaterial({
             color: 0xffffff,
+            metalness: 0.7,
+            roughness: 0.3,
             emissive: 0x444444,
-            shininess: 100
+            emissiveIntensity: 0.4,
+            envMapIntensity: 0.8
         });
         
         const sprayer = new THREE.Mesh(sprayerGeometry, sprayerMaterial);
         sprayer.name = 'PaintSprayer';
-        sprayer.position.set(0.2, 0, 0);
+        sprayer.position.set(0.3, 0, 0);
+        sprayer.castShadow = true;
+        sprayer.receiveShadow = true;
         this.scene.add(sprayer);
         
-        // Create paint particles
+        // Create paint sprayer housing
+        this.createSprayerHousing(sprayer);
+        
+        // Create enhanced paint particles
         this.createPaintParticles(sprayer);
         
-        // Animate paint application
+        // Create paint coverage visualization
+        this.createPaintCoverage(sprayer);
+        
+        // Animate paint application with enhanced effects
         this.animatePaintApplication(sprayer);
+    }
+    
+    createSprayerHousing(sprayer) {
+        // Create housing for the paint sprayer
+        const housingGeometry = new THREE.BoxGeometry(0.08, 0.08, 0.08);
+        const housingMaterial = new THREE.MeshStandardMaterial({
+            color: 0x666666,
+            metalness: 0.8,
+            roughness: 0.2
+        });
+        
+        const housing = new THREE.Mesh(housingGeometry, housingMaterial);
+        housing.name = 'SprayerHousing';
+        housing.position.copy(sprayer.position);
+        housing.position.x += 0.05;
+        housing.castShadow = true;
+        housing.receiveShadow = true;
+        this.scene.add(housing);
+    }
+    
+    createPaintCoverage(sprayer) {
+        // Create paint coverage visualization on asteroid
+        const coverageGeometry = new THREE.SphereGeometry(0.1, 16, 8);
+        const coverageMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.3,
+            side: THREE.DoubleSide
+        });
+        
+        const coverage = new THREE.Mesh(coverageGeometry, coverageMaterial);
+        coverage.name = 'PaintCoverage';
+        coverage.position.copy(this.impactor2025.position);
+        coverage.scale.setScalar(1.1);
+        this.scene.add(coverage);
+        
+        // Animate coverage spreading
+        let spread = 0;
+        const animateCoverage = () => {
+            spread += 0.01;
+            coverage.scale.setScalar(1.1 + spread);
+            coverage.material.opacity = 0.3 + spread * 0.1;
+            if (spread < 0.5) {
+                requestAnimationFrame(animateCoverage);
+            }
+        };
+        animateCoverage();
     }
     
     createPaintParticles(sprayer) {
