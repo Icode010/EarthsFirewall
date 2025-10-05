@@ -398,9 +398,37 @@ class ImpactorMitigationSimulator {
                 fallbackEarth.receiveShadow = true;
                 this.earthGroup.add(fallbackEarth);
                 this.earth = fallbackEarth;
+                
+                // Add Earth to scene immediately
+                this.scene.add(this.earthGroup);
+                console.log('🌍 Earth added to scene with fallback material');
             }
             checkComplete(); // Still count as loaded to avoid hanging
         };
+        
+        // Add timeout to ensure Earth is created even if textures fail
+        setTimeout(() => {
+            if (!this.earth) {
+                console.log('⏰ Texture loading timeout - creating fallback Earth...');
+                const fallbackMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x4a9eff, // Ocean blue
+                    emissive: 0x0a1a2a,
+                    emissiveIntensity: 0.1,
+                    shininess: 100
+                });
+                
+                const fallbackEarth = new THREE.Mesh(earthGeometry, fallbackMaterial);
+                fallbackEarth.name = 'Earth';
+                fallbackEarth.castShadow = true;
+                fallbackEarth.receiveShadow = true;
+                this.earthGroup.add(fallbackEarth);
+                this.earth = fallbackEarth;
+                
+                // Add Earth to scene
+                this.scene.add(this.earthGroup);
+                console.log('🌍 Earth added to scene after timeout');
+            }
+        }, 3000); // 3 second timeout
         
         // Load Earth surface texture
         textureLoader.load(
@@ -834,6 +862,26 @@ class ImpactorMitigationSimulator {
         
         // Ensure asteroid is always visible
         console.log('🪨 Asteroid created and added to scene at position:', this.impactor2025.position);
+        
+        // Add fallback asteroid if main one fails
+        setTimeout(() => {
+            if (!this.scene.getObjectByName('Impactor-2025')) {
+                console.log('🪨 Creating fallback asteroid...');
+                const fallbackGeometry = new THREE.SphereGeometry(0.1, 8, 6);
+                const fallbackMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x8b7355,
+                    emissive: 0x4a2c17,
+                    emissiveIntensity: 0.2
+                });
+                
+                const fallbackAsteroid = new THREE.Mesh(fallbackGeometry, fallbackMaterial);
+                fallbackAsteroid.name = 'Impactor-2025';
+                fallbackAsteroid.position.set(4, -0.5, 0);
+                this.scene.add(fallbackAsteroid);
+                this.impactor2025 = fallbackAsteroid;
+                console.log('🪨 Fallback asteroid created');
+            }
+        }, 2000);
         
         // Create asteroid dust trail
         this.createAsteroidDustTrail();
