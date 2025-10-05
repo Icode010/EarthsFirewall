@@ -83,6 +83,12 @@ class ImpactorMitigationSimulator {
         // Force perfect sphere rendering on initialization
         this.forcePerfectSphere();
         
+        // Additional sphere enforcement after a short delay
+        setTimeout(() => {
+            this.forcePerfectSphere();
+            console.log('🌍 Second sphere enforcement applied');
+        }, 1000);
+        
         // Test mitigation techniques after a short delay
         setTimeout(() => {
             this.testMitigationTechniques();
@@ -149,14 +155,17 @@ class ImpactorMitigationSimulator {
         // Create camera with proper aspect ratio calculation
         const aspectRatio = window.innerWidth / window.innerHeight;
         
-        // Adjust FOV based on aspect ratio to maintain perfect sphere
+        // More aggressive FOV adjustment to prevent oval Earth
         let fov = 45;
         if (aspectRatio < 1.0) {
-            // Portrait or narrow screens - reduce FOV to prevent oval Earth
-            fov = 45 * (1.0 / aspectRatio);
+            // Portrait or narrow screens - aggressive FOV reduction
+            fov = 45 * (1.0 / aspectRatio) * 0.85;
         } else if (aspectRatio > 1.8) {
-            // Very wide screens - increase FOV to prevent oval Earth
-            fov = 45 * (aspectRatio / 1.8);
+            // Very wide screens - aggressive FOV increase
+            fov = 45 * (aspectRatio / 1.8) * 1.15;
+        } else if (aspectRatio < 1.5) {
+            // Standard screens - moderate FOV adjustment
+            fov = 45 * (1.5 / aspectRatio) * 0.95;
         }
         
         this.camera = new THREE.PerspectiveCamera(fov, aspectRatio, 0.1, 1000);
@@ -165,6 +174,12 @@ class ImpactorMitigationSimulator {
         // Force perfect sphere rendering regardless of screen size
         this.camera.aspect = aspectRatio;
         this.camera.updateProjectionMatrix();
+        
+        // Additional camera enforcement
+        setTimeout(() => {
+            this.camera.aspect = window.innerWidth / window.innerHeight;
+            this.camera.updateProjectionMatrix();
+        }, 100);
         
         console.log('📐 Camera FOV:', fov, 'Aspect ratio:', aspectRatio, 'Screen size:', window.innerWidth, 'x', window.innerHeight);
         
@@ -2079,25 +2094,42 @@ class ImpactorMitigationSimulator {
         // Force Earth to appear as perfect sphere regardless of screen size
         const aspectRatio = window.innerWidth / window.innerHeight;
         
-        // Recalculate FOV to compensate for aspect ratio
+        // More aggressive FOV compensation for perfect sphere
         let fov = 45;
         if (aspectRatio < 1.0) {
-            fov = 45 * (1.0 / aspectRatio);
+            // Portrait or narrow screens - more aggressive FOV reduction
+            fov = 45 * (1.0 / aspectRatio) * 0.9;
         } else if (aspectRatio > 1.8) {
-            fov = 45 * (aspectRatio / 1.8);
+            // Very wide screens - more aggressive FOV increase
+            fov = 45 * (aspectRatio / 1.8) * 1.1;
+        } else if (aspectRatio < 1.5) {
+            // Standard screens - slight FOV adjustment
+            fov = 45 * (1.5 / aspectRatio);
         }
         
-        // Update camera
+        // Update camera with more precise settings
         this.camera.fov = fov;
         this.camera.aspect = aspectRatio;
         this.camera.updateProjectionMatrix();
         
+        // Force renderer to update
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        
         // Ensure Earth group maintains perfect sphere
         if (this.earthGroup) {
             this.earthGroup.scale.set(1, 1, 1);
+            // Force uniform scaling
+            this.earthGroup.scale.x = 1;
+            this.earthGroup.scale.y = 1;
+            this.earthGroup.scale.z = 1;
         }
         
-        console.log('🌍 Forced perfect sphere - FOV:', fov, 'Aspect ratio:', aspectRatio);
+        // Force Earth mesh to be perfectly spherical
+        if (this.earth) {
+            this.earth.scale.set(1, 1, 1);
+        }
+        
+        console.log('🌍 Forced perfect sphere - FOV:', fov, 'Aspect ratio:', aspectRatio, 'Screen:', window.innerWidth, 'x', window.innerHeight);
     }
     
     // Test method to verify all mitigation techniques work
@@ -2197,7 +2229,7 @@ class ImpactorMitigationSimulator {
     
     calculateMissDistance() {
         const currentPos = this.impactor2025.position;
-        const earthPositionition = new THREE.Vector3(0, 0, 0);
+        const earthPosition = new THREE.Vector3(0, 0, 0);
         const distance = currentPos.distanceTo(earthPosition);
         return distance; // In Earth radii
     }
