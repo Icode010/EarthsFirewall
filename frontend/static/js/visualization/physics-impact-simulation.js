@@ -273,8 +273,6 @@ function createEjecta() {
         size: 0.01,
         vertexColors: true,
         transparent: true,
-        sizeAttenuation: true,
-        alphaTest: 0.1,
         opacity: 0.8
     });
     
@@ -316,8 +314,6 @@ function createImpactParticles() {
         size: 0.02,
         vertexColors: true,
         transparent: true,
-        sizeAttenuation: true,
-        alphaTest: 0.1,
         opacity: 0.9,
         blending: THREE.AdditiveBlending
     });

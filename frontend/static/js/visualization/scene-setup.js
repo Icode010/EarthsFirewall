@@ -274,8 +274,6 @@ function createAmazingStarField() {
         size: 0.5,
         vertexColors: true,
         transparent: true,
-        sizeAttenuation: true,
-        alphaTest: 0.1,
         opacity: 0.8
     });
 

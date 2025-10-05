@@ -202,8 +202,6 @@ function createAsteroidParticleSystem() {
         size: 0.01,
         vertexColors: true,
         transparent: true,
-        sizeAttenuation: true,
-        alphaTest: 0.1,
         opacity: 0.6,
         blending: THREE.AdditiveBlending
     });
@@ -246,8 +244,6 @@ function createAsteroidDebrisField() {
         size: 0.02,
         vertexColors: true,
         transparent: true,
-        sizeAttenuation: true,
-        alphaTest: 0.1,
         opacity: 0.8
     });
     

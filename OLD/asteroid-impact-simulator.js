@@ -1496,9 +1496,6 @@ class AsteroidImpactSimulator {
             return;
         }
         
-        // Hide overlays during simulation
-        this.hideOverlays();
-        
         if (!this.simulationResults) {
             this.showMessage('Please run simulation first!', 'error');
             return;
@@ -1584,24 +1581,11 @@ class AsteroidImpactSimulator {
                 // Clean up any red effects that might remain
                 this.cleanupRedEffects();
                 
-                // Show overlays after simulation
-                this.showOverlays();
-                
-                // Clean up grey squares
-                this.cleanupGreySquares();
-                
                 this.showReplayButton();
             } else if (this.impactAnimationSystem) {
                 console.log('Using standard impact animation system');
                 await this.impactAnimationSystem.startImpactAnimation(this.currentAsteroid, impactParams);
                 this.showMessage('Animation completed!', 'success');
-                
-                // Show overlays after simulation
-                this.showOverlays();
-                
-                // Clean up grey squares
-                this.cleanupGreySquares();
-                
                 this.showReplayButton();
             } else {
                 console.log('Using fallback animation');
@@ -1975,188 +1959,6 @@ class AsteroidImpactSimulator {
                 effect.parent.remove(effect);
             }
         });
-    }
-    
-    // Hide overlays during simulation
-    hideOverlays() {
-        this.scene.traverse((child) => {
-            // Hide by name patterns
-            if (child.name && (
-                child.name.includes('DamageZone') ||
-                child.name.includes('ImpactZone') ||
-                child.name.includes('DamageOverlay') ||
-                child.name.includes('Overlay') ||
-                child.name.includes('3DCrater') ||
-                child.name.includes('CraterRim') ||
-                child.name.includes('EjectaBlanket') ||
-                child.name.includes('CentralCrater') ||
-                child.name.includes('EarthDamageOverlay') ||
-                child.name.includes('3DDamageOverlay') ||
-                child.name.includes('CraterRimTexture') ||
-                child.name.includes('3DDamageTexture') ||
-                child.name.includes('DamageOverlay') ||
-                child.name.includes('ImpactZone') ||
-                child.name.includes('totalDestruction') ||
-                child.name.includes('severeDamage') ||
-                child.name.includes('moderateDamage') ||
-                child.name.includes('lightDamage')
-            )) {
-                child.visible = false;
-            }
-            
-            // Hide red and blue overlay materials
-            if (child.isMesh && child.material && child.material.color) {
-                const colorHex = child.material.color.getHex();
-                // Hide red overlays (0xff0000, 0xff4400, 0xff6600, 0xff6b35, 0xff4757, 0x8b0000)
-                if (colorHex === 0xff0000 || colorHex === 0xff4400 || colorHex === 0xff6600 || 
-                    colorHex === 0xff6b35 || colorHex === 0xff4757 || colorHex === 0x8b0000 ||
-                    colorHex === 0xff4444 || colorHex === 0xff8800 || colorHex === 0xffaa00) {
-                    child.visible = false;
-                }
-                // Hide blue overlays (0x0000ff, 0x0088ff, 0x00aaff, 0x00d4ff, 0x00ffff)
-                if (colorHex === 0x0000ff || colorHex === 0x0088ff || colorHex === 0x00aaff || 
-                    colorHex === 0x00d4ff || colorHex === 0x00ffff || colorHex === 0x0066cc) {
-                    child.visible = false;
-                }
-            }
-        });
-    }
-    
-    // Show overlays after simulation
-    showOverlays() {
-        this.scene.traverse((child) => {
-            // Show by name patterns
-            if (child.name && (
-                child.name.includes('DamageZone') ||
-                child.name.includes('ImpactZone') ||
-                child.name.includes('DamageOverlay') ||
-                child.name.includes('Overlay') ||
-                child.name.includes('3DCrater') ||
-                child.name.includes('CraterRim') ||
-                child.name.includes('EjectaBlanket') ||
-                child.name.includes('CentralCrater') ||
-                child.name.includes('EarthDamageOverlay') ||
-                child.name.includes('3DDamageOverlay') ||
-                child.name.includes('CraterRimTexture') ||
-                child.name.includes('3DDamageTexture') ||
-                child.name.includes('DamageOverlay') ||
-                child.name.includes('ImpactZone') ||
-                child.name.includes('totalDestruction') ||
-                child.name.includes('severeDamage') ||
-                child.name.includes('moderateDamage') ||
-                child.name.includes('lightDamage')
-            )) {
-                child.visible = true;
-            }
-            
-            // Show red and blue overlay materials (but only the ones we want to show)
-            if (child.isMesh && child.material && child.material.color) {
-                const colorHex = child.material.color.getHex();
-                // Show only the 3D crater materials (dark colors)
-                if (colorHex === 0x1a1a1a || colorHex === 0x2a2a2a || colorHex === 0x3a3a3a || 
-                    colorHex === 0x4a4a4a) {
-                    child.visible = true;
-                }
-            }
-        });
-    }
-    
-    // Clean up grey squares and particles after explosion
-    cleanupGreySquares() {
-        this.scene.traverse((child) => {
-            if (child.isPoints && child.material) {
-                // Check for grey particles that might appear as squares
-                const material = child.material;
-                if (material.color && (
-                    material.color.getHex() === 0x666666 ||
-                    material.color.getHex() === 0x888888 ||
-                    material.color.getHex() === 0x999999
-                )) {
-                    // Ensure these particles are circular
-                    material.sizeAttenuation = true;
-                    material.alphaTest = 0.1;
-                    material.transparent = true;
-                }
-            }
-        });
-    }
-    
-    // Clean up blue trajectory and orbital elements
-    cleanupBlueElements() {
-        const blueElementNames = [
-            'OrbitalPath', 'ApproachTrajectory', 'GravitationalField',
-            'Apoapsis', 'Periapsis', 'ImpactZone', 'TrajectoryLine',
-            'OrbitalMechanics', 'TrajectorySystem'
-        ];
-        
-        blueElementNames.forEach(name => {
-            const obj = this.scene.getObjectByName(name);
-            if (obj) {
-                this.scene.remove(obj);
-            }
-        });
-        
-        // Remove blue colored objects
-        this.scene.traverse((child) => {
-            if (child.isMesh && child.material && child.material.color) {
-                const colorHex = child.material.color.getHex();
-                if (colorHex === 0x00aaff || colorHex === 0x00d4ff || 
-                    colorHex === 0x00ffff || colorHex === 0x0088ff) {
-                    if (child.parent) {
-                        child.parent.remove(child);
-                    }
-                }
-            }
-        });
-    }
-    
-    // Clear asteroid overview section
-    clearAsteroidOverview() {
-        // Clear asteroid preview 3D model
-        if (this.asteroidPreview) {
-            this.scene.remove(this.asteroidPreview);
-            this.asteroidPreview = null;
-        }
-        
-        // Clear asteroid visualization
-        if (this.asteroidVisualization) {
-            this.scene.remove(this.asteroidVisualization);
-            this.asteroidVisualization = null;
-        }
-        
-        // Clear asteroid trail
-        if (this.asteroidTrajectory) {
-            this.scene.remove(this.asteroidTrajectory);
-            this.asteroidTrajectory = null;
-        }
-        
-        // Clear asteroid selector preview
-        if (this.asteroidSelector && this.asteroidSelector.clearPreview) {
-            this.asteroidSelector.clearPreview();
-        }
-        
-        // Reset asteroid dropdown to default
-        if (this.asteroidSelect) {
-            this.asteroidSelect.value = '';
-        }
-        
-        // Clear any asteroid-related UI elements
-        const asteroidOverview = document.querySelector('.asteroid-overview');
-        if (asteroidOverview) {
-            asteroidOverview.innerHTML = `
-                <div class="loading-message">
-                    <p>Select an asteroid to see details</p>
-                </div>
-            `;
-        }
-        
-        // Clear asteroid data display
-        const asteroidDataElements = document.querySelectorAll('.asteroid-data, .asteroid-info, .asteroid-details');
-        asteroidDataElements.forEach(element => {
-            element.innerHTML = '';
-        });
-        
-        console.log('🧹 Asteroid overview cleared');
     }
     
     onWindowResize() {

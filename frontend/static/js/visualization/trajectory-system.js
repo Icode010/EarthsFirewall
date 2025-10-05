@@ -339,8 +339,6 @@ class TrajectorySystem {
             color: 0x00ffff,
             size: 0.1,
             opacity: 0.3,
-            sizeAttenuation: true,
-            alphaTest: 0.1,
             transparent: true
         });
         

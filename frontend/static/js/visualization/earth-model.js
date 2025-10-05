@@ -104,11 +104,7 @@ function createStarfield(numStars = 5000) {
     
     const mat = new THREE.PointsMaterial({
         size: 0.2,
-        vertexColors: true,
-        sizeAttenuation: true,
-        transparent: true,
-        opacity: 0.8,
-        alphaTest: 0.1
+        vertexColors: true
     });
     
     const points = new THREE.Points(geo, mat);

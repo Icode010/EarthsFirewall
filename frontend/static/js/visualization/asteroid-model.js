@@ -262,8 +262,6 @@ function createAsteroidParticles(scene, asteroidMesh) {
         color: 0xffffff,
         size: 0.01,
         transparent: true,
-        sizeAttenuation: true,
-        alphaTest: 0.1,
         opacity: 0.8
     });
     
